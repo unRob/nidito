@@ -1,0 +1,14 @@
+[Unit]
+Description=Nomad Agent
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=-/etc/default/nomad
+Restart=on-failure
+ExecStart=/usr/bin/nomad agent -config=/etc/nomad.d
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+- name: "Install wireguard"
+  pacman:
+    name: wireguard
+    state: present
+  notify: restart wireguard
+
+- name: Install wireguard config
+  template:
+    src: "templates/wg0.conf.j2"
+    dest: "/etc/wireguard/wg0.conf"
+    mode: u=rw,g=r,o=
+  notify: restart wireguard

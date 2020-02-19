@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+CONFIG_FILE="${CONFIG_FILE:-../config.yml}"
+
+case $1 in
+  --list)
+    # continue
+    ;;
+  --host)
+    echo "{}"
+    exit 0
+    ;;
+  *)
+    >&2 echo "unknown args: $*"
+    exit 2
+esac
+
+function config_get () {
+  gcy get "$CONFIG_FILE" "$1"
+}
+
+function ymlq () {
+  jq -c "$1" <(echo "$nodes")
+}
+
+function filter () {
+  local filter reduce
+  filter="$1"
+  reduce="${2:-keys}"
+  ymlq "with_entries(select(.value.$filter)) | $reduce"
+}
+
+
+
+# decrypt once
+nodes=$(config_get nodes)
+
+( cat <<JSON
+{
+  "_meta": { 
+    "hostvars": $(ymlq 'with_entries({key: .key, value:{node: .value}})')
+  }
+  ,
+  "dns_nameserver": {
+    "hosts": $(filter 'dns.enabled'),
+    "vars": {
+      "dns": {
+        "leaders":  $(filter 'dns.mode == "leader"' 'map(.address)'),
+        "entries": $(filter 'address' 'to_entries | map(.value = .value.address)')
+      }
+    }
+  },
+  "all": {
+    "hosts": $(ymlq keys),
+    "vars": {
+      "nidito":{
+        "dns": $(config_get dns),
+        "consul": $(config_get consul),
+        "nomad": $(config_get nomad),
+        "networks": $(config_get networks),
+        "filebeat": $(config_get filebeat),
+        "dns_servers": $(filter 'dns.enabled' 'map(.address)')
+      }
+    }
+  },
+JSON
+
+config_get ansible-groups |
+  jq -r 'to_entries | map(.key + "<->" + .value)[]' |
+  while read -r name_filter; do
+    filter_name="${name_filter%%<\->*}"
+    filter_query="${name_filter#*<\->}"
+
+    cat <<JSON
+    "$filter_name": {
+      "hosts": $(filter "$filter_query")
+    },
+JSON
+
+done
+
+cat <<JSON
+  "ungrouped": {
+    "children": []
+  }
+}
+JSON
+) | jq .

@@ -1,0 +1,90 @@
+data_dir = "/var/lib/nomad"
+datacenter = "brooklyn"
+name = "{{ ansible_hostname }}"
+
+bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ nidito.networks.management }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+
+server {
+  enabled          = true
+  heartbeat_grace  = "30s"
+  min_heartbeat_ttl = "20s"
+  # needs to be incremented gradually as servers boot
+  bootstrap_expect = 3
+}
+
+ports {
+  http = "{{ nidito.nomad.ports.http }}"
+  rpc = "{{ nidito.nomad.ports.rpc }}"
+  serf = "{{ nidito.nomad.ports.serf }}"
+}
+
+# https://github.com/perrymanuk/hashi-homelab/blob/master/configs/nomad-server.hcl
+telemetry {
+  disable_hostname = true
+  prometheus_metrics = true
+  publish_allocation_metrics = true
+  publish_node_metrics = true
+  use_node_name = false
+}
+
+client {
+  enabled       = true
+  node_class = "{{ ansible_system }}-{{ ansible_architecture }}"
+  memory_total_mb = {{ node.nomad.memory | default("1000") }}
+  {# nomad 0.10 only #}
+  {# host_volume "shared" {
+    path = "/nidito/data"
+  }
+
+  host_volume "scratch" {
+    path = "/nidito/scratch"
+  } #}
+
+  options {
+    driver.whitelist = "docker,raw_exec"
+  }
+
+  meta {
+    arch = "{{ ansible_system }}"
+    machine = "{{ ansible_architecture }}"
+    reachability = "{{ node.reachability }}"
+    hardware = "{{ node.hardware }}"
+  }
+}
+
+plugin "raw_exec" {
+  config {
+    enabled = true
+  }
+}
+
+plugin "docker" {
+  config {
+    gc {
+      image_delay = "24h"
+    }
+  }
+}
+
+consul {
+  address = "{{ ansible_hostname }}.{{ nidito.dns.zone }}:{{ nidito.consul.ports.http }}"
+  token = "{{ node.consul.token }}"
+
+  auto_advertise = true
+  server_auto_join = true
+  client_auto_join = true
+
+  {# client_service_name = "nomad"
+  server_service_name = "nomad-server" #}
+
+  tags = [
+    "infra",
+    "traefik.enable=true",
+    "traefik.protocol=http",
+    "traefik.frontend.entryPoints=http,https",
+    "traefik.frontend.redirect.entryPoint=https",
+    "traefik.frontend.passHostHeader=false",
+    "traefik.frontend.whiteList.useXForwardedFor=true",
+    "traefik.frontend.whiteList.sourceRange={% for name, address in nidito.networks.items() if name in nidito.consul.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
+  ]
+}

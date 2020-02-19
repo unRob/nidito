@@ -1,0 +1,17 @@
+- when: ansible_pkg_mgr == "homebrew"
+  include: macos.yml
+
+# - when: ansible_pkg_mgr == "unknown"
+#   include: dsm.yml
+
+- when: ansible_pkg_mgr == "pacman"
+  include: arch.yml
+
+- name: Configure filebeat
+  become: true
+  template:
+    src: templates/filebeat.yml.j2
+    dest: "{{ nidito.filebeat.config }}/filebeat.yml"
+    owner: "{{ nidito.filebeat.user }}"
+    mode: u=rw,g=r,o=
+  notify: restart filebeat

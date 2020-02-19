@@ -1,0 +1,40 @@
+- name: Add the _nomad user
+  become: true
+  user:
+    name: _nomad
+    create_home: no
+    shell: /usr/bin/false
+    groups: 
+      - _nidito
+    append: yes
+
+- name: Install nomad
+  homebrew:
+    name: nomad
+    state: present
+
+- name: Create the nomad config directory
+  become: true
+  file:
+    path: "{{ node.nomad.config }}"
+    owner: "{{ node.nomad.user }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Create the nomad data directory
+  become: true
+  file:
+    path: "/var/lib/nomad"
+    owner: "{{ node.nomad.user }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Install nomad launchd config
+  become: yes
+  copy:
+    src: files/service.plist
+    dest: /Library/LaunchDaemons/io.nomad.daemon.plist
+
+

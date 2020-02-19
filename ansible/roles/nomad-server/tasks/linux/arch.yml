@@ -1,0 +1,32 @@
+- name: Get installed version
+  shell: nomad --version | head -n 1 | cut -dv -f2
+  register: installed_nomad_version
+  ignore_errors: yes
+
+- name: Install nomad
+  when: installed_nomad_version.stdout != nomad_config.version
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/nomad_{{ nidito.nomad.version }}_linux_arm.zip"
+    dest: /usr/bin
+
+- name: Install systemd service
+  become: yes
+  copy:
+    src: files/nomad.service
+    dest: /usr/lib/systemd/system/
+
+- name: Create the nomad config directory
+  become: true
+  file:
+    path: "{{ node.nomad.config }}"
+    owner: "{{ node.nomad.user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Enable nomad daemon
+  become: yes
+  systemd:
+    name: nomad
+    enabled: yes

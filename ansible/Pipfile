@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+ansible = "*"
+netaddr = "*"
+dnspython = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+tame = "ansible-playbook playbook.yml --diff"
+inventory = "ansible-inventory --list"

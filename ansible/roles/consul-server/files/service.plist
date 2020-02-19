@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.consul.daemon</string>
+    <key>UserName</key>
+    <string>_consul</string>
+    <key>GroupName</key>
+    <string>_consul</string>
+    <key>Disabled</key>
+    <false/>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/nidito/consul/log/consul.log</string>
+    <key>StandardErrorPath</key>
+    <string>/nidito/consul/log/error.log</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/consul</string>
+        <string>agent</string>
+        <string>-config-dir</string>
+        <string>/nidito/consul</string>
+    </array>
+</dict>
+</plist>

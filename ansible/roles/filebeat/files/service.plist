@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>co.elasti.filebeat.daemon</string>
+    <key>Disabled</key>
+    <false/>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/nidito/filebeat/log/filebeat.log</string>
+    <key>StandardErrorPath</key>
+    <string>/nidito/filebeat/log/error.log</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/filebeat</string>
+        <string>-path.config /nidito/filebeat/config</string>
+    </array>
+</dict>
+</plist>

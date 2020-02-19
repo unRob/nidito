@@ -1,0 +1,10 @@
+- include: "{{ node.platform }}.yml"
+
+- name: Configure nomad
+  become: true
+  template:
+    src: templates/config.hcl.j2
+    dest: "{{ node.nomad.config }}/config.hcl"
+    owner: "{{ node.nomad.user }}"
+    mode: u=rw,g=r,o=
+  notify: restart nomad

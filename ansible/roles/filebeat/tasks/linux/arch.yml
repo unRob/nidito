@@ -1,0 +1,66 @@
+- name: Get installed version
+  shell: /usr/bin/filebeat version | cut -d ' ' -f 3
+  register: installed_version
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != nidito.filebeat.version }}"
+
+- name: Create the filebeat directories
+  when: needs_install
+  become: true
+  file:
+    path: "{{ item }}"
+    owner: "{{ nidito.filebeat.user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+  with_items:
+    - "{{ nidito.filebeat.config }}"
+    - /usr/share/filebeat
+    - /var/lib/filebeat
+    - ~/go/src/github.com/elastic/beats
+
+- name: Checkout our preferred version
+  when: needs_install
+  shell: |
+    cd ~/go/src/github.com/elastic/beats
+    git checkout v{{nidito.filebeat.version}}
+
+- name: Build filebeat
+  when: needs_install
+  shell: |
+    cd ~/go/src/github.com/elastic/beats/filebeat
+    make filebeat
+
+- name: Steal the modules from linux release
+  when: needs_install
+  become: true
+  unarchive: 
+    remote_src: yes
+    src: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-{{ nidito.filebeat.version }}-linux-x86.tar.gz
+    dest: /tmp
+
+- name: Install filebeat
+  when: needs_install
+  become: true
+  shell: |
+    cd /home/{{ ansible_user }}/go/src/github.com/elastic/beats/filebeat
+    mv ./filebeat /usr/bin/filebeat
+    cd /tmp/filebeat-{{ nidito.filebeat.version }}-linux-x86
+    cp ./fields.yml /usr/share/filebeat
+    cp -r ./kibana /usr/share/filebeat
+    cp -r ./module /usr/share/filebeat
+    cp -r ./modules.d /usr/share/filebeat
+  register: restart filebeat
+
+- name: Install systemd service
+  become: yes
+  copy:
+    src: files/nidito.filebeat.service
+    dest: /usr/lib/systemd/system/
+
+- name: Enable filebeat daemon
+  become: yes
+  systemd:
+    name: filebeat
+    enabled: yes

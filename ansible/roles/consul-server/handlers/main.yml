@@ -1,0 +1,19 @@
+- name: Restart consul service
+  when: ansible_pkg_mgr == "homebrew"
+  listen: restart consul
+  become: yes
+  shell: "launchctl stop io.consul.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.consul.daemon.plist"
+
+- name: Restart consul service
+  when: ansible_pkg_mgr == "pacman"
+  listen: restart consul
+  become: yes
+  systemd:
+    name: consul
+    state: restarted
+
+- name: Restart consul service
+  when: ansible_pkg_mgr == "unknown"
+  listen: restart consul
+  become: yes
+  shell: /usr/syno/bin/synopkg restart consul || /usr/syno/bin/synopkg start consul

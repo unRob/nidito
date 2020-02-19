@@ -1,0 +1,20 @@
+zone "{{ nidito.dns.zone }}" {
+    type slave;
+    file "db.{{ nidito.dns.zone }}.zone";
+    masters {
+        {% for leader in dns.leaders %}
+        {{ leader }};
+        {% endfor %}
+    };
+};
+
+key "{{ nidito.dns.key.name }}" {
+    algorithm {{ nidito.dns.key.algorithm.upper() }};
+    secret "{{ nidito.dns.key.material }}";
+};
+
+{% for leader in dns.leaders %}
+server {{ leader }} {
+    keys { {{ nidito.dns.key.name }}; };
+};
+{% endfor %}

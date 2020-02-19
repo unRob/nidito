@@ -1,0 +1,18 @@
+- hosts: platform_macos
+  roles:
+    - server-users
+
+# todo: move dns to router
+- hosts: dns_nameserver
+  roles:
+    - bind-server
+
+- hosts: all
+  roles:
+    # - filebeat
+    # - consul-server
+    - nomad-server
+
+- hosts: public
+  roles:
+    - wireguard

@@ -1,0 +1,23 @@
+- name: Install consul
+  become: yes
+  pacman:
+    name: consul
+    state: present
+
+- name: Get installed version
+  shell: consul --version | head -n 1 | cut -dv -f2
+  register: installed_consul_version
+
+- name: Download a more recent consul version
+  when: installed_consul_version.stdout != consul_config.version
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "https://releases.hashicorp.com/consul/{{ nidito.consul.version }}/consul_{{ nidito.consul.version }}_linux_arm.zip"
+    dest: /usr/bin
+
+- name: Enable consul daemon
+  become: yes
+  systemd:
+    name: consul
+    enabled: yes

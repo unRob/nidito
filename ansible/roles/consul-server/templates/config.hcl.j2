@@ -1,0 +1,74 @@
+datacenter = "brooklyn"
+node_name = "{{ ansible_hostname }}"
+log_level = "warn"
+enable_syslog = true
+data_dir = "/var/lib/consul"
+
+# from https://blog.tjll.net/distributed-homelab-cluster/
+# let only localhost and the docker network talk to the consul client
+bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }}"{% endraw %}
+
+client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
+
+server = true
+ui = {{ node.consul.ui | default("false") }}
+
+retry_join = [ 
+  {% for host in node.consul.peers %}
+  "{{ host }}.{{ nidito.dns.zone }}"{{ "," if not loop.last else "" }}{% endfor %}
+]
+
+# https://learn.hashicorp.com/consul/security-networking/agent-encryption
+encrypt = "{{ nidito.consul.encryption_key }}"
+encrypt_verify_incoming = true
+encrypt_verify_outgoing = true
+
+acl {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+  tokens {
+    default = "{{ node.consul.token }}"
+  }
+}
+
+ports {
+  server = {{ nidito.consul.ports.server }}
+  serf_lan = {{ nidito.consul.ports.serf_lan }}
+  serf_wan = {{ nidito.consul.ports.serf_wan }}
+  dns = {{ nidito.consul.ports.dns }}
+  http = {{ nidito.consul.ports.http }}
+}
+
+# We want to add traefik tags to services after they launch
+# and do so from any agent
+# https://discuss.hashicorp.com/t/remotely-update-service-tags-on-client-node/5807/8
+enable_tag_override = true
+
+{% for svc_name, service in node.consul.http_services.items() %}
+services {
+  id = "{{ svc_name }}"
+  name = "{{ svc_name }}"
+  port = {{ service.port }}
+  tags = [
+    "ansible",
+    "nidito.dns.register=true",
+    "traefik.enable=false",
+    "traefik.protocol=http",
+    "traefik.frontend.entryPoints=http,https",
+    "traefik.frontend.redirect.entryPoint=https",
+    "traefik.frontend.passHostHeader=false",
+    "traefik.frontend.whiteList.useXForwardedFor=true",
+    "traefik.frontend.whiteList.sourceRange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}"
+  ],
+  checks = [
+    {
+      id = "{{ svc_name }}-http-check-{{ service.port }}"
+      name = "{{ svc_name }}-http-check-{{ service.port }}"
+      tcp = "localhost:{{ service.port }}"
+      interval = "30s"
+      timeout = "1s"
+    }
+  ]
+}
+{% endfor %}

@@ -1,0 +1,65 @@
+- name: Get installed version
+  shell: /usr/syno/bin/synopkg version nomad
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    # needs_install: "{{ installed_version.stdout != nomad_version }}"
+    needs_install: false
+    nomad_zip: "nomad_{{ nidito.nomad.version }}_linux_amd64.zip"
+
+- name: Get nomad SPK
+  when: needs_install
+  git:
+    name: https://github.com/numkem/nomad-spk.git
+    dest: /tmp/nomad-spk
+    update: no
+
+- name: Copy nomad patch
+  when: needs_install
+  template:
+    src: "templates/nomad-spk.patch"
+    dest: /tmp/nomad.patch
+    mode: u=rw,g=r,o=
+  
+- name: Apply nomad patch
+  when: needs_install
+  shell: |
+    cd /tmp/nomad-spk
+    git reset --hard
+    git apply ../nomad.patch
+    rm -rf ../nomad.patch
+
+- name: Get nomad binary
+  when: needs_install
+  get_url:
+    url: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/{{ nomad_zip }}"
+    dest: /tmp/
+
+- name: Unzip binary
+  when: needs_install
+  shell: |
+    cd /tmp
+    7z e {{ nomad_zip }}
+    mkdir -p /tmp/nomad-spk/1_create_package/nomad
+    mv -f /tmp/nomad /tmp/nomad-spk/1_create_package/nomad/
+    rm -rf /tmp/{{ nomad_zip }}
+
+- name: Create SPK
+  when: needs_install
+  shell: cd /tmp/nomad-spk; sh ./create_spk.sh
+
+- name: Install SPK
+  when: needs_install
+  become: true
+  shell: /usr/syno/bin/synopkg install /tmp/nomad-spk/nomad.spk
+
+- name: Create the nomad config directory
+  when: needs_install
+  become: true
+  file:
+    path: "{{ node.nomad.config }}"
+    owner: "{{ node.nomad.user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=

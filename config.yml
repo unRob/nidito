@@ -1,0 +1,145 @@
+ansible-groups:
+  platform_arch: 'platform == "linux/arch"'
+  platform_dsm: 'platform == "linux/dsm"'
+  platform_macos: 'platform == "macos"'
+  private: 'reachability == "private"'
+  public: 'reachability == "public"'
+consul:
+  allowed_networks:
+  - management
+  - vpn
+  encryption_key:
+    ciphertext: utp3DmeQIpL6nB/6MBBekfDFvzd2tEFO/h002fSwzv5gkY8NVzCs2ANRoUBgLSnUMxaRuRcde/7Qj0uWCozMabcuooNMNE0KRIo4NZg/0LLTNIVad71vJ0dFyNs=
+    encrypted: true
+    hash: ab19fdadeee3cc7e14aff31d312643125003c7cecddd907d4cd716261cd14042
+  ports:
+    dns: 5553
+    http: 5555
+    serf_lan: 5551
+    serf_wan: 5552
+    server: 5550
+  version: 1.6.1
+crypto:
+  key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
+  provider: password
+dns:
+  tls_challenge_nameserver: ns1.digitalocean.com
+  key:
+    algorithm: hmac-sha512
+    material:
+      ciphertext: 8LLBOpXMESF7PJpWZIGZMA1k4lH8Jxz+oth1mHIKAczfid6apbwiwf4ISQFv1EcE7alb7/DpHcnQxa6LgmnQGmt9kVdP//TyT/d9eYdbtKr8ELhe3nP8hFtF6DPsMUJvGlc8GK1ijv5bECE3iCW8NWPIcRA39hM17+eEM+2o6USn7V/Rogf5uw==
+      encrypted: true
+      hash: 3ab6f6ba1293c4bf095cbdb29524aab9feb35e484e20f27d513d14ae7baf6d1f
+    name: update-key
+  # the fully qualified domain name for my nidito
+  # all services will be a subdomain of this domain
+  zone: nidi.to
+filebeat:
+  config: /usr/share/filebeat
+  user: root
+  version: 7.4.0
+networks:
+  local-network: 10.20.0.0/24
+  management: 10.10.0.0/24
+  vpn: 10.11.11.0/24
+nodes:
+  ajusco:
+    address: 10.10.0.3
+    consul:
+      config: /etc/consul.d
+      peers:
+      - chapultepec
+      - xitle
+      token:
+        ciphertext: EH2JSfIaQ0sMk28ekAO6I+8GmeRnu/5UY2m+tC+pzQ99S2Q1RAm2QEuKDWJ3C5SgwgN4nf0+WbkQqrupMATXcYo7IuYFXJUH/4iK03yc/pHcOPyx
+        encrypted: true
+        hash: 8b3935bd5bedb0253402a7184159196a16359556bbeab23ac1319a2aa018f522
+      user: consul
+    hardware: pixiepro
+    nomad:
+      config: /etc/nomad.d
+      user: nomad
+    platform: linux/arch
+    reachability: public
+  chapultepec:
+    address: 10.10.0.2
+    consul:
+      config: /etc/consul.d
+      http_services:
+        dsm:
+          allowed_networks:
+          - management
+          - vpn
+          port: 5000
+      peers:
+      - ajusco
+      - xitle
+      token:
+        ciphertext: E6stjH/KPhc7Pb4YTCZNPHjs4lMkH00E1/thLQvm1aYCEpIPg7Kmb/9NbAIksID2PFzhfpmNMlZh7Ayoo3QJdv5HpgHJ6Mq7fyWfmxqyXRh1u0j1
+        encrypted: true
+        hash: bff9d99ce97d8137bbce7b2a83d0b90060bfb0527e674b732f00ce30f24d9438
+      user: consul
+    dns:
+      enabled: false
+      location: /usr/local/etc/named
+      mode: leader
+    hardware: dsm918+
+    nomad:
+      config: /etc/nomad
+      memory: 2000
+      user: root
+    platform: linux/dsm
+    reachability: private
+  xitle:
+    address: 10.10.0.4
+    consul:
+      config: /nidito/consul
+      peers:
+      - ajusco
+      - chapultepec
+      token:
+        ciphertext: 3qRxV8v767dqzf23R1uA1ZAbNg4fNa254siADXcfhrK3FCLLliZG4zEyAP3v4dyZIrWS11R15LWEoS5mR8N9CzsL+/kxBiszjrZ+3+Demb7+9nfM
+        encrypted: true
+        hash: 5339b8e20892f38e4bb535898bd7ce973450dc17eb9db26e9fa00279cd72838b
+      user: _consul
+    dns:
+      location: /usr/local/etc
+      enabled: true
+      mode: follower
+    hardware: mbp
+    nomad:
+      config: /nidito/nomad
+      memory: 4000
+      user: _nomad
+    platform: macos
+    reachability: private
+nomad:
+  ports:
+    http: 5560
+    rpc: 5561
+    serf: 5562
+  version: 0.9.5
+wireguard:
+  clients:
+  - public:
+      hash: ef113eb595b64cc0458fbefa1c850a01f15dde616176afcc2fff337b2318323a
+      ciphertext: IyXX30Z/4s1Y6hLcwkAZhvjCZDic0yJE3ONUnaW+bTYjqy2O9JWnHu/oX1ZRIglyTY3oAsQDExUMzscIAeIZTtFE5K+NDfN2MxyH/y0uyxe9YFwRGUmOKAj1ABc=
+      encrypted: true
+    private:
+      encrypted: true
+      hash: 3c6943a934d97f796ae7f68893f93df5cc0791588503c4eeb492aa1c4dab1555
+      ciphertext: HcRm6jMc1seCyHoJskB2Gt4Py0AleH0Ugc68e3yZXvctXPejWxMkOBLq/ZY6nbRXU3hFS5BZ63A7dCmFg7Nc1ewAxRyzzdiGPidJ48T0DHfhxpuiBhQZi8M6mrI=
+  - public:
+      ciphertext: C+/asgFmkEb59DQlVgdDNWYDpWlvhjWXsUVnuixiR5HRT0tceUtXX2p3H5Yxf0BaSNdNmMd2DG6J/gJMaVNsdpzPYxRhjrBlcSrEbyUK/QLA215oj5eA4d7oMUQ=
+      encrypted: true
+      hash: 9f96fbde50ed1a5520e0108738ab4532fb86dcce294bfef89cb66a13e1b6df75
+    private:
+      ciphertext: BX2GOz6dGqb2nATTIBFKzXPNECAUAH1CtkkdWL7Gk0LfG9UNu3Qf8KSAk9EJDPT8ELYh6mgjl1wRsHdudsi5/Z/UoEGLRO0wTI70h3135lwZV3yh50ToLJ2KOoc=
+      encrypted: true
+      hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
+  interface: eth0
+  key:
+    ciphertext: LMx495cguGZfcMsD/Z0s5F2RfYFM80XJAC9dmKzuFLC7Hw8S/zNzu+njIM61L62EclqADy7s+9v1ov1EfoqYVWaihNb7xMK0wptJtqHP3Nm8jLf3IO3Vmr2905c=
+    encrypted: true
+    hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
+  port: 1194

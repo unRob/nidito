@@ -1,0 +1,27 @@
+diff --git a/1_create_package/consul/put_consul_binary_here b/1_create_package/consul/put_consul_binary_here
+deleted file mode 100644
+index e69de29..0000000
+diff --git a/1_create_package/ui/config b/1_create_package/ui/config
+index 6d269fd..c96fe96 100644
+--- a/1_create_package/ui/config
++++ b/1_create_package/ui/config
+@@ -8,7 +8,7 @@
+             "icon": "consul-{0}.png",
+             "protocol": "http",
+             "url": "/",
+-            "port": "8500", 
++            "port": "{{ nidito.consul.ports.http }}", 
+             "grantPrivilege": "local"
+         }
+     }
+diff --git a/2_create_project/scripts/consul.sc b/2_create_project/scripts/consul.sc
+index b91e74a..de63406 100755
+--- a/2_create_project/scripts/consul.sc
++++ b/2_create_project/scripts/consul.sc
+@@ -2,5 +2,5 @@
+ title="consul"
+ desc="consul"
+ port_forward="yes"
+-dst.ports="8500/tcp 8501/tcp"
++dst.ports="{{ nidito.consul.ports.http }}/tcp {{ nidito.consul.ports.serf_lan }}/tcp {{ nidito.consul.ports.serf_lan }}/udp {{ nidito.consul.ports.serf_wan }}/tcp {{ nidito.consul.ports.serf_wan }}/udp {{ nidito.consul.ports.dns }}/udp"
+ 

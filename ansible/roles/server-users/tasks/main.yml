@@ -1,0 +1,5 @@
+- name: Add the _nidito group
+  become: true
+  group:
+    name: _nidito
+    state: present
