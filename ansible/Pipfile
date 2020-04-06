@@ -9,6 +9,8 @@ verify_ssl = true
 ansible = "*"
 netaddr = "*"
 dnspython = "*"
+paramiko = "*"
+config-yourself = {extras = ["password"],version = "*"}
 
 [requires]
 python_version = "3.7"

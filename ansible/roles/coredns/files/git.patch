@@ -1,0 +1,12 @@
+diff --git a/plugin.cfg b/plugin.cfg
+index 3f3dd85..da342d0 100644
+--- a/plugin.cfg
++++ b/plugin.cfg
+@@ -53,6 +53,7 @@ clouddns:clouddns
+ federation:github.com/coredns/federation
+ k8s_external:k8s_external
+ kubernetes:kubernetes
++consul_catalog:github.com/unRob/coredns-consul
+ file:file
+ auto:auto
+ secondary:secondary

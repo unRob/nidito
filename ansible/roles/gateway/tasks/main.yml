@@ -1,0 +1,7 @@
+- name: Configurate the router
+  edgeos_config:
+    src: templates/edgeos.cfg.j2
+    backup: yes
+    backup_options:
+      filename: backup.cfg
+      dir_path: /home/user

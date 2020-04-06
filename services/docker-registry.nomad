@@ -24,19 +24,11 @@ job "docker-registry" {
     task "registry" {
       driver = "docker"
 
+      # run on NAS
       constraint {
         attribute = "${meta.hardware}"
         operator  = "="
-        value     = "dsm918+"
-      }
-
-      template {
-        data = <<EOF
-        AUDIENCE="{{ key /nidito/config/networks/management }},{{ key /nidito/config/networks/vpn }}"
-        EOF
-
-        destination = "secrets/file.env"
-        env         = true
+        value     = "[[ consulKey "/nidito/config/nodes/chapultepec/hardware" ]]"
       }
 
       config {
@@ -47,8 +39,8 @@ job "docker-registry" {
         }
 
         volumes = [
-          "/docker/registry/data:/var/lib/registry",
-          "/docker/registry/config:/etc/docker/registry/"
+          "/nidito/registry/data:/var/lib/registry",
+          "/nidito/registry/config:/etc/docker/registry/"
         ]
       }
 
@@ -65,16 +57,16 @@ job "docker-registry" {
         name = "registry"
         port = "http"
         tags = [
-          "infra",
+          "nidito.infra",
           "nidito.dns.enabled",
           "traefik.enable=true",
-          "traefik.protocol=http",
-          "traefik.frontend.entryPoints=http,https",
-          "traefik.frontend.redirect.entryPoint=https",
-          "traefik.frontend.passHostHeader=false",
-          "traefik.frontend.whiteList.sourceRange=${ env.AUDIENCE }",
-          "traefik.frontend.whiteList.useXForwardedFor=true"
+
+          "traefik.http.routers.registry.rule=Host(`registry.[[ consulKey "/nidito/config/dns/zone" ]]`)",
+          "traefik.http.routers.registry.entrypoints=http,https",
+          "traefik.http.routers.registry.tls=true",
+          "traefik.http.routers.registry.middlewares=trusted-network@consul,https-only@consul",
         ]
+        
         check {
           name     = "alive"
           type     = "tcp"

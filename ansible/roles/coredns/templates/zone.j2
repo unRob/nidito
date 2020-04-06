@@ -1,0 +1,23 @@
+$ORIGIN {{ nidito.dns.zone }}.
+$TTL 1h
+
+@	IN	SOA	{{ dns.servers[0].name }}.{{ nidito.dns.zone }}.	admin.{{ nidito.dns.zone }}	(
+	36	; serial
+	12h	; refresh
+	3m	; retry
+	2w	; expire
+	3h	; minimum
+	)
+	{% for host in dns.servers %}
+	IN NS		{{ host.name }}
+	{% endfor %}
+
+; Nameservers
+{% for host in dns.servers %}
+{{ host.name.ljust(20) }}		5m		IN	A		{{ host.address }}
+{% endfor %}
+
+{% if nidito.dns["tls_challenge_nameserver"] %}
+; Let clients pass letsencrypt's dns challenge
+_acme-challenge		5m		IN	NS		{{ nidito.dns.tls_challenge_nameserver }}
+{% endif %}

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>io.coredns.daemon</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/nidito/coredns/log/coredns.log</string>
+    <key>StandardErrorPath</key>
+    <string>/nidito/coredns/log/error.log</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/coredns</string>
+        <string>-conf</string>
+        <string>{{ node.dns.config }}/Corefile</string>
+    </array>
+</dict>
+</plist>

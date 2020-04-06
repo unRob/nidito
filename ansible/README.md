@@ -1,5 +1,7 @@
 # Ansible setup for nidito
 
+Ansible will make sure essential services are up and running.
+
 ```sh
 # path to top level config
 # These will eventually be processed by bin/inventory to generate
@@ -17,3 +19,17 @@ pipenv run tame -l xitle
 # see the ansible inventory
 pipenv run inventory
 ```
+
+## Essential services
+
+Essential services need to available or the network is unusable. 
+
+- Router config (TBD)
+  - firewall
+  - dmz
+  - dhcp
+  - vlan
+- DNS
+- VPN
+- consul
+- nomad

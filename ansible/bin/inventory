@@ -30,6 +30,11 @@ function filter () {
   ymlq "with_entries(select(.value.$filter)) | $reduce"
 }
 
+function node_tags () {
+  local prop
+  prop="$1"
+  ymlq "to_entries | reduce .[] as \$n ({}; . * { (\$n.value.${prop}): ((.[\$n.value.${prop}] // []) + [\$n.key]) } ) | to_entries | map({ (\"${prop}_\"+(.key | gsub(\"\\\\W\"; \"_\"))): { hosts: .value } }) | add"
+}
 
 
 # decrypt once
@@ -38,15 +43,16 @@ nodes=$(config_get nodes)
 ( cat <<JSON
 {
   "_meta": { 
-    "hostvars": $(ymlq 'with_entries({key: .key, value:{node: .value}})')
+    "hostvars": $(ymlq 'with_entries({key: .key, value: ({node: .value} + .value._ansible) })')
   }
   ,
   "dns_nameserver": {
     "hosts": $(filter 'dns.enabled'),
     "vars": {
       "dns": {
-        "leaders":  $(filter 'dns.mode == "leader"' 'map(.address)'),
-        "entries": $(filter 'address' 'to_entries | map(.value = .value.address)')
+        "servers": $(filter 'dns.enabled' 'to_entries | sort_by(.value.dns.mode != "leader") | map({ name: .key, address: .value.address })'),
+        "hosts": $(filter 'reachability != "gateway"' 'to_entries | map({ name: .key, address: .value.address })'),
+        "consul_servers": $(filter 'consul' 'map(.address)')
       }
     }
   },
@@ -59,30 +65,25 @@ nodes=$(config_get nodes)
         "nomad": $(config_get nomad),
         "networks": $(config_get networks),
         "filebeat": $(config_get filebeat),
-        "dns_servers": $(filter 'dns.enabled' 'map(.address)')
+        "dns_servers": $(filter 'dns.enabled' 'to_entries | sort_by(.value.dns.mode != "leader") | map(.value.address)' )
       }
     }
   },
-JSON
-
-config_get ansible-groups |
-  jq -r 'to_entries | map(.key + "<->" + .value)[]' |
-  while read -r name_filter; do
-    filter_name="${name_filter%%<\->*}"
-    filter_query="${name_filter#*<\->}"
-
-    cat <<JSON
-    "$filter_name": {
-      "hosts": $(filter "$filter_query")
-    },
-JSON
-
-done
-
-cat <<JSON
+  "consul_server": {
+    "hosts": $(filter 'consul')
+  },
+  "nomad_server": {
+    "hosts": $(filter 'nomad')
+  },
   "ungrouped": {
     "children": []
   }
 }
 JSON
-) | jq .
+
+# add dynamic groups for nodes with different properties
+node_tags reachability
+node_tags platform
+
+
+) | jq -s ". | add"

@@ -1,0 +1,51 @@
+- name: Get installed version
+  shell: |
+    /config/coredns/coredns --version | awk -F- '/CoreDNS/ {print $2}'
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != coredns_version }}"
+
+- name: Create the coredns directory
+  become: true
+  file:
+    path: "/config/coredns"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
+- name: Install coredns binary
+  become: true
+  when: needs_install
+  # notify: restart coredns
+  copy:
+    src: "files/{{ node.platform }}/coredns"
+    dest: /config/coredns/coredns
+    mode: u=rwx,g=rwx,o=
+
+- name: Install coredns systemd config
+  become: yes
+  # notify: restart coredns
+  template:
+    src: templates/coredns.service.j2
+    mode: u=rwx,g=rw,o=
+    dest: /etc/systemd/system/coredns.service
+
+- name: Install coredns systemd config backup
+  become: true
+  template:
+    src: templates/coredns.service.j2
+    mode: u=rwx,g=rw,o=
+    dest: /config/coredns/coredns.service
+
+- name: Install edgerouter post-config.d script
+  become: true
+  copy:
+    src: files/post-config.sh
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/post-config.d/coredns.sh
+
+

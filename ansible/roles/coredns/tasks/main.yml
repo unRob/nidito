@@ -1,0 +1,28 @@
+- include: "{{ node.platform }}.yml"
+
+- name: Create config directory
+  become: true
+  file:
+    path: "{{ node.dns.config }}/zones"
+    state: directory
+    recurse: yes
+
+- name: Configure coredns
+  become: true
+  template:
+    src: templates/Corefile.j2
+    owner: coredns
+    group: users
+    dest: "{{ node.dns.config }}/Corefile"
+    mode: u=rw,g=r,o=
+  # notify: restart coredns
+
+- name: Install zones
+  become: true
+  template:
+    src: templates/zone.j2
+    owner: coredns
+    group: users
+    dest: "{{ node.dns.config }}/zones/main"
+    mode: u=rw,g=r,o=
+  # notify: restart coredns

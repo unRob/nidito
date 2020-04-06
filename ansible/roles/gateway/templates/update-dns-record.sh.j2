@@ -1,0 +1,31 @@
+#!/bin/vbash
+
+function externalIP () {
+  /opt/vyatta/bin/vyatta-op-cmd-wrapper show interfaces ethernet eth9 brief |
+    awk '/[0-9]+\s+u\/u/{ sub(/(\/|-).*/, "", $2); print $2; rc=1;}; END { exit !rc }'
+}
+
+function fail () {
+  >&2 echo "error: $1"; exit 2
+}
+
+# get the current dhcp-assigned ip from the router's WAN interface
+currentIP=$(externalIP) || fail "No external IP available"
+# grab the ip set for our domain as seen by our external resolver
+currentRecord=$(host {{ nidito.dns.zone }} {{ nidito.dns.external.forwarders | first }} | awk '/IPv4 address/{print $5}') || fail "Failed fetching current record"
+
+if [[ "$currentRecord" != "$currentIP" ]]; then
+  echo "DNS record for {{ nidito.dns.zone }} is up to date"
+  exit 0
+fi
+
+echo "Triggering record update to $currentIP"
+
+exec curl --fail \
+  -H 'Content-type: application/json' \
+  http://nomad.service.consul:5560/v1/job/dns-update/dispatch \
+  -d@- < cat <<JSON
+{
+  "Payload": "$(base64 <<<"$currentIP")"
+}
+JSON

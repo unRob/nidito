@@ -15,7 +15,8 @@ ui = {{ node.consul.ui | default("false") }}
 
 retry_join = [ 
   {% for host in node.consul.peers %}
-  "{{ host }}.{{ nidito.dns.zone }}"{{ "," if not loop.last else "" }}{% endfor %}
+  "{{ host }}.{{ nidito.dns.zone }}"{{ "," if not loop.last else "" }}
+  {% endfor %}
 ]
 
 # https://learn.hashicorp.com/consul/security-networking/agent-encryption
@@ -40,10 +41,10 @@ ports {
   http = {{ nidito.consul.ports.http }}
 }
 
-# We want to add traefik tags to services after they launch
+{# # We want to add traefik tags to services after they launch
 # and do so from any agent
 # https://discuss.hashicorp.com/t/remotely-update-service-tags-on-client-node/5807/8
-enable_tag_override = true
+enable_tag_override = true #}
 
 {% for svc_name, service in node.consul.http_services.items() %}
 services {
@@ -52,14 +53,20 @@ services {
   port = {{ service.port }}
   tags = [
     "ansible",
-    "nidito.dns.register=true",
-    "traefik.enable=false",
-    "traefik.protocol=http",
-    "traefik.frontend.entryPoints=http,https",
-    "traefik.frontend.redirect.entryPoint=https",
-    "traefik.frontend.passHostHeader=false",
-    "traefik.frontend.whiteList.useXForwardedFor=true",
-    "traefik.frontend.whiteList.sourceRange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}"
+    "nidito.dns.enabled",
+    "traefik.enable=true",
+
+    "traefik.http.routers.{{ svc_name }}.rule=Host(`{{ svc_name }}.{{ nidito.dns.zone }}`)",
+    "traefik.http.routers.{{ svc_name }}.entrypoints=http,https",
+    "traefik.http.routers.{{ svc_name }}.tls=true",
+    "traefik.http.routers.{{ svc_name }}.tls.certresolver=le",
+    "traefik.http.routers.{{ svc_name }}.tls.domains[0].main={{ nidito.dns.zone }}",
+    "traefik.http.routers.{{ svc_name }}.tls.domains[0].sans=*.{{ nidito.dns.zone }}",
+    
+    "traefik.http.middlewares.allowed-ips.ipwhitelist.sourcerange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
+    "traefik.http.middlewares.https-only.redirectscheme.scheme=https",
+
+    "traefik.http.routers.{{ svc_name }}.middlewares=allowed-ips,https-only",
   ],
   checks = [
     {

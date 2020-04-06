@@ -26,14 +26,56 @@ job "http-proxy" {
 
       template {
         data = <<EOF
-CONSUL_HTTP_TOKEN="{{key "/traefik/env/CONSUL_HTTP_TOKEN"}}"
-DO_AUTH_TOKEN="{{key "/traefik/env/DO_AUTH_TOKEN"}}"
-AUDIENCE="{{ key /nidito/config/networks/management }},{{ key /nidito/config/networks/vpn }}"
+CONSUL_HTTP_TOKEN="{{ key "/nidito/service/traefik/consul/token" }}"
+DO_AUTH_TOKEN="{{ key "/nidito/config/dns/external/provider/token" }}"
 EOF
         destination = "secrets/file.env"
         env         = true
       }
 
+      template {
+        data = <<EOF
+[log]
+  level = "INFO"
+
+[certificatesResolvers.le.acme]
+  email = "[[ consulKey "/nidito/config/dns/external/email" ]]"
+  storage = "/acme/acme.json"
+
+  [certificatesResolvers.le.acme.dnsChallenge]
+    provider = "[[ consulKey "/nidito/config/dns/external/provider/name" ]]"
+    resolvers = [[ consulKey "/nidito/config/dns/external/forwarders/_json" ]]
+
+[entrypoints]
+  [entrypoints.http]
+    address = ":80"
+    
+  [entrypoints.https]
+    address = ":443"
+  [entryPoints.https.http.tls]
+    certResolver = "le"
+
+[ping]
+
+[api]
+  dashboard=true
+
+# Store the rest of the config in consul
+[providers.consul]
+  endpoints = ["http://consul.service.consul:[[ consulKey "/nidito/config/consul/ports/http" ]]"]
+
+# Expose consul catalog services
+[providers.consulCatalog]
+  exposedByDefault = false
+  defaultRule = "Host(`{{ .Name }}.[[ consulKey "/nidito/config/dns/zone" ]]`)"
+
+  [providers.consulCatalog.endpoint]
+    address = "http://consul.service.consul:[[ consulKey "/nidito/config/consul/ports/http" ]]"
+EOF
+        destination = "local/traefik.toml"
+      }
+
+      # Run wherever is tagged public
       constraint {
         attribute = "${meta.reachability}"
         operator  = "="
@@ -41,9 +83,7 @@ EOF
       }
 
       config {
-        image = "traefik:v1.7"
-
-        args = []
+        image = "traefik:v2.2"
 
         port_map {
           http = 80
@@ -55,10 +95,10 @@ EOF
           "co.elastic.logs/module" = "traefik"
         }
 
-        // disabled once config is loaded into consul
-        // volumes = [
-        //   "/docker/http-proxy/config:/etc/traefik"
-        // ]
+        volumes = [
+          "local/traefik.toml:/etc/traefik/traefik.toml",
+          "/nidito/http-proxy/acme:/acme",
+        ]
       }
 
       resources {
@@ -82,26 +122,11 @@ EOF
         tags = [
           "public", "edge"
         ]
-        // TODO: enable when i figure out minio
-        // check {
-        //   type     = "http"
-        //   path     = "/"
-        //   interval = "10s"
-        //   timeout  = "2s"
-        // }
       }
 
       service {
         name = "http-proxy"
         port = "http"
-
-        // TODO: enable when i figure out minio
-        // check {
-        //   type     = "http"
-        //   path     = "/"
-        //   interval = "10s"
-        //   timeout  = "2s"
-        // }
       }
 
       service {
@@ -109,15 +134,19 @@ EOF
         port = "api"
 
         tags = [
-          "infra",
+          "nidito.infra",
           "nidito.dns.enabled",
           "traefik.enable=true",
-          "traefik.protocol=http",
-          "traefik.frontend.entryPoints=http,https",
-          "traefik.frontend.redirect.entryPoint=https",
-          "traefik.frontend.passHostHeader=false",
-          "traefik.frontend.whiteList.sourceRange=${ env.AUDIENCE }",
-          "traefik.frontend.whiteList.useXForwardedFor=true"
+
+          "traefik.http.routers.traefik.rule=Host(`traefik.[[ consulKey "/nidito/config/dns/zone" ]]`)",
+          "traefik.http.routers.traefik.entrypoints=http,https",
+          "traefik.http.routers.traefik.tls=true",
+          "traefik.http.routers.traefik.tls.certresolver=le",
+          "traefik.http.routers.traefik.tls.domains[0].main=[[ consulKey "/nidito/config/dns/zone" ]]",
+          "traefik.http.routers.traefik.tls.domains[0].sans=*.[[ consulKey "/nidito/config/dns/zone" ]]",
+          "traefik.http.routers.traefik.service=api@internal",
+
+          "traefik.http.routers.traefik.middlewares=trusted-network@consul,https-only@consul",
         ]
 
         check {

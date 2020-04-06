@@ -43,15 +43,6 @@ job "logs" {
         ]
       }
 
-      template {
-        data = <<EOF
-        AUDIENCE="{{ key /nidito/config/networks/management }},{{ key /nidito/config/networks/vpn }}"
-        EOF
-
-        destination = "secrets/file.env"
-        env         = true
-      }
-
       env {
         "cluster.name" = "nidito"
         "bootstrap.memory_lock" = "true"
@@ -75,14 +66,14 @@ job "logs" {
         name = "elasticsearch"
         port = "http"
         tags = [
-          "infra",
+          "nidito.infra",
           "nidito.dns.enabled",
           "traefik.enable=true",
-          "traefik.protocol=http",
-          "traefik.frontend.entryPoints=http",
-          "traefik.frontend.whiteList.sourceRange=${ env.AUDIENCE }",
-          "traefik.frontend.passHostHeader=false",
-          "traefik.frontend.whiteList.useXForwardedFor=true"
+
+          "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.[[ consulKey "/nidito/config/dns/zone" ]]`)",
+          "traefik.http.routers.elasticsearch.entrypoints=http,https",
+          "traefik.http.routers.elasticsearch.tls=true",
+          "traefik.http.routers.elasticsearch.middlewares=trusted-network@consul",
         ]
         check {
           name     = "alive"

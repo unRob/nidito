@@ -1,18 +1,27 @@
+- hosts: reachability_gateway
+  gather_facts: no
+  roles:
+    - gateway
+    - coredns
+    - wireguard
+
 - hosts: platform_macos
   roles:
     - server-users
 
-# todo: move dns to router
-- hosts: dns_nameserver
+- hosts: platform_linux_dsm
   roles:
-    - bind-server
+    - dsm
+    - plex
 
 - hosts: all
   roles:
-    # - filebeat
-    # - consul-server
-    - nomad-server
+    - filebeat
 
-- hosts: public
+- hosts: consul_server
   roles:
-    - wireguard
+    - consul-server
+
+- hosts: nomad_server
+  roles:
+    - nomad-server

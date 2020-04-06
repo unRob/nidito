@@ -1,0 +1,30 @@
+- name: Get installed version
+  shell: /usr/local/bin/coredns --version | awk -F- '/CoreDNS/ {print $2}'
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != coredns_version }}"
+
+- name: Get coredns binary
+  when: needs_install
+  copy:
+    src: ".cache/{{ node.platform }}/coredns"
+    dest: /usr/local/bin/coredns
+    mode: u=rwx,g=rwx,o=
+
+- name: Create the coredns directory
+  become: true
+  file:
+    path: "{{ node.dns.config }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Install coredns launchd config
+  become: yes
+  template:
+    src: templates/service.plist.j2
+    dest: /Library/LaunchDaemons/io.coredns.daemon.plist
+

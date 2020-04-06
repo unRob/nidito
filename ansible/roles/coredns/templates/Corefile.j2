@@ -1,0 +1,49 @@
+. {
+    forward . {{ nidito.dns.forwarders | join(" ") }}
+    cache
+}
+
+
+# Main zone
+{{ nidito.dns.zone }} {
+    hosts {
+        {% for host in dns.hosts %}{{ host.address }} {{ host.name }}.{{ nidito.dns.zone }}
+        {% endfor %}
+
+        fallthrough
+    }
+
+    consul_catalog nidito.dns.enabled {
+        endpoint 10.10.0.4:{{ nidito.consul.ports.http }}
+        ttl 1m
+    }
+
+    file {{ node.dns.config }}/zones/main
+
+    log
+    errors
+}
+
+consul {
+    # allow only specific networks to query this zone
+    # either way, both consul and the node's firewall should deny
+    # but just in case of computers, and to make my life easier
+    # since now i don't need a custom domain for consul
+    acl {
+        allow net 127.0.0.1/32
+        {% for network in nidito.consul.allowed_networks %}
+        allow net {{ nidito.networks[network] }}
+        {% endfor %}
+        block
+    }
+
+    # Forward all requests to consul
+    # first to ourselves if this server runs consul server too
+    # then to every other consul server
+    forward . {% if node.address in dns.consul_servers %}{{ node.address }}:{{ nidito.consul.ports.dns }}{% endif %}{% for addr in dns.consul_servers if addr != node.address %} {{addr}}:{{ nidito.consul.ports.dns }}{% endfor %} {
+        policy sequential
+    }
+
+    log
+    errors
+}

@@ -1,9 +1,3 @@
-ansible-groups:
-  platform_arch: 'platform == "linux/arch"'
-  platform_dsm: 'platform == "linux/dsm"'
-  platform_macos: 'platform == "macos"'
-  private: 'reachability == "private"'
-  public: 'reachability == "public"'
 consul:
   allowed_networks:
   - management
@@ -23,14 +17,22 @@ crypto:
   key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
   provider: password
 dns:
-  tls_challenge_nameserver: ns1.digitalocean.com
-  key:
-    algorithm: hmac-sha512
-    material:
-      ciphertext: 8LLBOpXMESF7PJpWZIGZMA1k4lH8Jxz+oth1mHIKAczfid6apbwiwf4ISQFv1EcE7alb7/DpHcnQxa6LgmnQGmt9kVdP//TyT/d9eYdbtKr8ELhe3nP8hFtF6DPsMUJvGlc8GK1ijv5bECE3iCW8NWPIcRA39hM17+eEM+2o6USn7V/Rogf5uw==
-      encrypted: true
-      hash: 3ab6f6ba1293c4bf095cbdb29524aab9feb35e484e20f27d513d14ae7baf6d1f
-    name: update-key
+  external:
+    # use this email with letsencrypt
+    email: nidito-traefik@un.rob.mx
+    # when resolving non ${dns.zone} queries, forward to
+    forwarders:
+    - 1.1.1.1
+    - 8.8.8.8
+    # our domain is a registered TLD whose NS point to:
+    nameserver: ns1.digitalocean.com
+    provider:
+      name: digitalocean
+      record-id: "62497256"
+      token:
+        ciphertext: zOmnwZv3HYGhn7kVhFD6IBy0tmE8xdb+bN/6Xria+HHqD3fnQ8L+GIfv6lsV+MYV9kKaCfCRTRUUC6x4BzOB+tDPg1BtG/lFMTSHpm/Q46IX8fhQ8jhcZSbq3UxXfMLDxePJev3sOEp0LjwlUKSdEA==
+        encrypted: true
+        hash: afe6d35ae8fbc96087e14c6c4afd1dede78c68013a158a87186a2b466a71cd62
   # the fully qualified domain name for my nidito
   # all services will be a subdomain of this domain
   zone: nidi.to
@@ -38,9 +40,19 @@ filebeat:
   config: /usr/share/filebeat
   user: root
   version: 7.4.0
+home:
+  location:
+    elevation: 17
+    lat: 40.686174
+    lng: -73.930374
+  time-zone: America/New_York
 networks:
+  # guests and iot
   local-network: 10.20.0.0/24
+  # servers, trusted devices
   management: 10.10.0.0/24
+  # the network for network devices
+  switch: 10.0.0.1/24
   vpn: 10.11.11.0/24
 nodes:
   ajusco:
@@ -56,16 +68,35 @@ nodes:
         hash: 8b3935bd5bedb0253402a7184159196a16359556bbeab23ac1319a2aa018f522
       user: consul
     hardware: pixiepro
+    mac:
+      ciphertext: 7l8hjZ4Gzo3SPZbbhRNKIrwnix+EjSBM9pxxvtz/rvPYoT8XUxvYW/3NVld78cqL704HKoHvd5r7g6QO1V/K7f4=
+      encrypted: true
+      hash: f7462b010db2fce63c45774b5f71b49b9321d831c95607f0d789f89c30238a64
     nomad:
       config: /etc/nomad.d
       user: nomad
     platform: linux/arch
     reachability: public
+  brooklyn:
+    _ansible:
+      ansible_command_timeout: 120
+      ansible_connection: ssh
+      ansible_user: router
+    address: 10.0.0.1
+    dns:
+      config: /home/coredns
+      enabled: true
+      mode: leader
+    hardware: edgerouter-12p
+    platform: linux/edgeos
+    reachability: gateway
   chapultepec:
     address: 10.10.0.2
     consul:
-      config: /etc/consul.d
+      config: /etc/consul
       http_services:
+        # chapultepec exposes its own admin panel stuff
+        # expose that under dsm.nidi.to
         dsm:
           allowed_networks:
           - management
@@ -78,12 +109,12 @@ nodes:
         ciphertext: E6stjH/KPhc7Pb4YTCZNPHjs4lMkH00E1/thLQvm1aYCEpIPg7Kmb/9NbAIksID2PFzhfpmNMlZh7Ayoo3QJdv5HpgHJ6Mq7fyWfmxqyXRh1u0j1
         encrypted: true
         hash: bff9d99ce97d8137bbce7b2a83d0b90060bfb0527e674b732f00ce30f24d9438
-      user: consul
-    dns:
-      enabled: false
-      location: /usr/local/etc/named
-      mode: leader
+      user: root
     hardware: dsm918+
+    mac:
+      ciphertext: iBe2jQjz0Ue1XV9VL2tCVoaYn8jw0tl1vjqt7vyxc9TuWfgW34LMEMUpjTa3bhodU9Ra1/Nu6/PTH19PDAvff6A=
+      encrypted: true
+      hash: 51936351e6b2277c56c7b6424c1bf64e1d0ee694e5bcd6cdbadbb44ebb5fa9ab
     nomad:
       config: /etc/nomad
       memory: 2000
@@ -102,11 +133,11 @@ nodes:
         encrypted: true
         hash: 5339b8e20892f38e4bb535898bd7ce973450dc17eb9db26e9fa00279cd72838b
       user: _consul
-    dns:
-      location: /usr/local/etc
-      enabled: true
-      mode: follower
     hardware: mbp
+    mac:
+      ciphertext: HytShicxgywNDh0p41qWOLpE/CeACfz2wCOMx4GYlKNU8KOKSiEBH1UxtlxUJaOFKx0C04MRlOjgJoGqWDJiMDk=
+      encrypted: true
+      hash: 2174b10ed9202452bbb79213e316c40279880791dc005d7677ce37e8b36b1f29
     nomad:
       config: /nidito/nomad
       memory: 4000
@@ -119,27 +150,160 @@ nomad:
     rpc: 5561
     serf: 5562
   version: 0.9.5
-wireguard:
-  clients:
-  - public:
-      hash: ef113eb595b64cc0458fbefa1c850a01f15dde616176afcc2fff337b2318323a
-      ciphertext: IyXX30Z/4s1Y6hLcwkAZhvjCZDic0yJE3ONUnaW+bTYjqy2O9JWnHu/oX1ZRIglyTY3oAsQDExUMzscIAeIZTtFE5K+NDfN2MxyH/y0uyxe9YFwRGUmOKAj1ABc=
+router:
+  interfaces:
+    bonding:
+    - description: chapultepec
+      hash-policy: layer2
+      mode: 802.3ad
+    ethernet:
+    - bond-group: bond0
+      description: chapultepec 0
+      vlan: 10
+    - bond-group: bond0
+      description: chapultepec 1
+      vlan: 10
+    - description: ajusco
+      vlan: 10
+    - description: xitle
+      vlan: 10
+    - description: "OFF"
+      vlan: 20
+    - description: Apoltivi
+      vlan: 20
+    - description: Hueberto
+      vlan: 20
+    - description: UAP
+      vlans: [20, 10]
+    - description: Emergency
+      address: 192.169.1.1/24
+    - description: Internet
+      address: dhcp
+      firewall in ipv6-name: WANv6_IN
+      firewall in name: WAN_IN
+      firewall local ipv6-name: WANv6_LOCAL
+      firewall local name: WAN_LOCAL
+    - description: "OFF"
+    - description: "OFF"
+    wan: eth9
+  networks:
+    default:
+      address: 192.168.1.0/24
+      lease: 86400
+      size: 20
+    guest:
+      address: 10.20.0.0/24
+      hosts:
+      - name: Apoltivi
+        address: 10.20.0.20
+        mac:
+          ciphertext: yiar7p2IroNyFz4kqBGXUapTTU48vu7jF/LLgeJuXlsf03d97w5bU2Loh8gdLJkmppcWvvgbwPm9J5eLIzr55/c=
+          encrypted: true
+          hash: 81e0033034e9646c61fce3f4b6ed9a943f563bee5d629a770eb9466368e51101
+      - name: Hueberto
+        address: 10.20.0.30
+        mac:
+          hash: 856261d46ca21d660926a776f097442010cc57a81d6ecf4372ff031c9eae1be3
+          ciphertext: Sp9FWN+fI20VzXY9zt5SDdodeyGlsWFmCmEXUHH97DSx4cQ9HTfx5mDxEF5RwE82uVo/LQrHEkPvUOHzEtUzk9o=
+          encrypted: true
+      lease: 86400
+      rules:
+        default: drop
+        in:
+        - description: http
+          action: accept
+          destination group: address-group public-nodes
+          destination port: port-group http
+          log: disable
+          protocol: tcp_udp
+        - description: homekit
+          action: accept
+          destination group: address-group homekit
+          log: disable
+          protocol: all
+        - description: all other traffic to trusted
+          action: drop
+          destination group: network-group trusted
+          log: disable
+          protocol: all
+        local:
+        - action: accept
+          description: 'allow dns'
+          destination: port 53
+          log: disable
+          protocol: tcp_udp
+        - action: accept
+          description: 'allow dhcp'
+          destination: port 67
+          log: disable
+          protocol: udp
+      size: 100
+      vlan: 20
+    trusted:
+      address: 10.10.0.0/24
+      hosts:
+      - name: Tlaloc
+        address: 10.10.0.10
+        mac:
+          hash: 81e0033034e9646c61fce3f4b6ed9a943f563bee5d629a770eb9466368e51101
+          ciphertext: KczKLyf0e5LJtbX74vL4gXLMjUs63vpGeIXY8sIBEBWqb+flIjTkzfNGxJlgsiOewjrpcNLbeK3Pq5Vi3C/QEuE=
+          encrypted: true
+      - name: Chiquihuite
+        address: 10.10.0.11
+        mac:
+          ciphertext: RByB3E3J5BFZtEBA6H0inSZxdlCE0WRkBYVWwvvfbInyo1e3jymVcSJW0EXPBvYGMLMv/AfT3AEMxKNe90Cr3do=
+          encrypted: true
+          hash: 3fae35c0adcb53afbf52ecd3bcbbc413f00edfac3ac6b8b92f826edc2d2d3c15
+      - name: Citlaltepetl
+        address: 10.10.0.12
+        mac:
+          ciphertext: nhWWi8bZP0SaNGDaJFeN1zejzpnssYnPLMAmAnbBvHG1SAHPr078yIYwpHIuwY4F64XNlJtfMbKmW7/hd9hBcI8=
+          encrypted: true
+          hash: 3460a45cbdd95e71fe2637afebc29db7a0292ff95f958c2c644c6d67458442d8
+      - name: Zempoala
+        address: 10.10.0.13
+        mac:
+          hash: 96862d63d71895072c91b99c059a1fa2238b23ad15071e0ae274faa0ed5dc664
+          ciphertext: Oqh41T2/yUvzqf5Z8dUoEISEkiqX7bjA3o2faxhrFzbcbTnjcj0JZdPTY+03Q9LM3TQerEjclriRBl+BGnzQTuE=
+          encrypted: true
+      lease: 3600
+      main: true
+      rules:
+        default: accept
+        in: []
+        local: []
+      size: 100
+      vlan: 10
+services:
+  traefik:
+    # token traefik uses to query consul, supplied by nomad at run time
+    consul: SET_BY_TERRAFORM
+    # secret to use when setting letsencrypt dns records
+    digitalocean:
+      ciphertext: zOmnwZv3HYGhn7kVhFD6IBy0tmE8xdb+bN/6Xria+HHqD3fnQ8L+GIfv6lsV+MYV9kKaCfCRTRUUC6x4BzOB+tDPg1BtG/lFMTSHpm/Q46IX8fhQ8jhcZSbq3UxXfMLDxePJev3sOEp0LjwlUKSdEA==
       encrypted: true
-    private:
-      encrypted: true
-      hash: 3c6943a934d97f796ae7f68893f93df5cc0791588503c4eeb492aa1c4dab1555
-      ciphertext: HcRm6jMc1seCyHoJskB2Gt4Py0AleH0Ugc68e3yZXvctXPejWxMkOBLq/ZY6nbRXU3hFS5BZ63A7dCmFg7Nc1ewAxRyzzdiGPidJ48T0DHfhxpuiBhQZi8M6mrI=
-  - public:
-      ciphertext: C+/asgFmkEb59DQlVgdDNWYDpWlvhjWXsUVnuixiR5HRT0tceUtXX2p3H5Yxf0BaSNdNmMd2DG6J/gJMaVNsdpzPYxRhjrBlcSrEbyUK/QLA215oj5eA4d7oMUQ=
-      encrypted: true
-      hash: 9f96fbde50ed1a5520e0108738ab4532fb86dcce294bfef89cb66a13e1b6df75
-    private:
-      ciphertext: BX2GOz6dGqb2nATTIBFKzXPNECAUAH1CtkkdWL7Gk0LfG9UNu3Qf8KSAk9EJDPT8ELYh6mgjl1wRsHdudsi5/Z/UoEGLRO0wTI70h3135lwZV3yh50ToLJ2KOoc=
+      hash: afe6d35ae8fbc96087e14c6c4afd1dede78c68013a158a87186a2b466a71cd62
+  wireguard:
+    clients:
+    - public:
+        hash: ef113eb595b64cc0458fbefa1c850a01f15dde616176afcc2fff337b2318323a
+        ciphertext: IyXX30Z/4s1Y6hLcwkAZhvjCZDic0yJE3ONUnaW+bTYjqy2O9JWnHu/oX1ZRIglyTY3oAsQDExUMzscIAeIZTtFE5K+NDfN2MxyH/y0uyxe9YFwRGUmOKAj1ABc=
+        encrypted: true
+      private:
+        encrypted: true
+        hash: 3c6943a934d97f796ae7f68893f93df5cc0791588503c4eeb492aa1c4dab1555
+        ciphertext: HcRm6jMc1seCyHoJskB2Gt4Py0AleH0Ugc68e3yZXvctXPejWxMkOBLq/ZY6nbRXU3hFS5BZ63A7dCmFg7Nc1ewAxRyzzdiGPidJ48T0DHfhxpuiBhQZi8M6mrI=
+    - public:
+        ciphertext: C+/asgFmkEb59DQlVgdDNWYDpWlvhjWXsUVnuixiR5HRT0tceUtXX2p3H5Yxf0BaSNdNmMd2DG6J/gJMaVNsdpzPYxRhjrBlcSrEbyUK/QLA215oj5eA4d7oMUQ=
+        encrypted: true
+        hash: 9f96fbde50ed1a5520e0108738ab4532fb86dcce294bfef89cb66a13e1b6df75
+      private:
+        ciphertext: BX2GOz6dGqb2nATTIBFKzXPNECAUAH1CtkkdWL7Gk0LfG9UNu3Qf8KSAk9EJDPT8ELYh6mgjl1wRsHdudsi5/Z/UoEGLRO0wTI70h3135lwZV3yh50ToLJ2KOoc=
+        encrypted: true
+        hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
+    interface: eth0
+    key:
+      ciphertext: LMx495cguGZfcMsD/Z0s5F2RfYFM80XJAC9dmKzuFLC7Hw8S/zNzu+njIM61L62EclqADy7s+9v1ov1EfoqYVWaihNb7xMK0wptJtqHP3Nm8jLf3IO3Vmr2905c=
       encrypted: true
       hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
-  interface: eth0
-  key:
-    ciphertext: LMx495cguGZfcMsD/Z0s5F2RfYFM80XJAC9dmKzuFLC7Hw8S/zNzu+njIM61L62EclqADy7s+9v1ov1EfoqYVWaihNb7xMK0wptJtqHP3Nm8jLf3IO3Vmr2905c=
-    encrypted: true
-    hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
-  port: 1194
+    port: 1194

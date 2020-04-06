@@ -26,7 +26,7 @@ job "kibana" {
       constraint {
         attribute = "${meta.hardware}"
         operator  = "="
-        value     = "dsm918+"
+        value     = "[[ consulKey "/nidito/config/nodes/xitle/hardware" ]]"
       }
 
       config {
@@ -38,8 +38,8 @@ job "kibana" {
       }
 
       env {
-        "SERVER_NAME" = "kibana.nidi.to"
-        "ELASTICSEARCH_HOSTS" = "http://elasticsearch.nidi.to"
+        "SERVER_NAME" = "kibana.[[ consulKey "/nidito/config/dns/zone" ]]"
+        "ELASTICSEARCH_HOSTS" = "http://elasticsearch.[[ consulKey "/nidito/config/dns/zone" ]]"
       }
 
       resources {
@@ -55,14 +55,14 @@ job "kibana" {
         name = "kibana"
         port = "http"
         tags = [
-          "infra",
+          "nidito.infra",
+          "nidito.dns.enabled",
           "traefik.enable=true",
-          "traefik.protocol=http",
-          "traefik.frontend.entryPoints=https,http",
-          "traefik.frontend.redirect.entryPoint=https",
-          "traefik.frontend.passHostHeader=false",
-          "traefik.frontend.whiteList.sourceRange=10.0.0.1/12",
-          "traefik.frontend.whiteList.useXForwardedFor=true"
+
+          "traefik.http.routers.kibana.rule=Host(`kibana.[[ consulKey "/nidito/config/dns/zone" ]]`)",
+          "traefik.http.routers.kibana.entrypoints=http,https",
+          "traefik.http.routers.kibana.tls=true",
+          "traefik.http.routers.kibana.middlewares=trusted-network@consul,http-to-https@consul",
         ]
         check {
           name     = "alive"

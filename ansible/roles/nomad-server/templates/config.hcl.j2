@@ -78,13 +78,6 @@ consul {
   server_service_name = "nomad-server" #}
 
   tags = [
-    "infra",
-    "traefik.enable=true",
-    "traefik.protocol=http",
-    "traefik.frontend.entryPoints=http,https",
-    "traefik.frontend.redirect.entryPoint=https",
-    "traefik.frontend.passHostHeader=false",
-    "traefik.frontend.whiteList.useXForwardedFor=true",
-    "traefik.frontend.whiteList.sourceRange={% for name, address in nidito.networks.items() if name in nidito.consul.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
+    "infra"
   ]
 }

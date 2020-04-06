@@ -1,0 +1,243 @@
+set firewall all-ping enable
+set firewall broadcast-ping disable
+
+# todo: move this into the config
+set firewall group address-group homekit address 10.10.0.11
+set firewall group address-group homekit address 10.10.0.12
+set firewall group address-group homekit address 10.10.0.13
+set firewall group address-group homekit description homekit
+
+set firewall group port-group http port 80
+set firewall group port-group http port 443
+set firewall group port-group http description http
+
+
+{% for node in nidito.nodes if node.reachability == "public" %}
+set firewall group address-group public-nodes address {{ node.address }}
+{% endfor %}
+set firewall group address-group public-nodes description public-nodes
+
+{% for name, net in nidito.router.vlans.items() if net.vlan %}
+set firewall group network-group {{ name }} description '{{ name }} devices vlan'
+set firewall group network-group {{ name }} network {{ net.address }}
+{% endfor %}
+
+
+set firewall ipv6-name WANv6_IN default-action drop
+set firewall ipv6-name WANv6_IN description 'WAN inbound traffic forwarded to LAN'
+set firewall ipv6-name WANv6_IN enable-default-log
+set firewall ipv6-name WANv6_IN rule 10 action accept
+set firewall ipv6-name WANv6_IN rule 10 description 'Allow established/related sessions'
+set firewall ipv6-name WANv6_IN rule 10 state established enable
+set firewall ipv6-name WANv6_IN rule 10 state related enable
+set firewall ipv6-name WANv6_IN rule 20 action drop
+set firewall ipv6-name WANv6_IN rule 20 description 'Drop invalid state'
+set firewall ipv6-name WANv6_IN rule 20 state invalid enable
+
+set firewall ipv6-name WANv6_LOCAL default-action drop
+set firewall ipv6-name WANv6_LOCAL description 'WAN inbound traffic to the router'
+set firewall ipv6-name WANv6_LOCAL enable-default-log
+set firewall ipv6-name WANv6_LOCAL rule 10 action accept
+set firewall ipv6-name WANv6_LOCAL rule 10 description 'Allow established/related sessions'
+set firewall ipv6-name WANv6_LOCAL rule 10 state established enable
+set firewall ipv6-name WANv6_LOCAL rule 10 state related enable
+set firewall ipv6-name WANv6_LOCAL rule 20 action drop
+set firewall ipv6-name WANv6_LOCAL rule 20 description 'Drop invalid state'
+set firewall ipv6-name WANv6_LOCAL rule 20 state invalid enable
+set firewall ipv6-name WANv6_LOCAL rule 30 action accept
+set firewall ipv6-name WANv6_LOCAL rule 30 description 'Allow IPv6 icmp'
+set firewall ipv6-name WANv6_LOCAL rule 30 protocol ipv6-icmp
+set firewall ipv6-name WANv6_LOCAL rule 40 action accept
+set firewall ipv6-name WANv6_LOCAL rule 40 description 'allow dhcpv6'
+set firewall ipv6-name WANv6_LOCAL rule 40 destination port 546
+set firewall ipv6-name WANv6_LOCAL rule 40 protocol udp
+set firewall ipv6-name WANv6_LOCAL rule 40 source port 547
+set firewall ipv6-receive-redirects disable
+set firewall ipv6-src-route disable
+set firewall ip-src-route disable
+set firewall log-martians disable
+
+set firewall name WAN_IN default-action drop
+set firewall name WAN_IN description 'WAN to internal'
+set firewall name WAN_IN rule 10 action accept
+set firewall name WAN_IN rule 10 description 'Allow established/related'
+set firewall name WAN_IN rule 10 state established enable
+set firewall name WAN_IN rule 10 state related enable
+set firewall name WAN_IN rule 20 action drop
+set firewall name WAN_IN rule 20 description 'Drop invalid state'
+set firewall name WAN_IN rule 20 state invalid enable
+
+set firewall name WAN_LOCAL default-action drop
+set firewall name WAN_LOCAL description 'WAN to router'
+set firewall name WAN_LOCAL rule 10 action accept
+set firewall name WAN_LOCAL rule 10 description 'Allow established/related'
+set firewall name WAN_LOCAL rule 10 state established enable
+set firewall name WAN_LOCAL rule 10 state related enable
+set firewall name WAN_LOCAL rule 20 action drop
+set firewall name WAN_LOCAL rule 20 description 'Drop invalid state'
+set firewall name WAN_LOCAL rule 20 state invalid enable
+set firewall name WAN_LOCAL rule 21 action drop
+set firewall name WAN_LOCAL rule 21 description mdns
+set firewall name WAN_LOCAL rule 21 destination port 5353
+set firewall name WAN_LOCAL rule 21 log disable
+set firewall name WAN_LOCAL rule 21 protocol udp
+
+{% for name, net in nidito.router.vlans.items() if net.vlan %}
+
+# in
+set firewall name {{ name }}_in default-action accept
+set firewall name {{ name }}_in description ''
+{% for idx, rule in net.rules.in.items() %}
+{% for k, v in rule.items() %}
+set firewall name {{ name }}_in rule {{ 10 + idx }} {{ k }} {{ v }}
+{% endfor %}
+{% endfor %}
+
+# local 
+set firewall name {{ name }}_local default-action {{ net.rules.default }}
+set firewall name {{ name }}_local description ''
+{% for idx, rule in net.rules.local.items() %}
+{% for k, v in rule.items() %}
+set firewall name {{ name }}_local rule {{ 10 + idx }} {{ k }} {{ v }}
+{% endfor %}
+{% endfor %}
+
+{% endfor %}
+
+set firewall receive-redirects disable
+set firewall send-redirects enable
+set firewall source-validation disable
+set firewall syn-cookies enable
+
+{% for idx, bond in interfaces.bonding %}
+{% for k, v in bond.items() %}
+set interfaces bonding bond{{ idx }} {{ k }} {{ v }}
+{% endfor %}
+{% endfor %}
+
+{% for idx, iface in interfaces.ethernet %}
+{% for k, v in iface.items() if k != "vlan" or k == "vlans" %}
+set interfaces ethernet eth{{ idx }} {{ k }} {{ v }}
+{% endfor %}
+set interfaces ethernet eth{{ idx }} duplex auto
+set interfaces ethernet eth{{ idx }} speed auto
+{% endfor %}
+
+
+set interfaces loopback lo
+
+set interfaces switch switch0 address {{ nidito.networks.switch }}
+set interfaces switch switch0 description Local
+set interfaces switch switch0 mtu 1500
+
+# assign vlans to interfaces
+{% for idx, iface in interfaces.ethernet %}
+{% if iface.vlan %}
+set interfaces switch switch0 switch-port interface eth{{idx}} vlan pvid {{ iface.vlan }}
+{% endif %}
+{% for vlan in iface.vlans %}
+set interfaces switch switch0 switch-port interface eth{{idx}} vlan vid {{ vlan }}
+{% endfor %}
+{% endfor %}
+set interfaces switch switch0 switch-port vlan-aware enable
+
+{% for name, net in nidito.router.vlans.items() if net.vlan %}
+set interfaces switch switch0 vif {{ net.vlan }} address {{ net.address }}
+set interfaces switch switch0 vif {{ net.vlan }} description {{ name }}
+set interfaces switch switch0 vif {{ net.vlan }} firewall in name trusted_in
+set interfaces switch switch0 vif {{ net.vlan }} firewall local name trusted_local
+set interfaces switch switch0 vif {{ net.vlan }} mtu 1500
+{% endfor %}
+
+
+set port-forward auto-firewall enable
+set port-forward hairpin-nat enable
+set port-forward lan-interface switch0.10
+set port-forward rule 1 description http
+set port-forward rule 1 forward-to address {{ any([node.reachability == "public" for node in nidito.nodes]).address }}
+set port-forward rule 1 original-port 80,443
+set port-forward rule 1 protocol tcp_udp
+set port-forward rule 3 description wireguard
+set port-forward rule 3 forward-to address {{ any([node.reachability == "public" for node in nidito.nodes]).address }}
+set port-forward rule 3 forward-to port 1194
+set port-forward rule 3 original-port 1194
+set port-forward rule 3 protocol tcp_udp
+set port-forward wan-interface {{ nidito.router.interfaces.wan }}
+
+set service dhcp-server disabled false
+set service dhcp-server hostfile-update disable
+
+{% for name, net in nidito.router.vlans.items() %}
+set service dhcp-server shared-network-name {{ name }} authoritative {{ "disable" if net.vlan else "enable" }}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} default-router {{ net.address | ipmath(1) }}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} dns-server {{ net.address | ipmath(1) }}
+{% for forwarder in nidito.dns.external.forwarders %}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} dns-server {{ forwarder }}
+{% endfor %}
+
+# dhcp lease time
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} lease {{ net.lease }}
+# dhcp range, from x.x.x.100 to net.size
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} start {{ net.address | ipmath(100) }} stop {{ net.address | ipmath(100 + net.size) }}
+
+{% if net.main %}
+{% for name, node in nidito.nodes.items() if node.mac %}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} static-mapping {{ name }} ip-address {{ node.address }}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} static-mapping {{ name }} mac-address {{ node.mac }}
+{% endfor %}
+{% endif %}
+
+{% for host in net.hosts %}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} static-mapping {{ host.name }} ip-address {{ node.address }}
+set service dhcp-server shared-network-name {{ name }} subnet {{ net.address }} static-mapping {{ host.name }} mac-address {{ node.mac }}
+{% endfor %}
+
+{% endfor %}
+
+
+
+
+set service dhcp-server static-arp disable
+set service dhcp-server use-dnsmasq disable
+
+{% for resolver in nidito.dns.external.forwarders %}
+set service dns forwarding name-server {{ resolver }}
+{% endfor %}
+
+set service gui http-port 80
+set service gui https-port 443
+set service gui older-ciphers disable
+
+set service mdns repeater interface switch0
+set service mdns repeater interface switch0.10
+set service mdns repeater interface switch0.20
+
+set service nat rule 5010 description 'masquerade for WAN'
+set service nat rule 5010 outbound-interface {{ nidito.router.interfaces.wan }}
+set service nat rule 5010 type masquerade
+
+set service ssh port 22
+set service ssh protocol-version v2
+
+set service upnp2 listen-on switch0.10
+set service upnp2 nat-pmp enable
+set service upnp2 secure-mode enable
+set service upnp2 wan {{ nidito.router.interfaces.wan }}
+
+set system host-name ubnt
+set system ntp server 0.ubnt.pool.ntp.org
+set system ntp server 1.ubnt.pool.ntp.org
+set system ntp server 2.ubnt.pool.ntp.org
+set system ntp server 3.ubnt.pool.ntp.org
+set system offload hwnat disable
+set system offload ipv4 bonding enable
+set system offload ipv4 forwarding enable
+set system offload ipv4 vlan enable
+set system syslog global facility all level notice
+set system syslog global facility protocols level debug
+set system time-zone UTC
+set system traffic-analysis dpi disable
+set system traffic-analysis export enable
+
+set system task-scheduler task updateDNS executable path /config/scripts/update-dns-record.sh
+set system task-scheduler task updateDNS executable interval 5m
