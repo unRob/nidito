@@ -3,7 +3,7 @@ provider consul {}
 
 
 data consul_key_prefix cfg {
-  path_prefix = "/nidito/config/"
+  path_prefix = "/nidito/config"
 }
 
 resource consul_acl_policy service-traefik {
@@ -50,21 +50,22 @@ resource consul_key_prefix "service-traefik-config" {
   datacenter = "brooklyn"
 
   # Prefix to add to prepend to all of the subkey names below.
-  path_prefix = "nidito/service/traefik"
+  path_prefix = "nidito/service/traefik/"
 
   subkeys = {
     "consul/token"  = data.consul_acl_token_secret_id.service-traefik.secret_id
   }
 }
 
-resource consul_key_prefix "service-traefik" {
-  datacenter = "brooklyn"
-  path_prefix = "traefik"
-
-  subkeys = {
+// Traefik manages the rest of these, so we can't use
+// consul_key_prefix for that, as the rest of the keys would be deleted :(
+locals {
+  service-config = {
     "log/level" = "info"
     ping = "true"
     "api/dashboard" = "true"
+
+    "metrics/prometheus/entryPoint" = "https"
 
     "providers/consulCatalog/exposedByDefault" = "false"
     "providers/consulCatalog/defaultRule" = "Host(`{{ .Name }}.${data.consul_key_prefix.cfg.subkeys["dns/zone"]}`)"
@@ -93,6 +94,17 @@ resource consul_key_prefix "service-traefik" {
     ])
     # usage: https-only@consul
     "http/middlewares/https-only/redirectscheme/scheme" = "https"
-    
+  }
+}
+
+resource consul_keys service-traefik {
+  datacenter = "brooklyn"
+
+  dynamic "key" {
+    for_each = local.service-config
+    content {
+      path = "traefik/${key.key}"
+      value = key.value
+    }
   }
 }

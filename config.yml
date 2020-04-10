@@ -74,7 +74,7 @@ nodes:
       hash: f7462b010db2fce63c45774b5f71b49b9321d831c95607f0d789f89c30238a64
     nomad:
       config: /etc/nomad.d
-      user: nomad
+      user: root
     platform: linux/arch
     reachability: public
   brooklyn:
@@ -133,6 +133,7 @@ nodes:
         encrypted: true
         hash: 5339b8e20892f38e4bb535898bd7ce973450dc17eb9db26e9fa00279cd72838b
       user: _consul
+      ui: true
     hardware: mbp
     mac:
       ciphertext: HytShicxgywNDh0p41qWOLpE/CeACfz2wCOMx4GYlKNU8KOKSiEBH1UxtlxUJaOFKx0C04MRlOjgJoGqWDJiMDk=
@@ -141,7 +142,7 @@ nodes:
     nomad:
       config: /nidito/nomad
       memory: 4000
-      user: _nomad
+      user: root
     platform: macos
     reachability: private
 nomad:
@@ -149,7 +150,7 @@ nomad:
     http: 5560
     rpc: 5561
     serf: 5562
-  version: 0.9.5
+  version: 0.10.5
 router:
   interfaces:
     bonding:

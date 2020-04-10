@@ -1,17 +1,14 @@
-- name: Add the _nomad user
-  become: true
-  user:
-    name: _nomad
-    create_home: no
-    shell: /usr/bin/false
-    groups: 
-      - _nidito
-    append: yes
+- name: Get installed version
+  shell: nomad --version | head -n 1 | cut -dv -f2
+  register: installed_nomad_version
+  ignore_errors: yes
+  check_mode: no
 
 - name: Install nomad
-  homebrew:
-    name: nomad
-    state: present
+  when: installed_nomad_version.stdout != nidito.nomad.version
+  notify: Restart nomad service
+  shell: |
+    brew upgrade nomad
 
 - name: Create the nomad config directory
   become: true

@@ -5,8 +5,7 @@
   ignore_errors: yes
 
 - set_fact:
-    # needs_install: "{{ installed_version.stdout != nomad_version }}"
-    needs_install: false
+    needs_install: "{{ installed_version.stdout != nidito.nomad.version }}"
     nomad_zip: "nomad_{{ nidito.nomad.version }}_linux_amd64.zip"
 
 - name: Get nomad SPK
@@ -22,7 +21,7 @@
     src: "templates/nomad-spk.patch"
     dest: /tmp/nomad.patch
     mode: u=rw,g=r,o=
-  
+
 - name: Apply nomad patch
   when: needs_install
   shell: |

@@ -7,6 +7,12 @@ job "http-proxy" {
   }
 
   group "http-proxy" {
+    reschedule {
+      delay          = "5s"
+      delay_function = "fibonacci"
+      max_delay      = "1h"
+      unlimited      = true
+    }
 
     restart {
       # on failure, restart at most
@@ -16,7 +22,7 @@ job "http-proxy" {
       # waiting after a crash
       delay = "25s"
       # after which, continue waiting `interval` units
-      # before retrying 
+      # before retrying
       mode = "delay"
     }
 
@@ -39,17 +45,17 @@ EOF
   level = "INFO"
 
 [certificatesResolvers.le.acme]
-  email = "[[ consulKey "/nidito/config/dns/external/email" ]]"
+  email = "{{ key "/nidito/config/dns/external/email" }}"
   storage = "/acme/acme.json"
 
   [certificatesResolvers.le.acme.dnsChallenge]
-    provider = "[[ consulKey "/nidito/config/dns/external/provider/name" ]]"
-    resolvers = [[ consulKey "/nidito/config/dns/external/forwarders/_json" ]]
+    provider = "{{ key "/nidito/config/dns/external/provider/name" }}"
+    resolvers = {{ key "/nidito/config/dns/external/forwarders/_json" }}
 
 [entrypoints]
   [entrypoints.http]
     address = ":80"
-    
+
   [entrypoints.https]
     address = ":443"
   [entryPoints.https.http.tls]
@@ -60,17 +66,21 @@ EOF
 [api]
   dashboard=true
 
+[metrics]
+  [metrics.prometheus]
+    entryPoint = "traefik"
+
 # Store the rest of the config in consul
 [providers.consul]
-  endpoints = ["http://consul.service.consul:[[ consulKey "/nidito/config/consul/ports/http" ]]"]
+  endpoints = ["http://consul.service.consul:{{ key "/nidito/config/consul/ports/http" }}"]
 
 # Expose consul catalog services
 [providers.consulCatalog]
   exposedByDefault = false
-  defaultRule = "Host(`{{ .Name }}.[[ consulKey "/nidito/config/dns/zone" ]]`)"
+  defaultRule = "Host(`{{ .Name }}.{{ key "/nidito/config/dns/zone" }}`)"
 
   [providers.consulCatalog.endpoint]
-    address = "http://consul.service.consul:[[ consulKey "/nidito/config/consul/ports/http" ]]"
+    address = "http://consul.service.consul:{{ key "/nidito/config/consul/ports/http" }}"
 EOF
         destination = "local/traefik.toml"
       }
@@ -83,10 +93,11 @@ EOF
       }
 
       config {
-        image = "traefik:v2.2"
+        image = "traefik:v2.2.0"
 
         port_map {
           http = 80
+          metrics = 81
           https = 443
           api = 8080
         }
@@ -109,24 +120,14 @@ EOF
           port "http" {
             static = 80
           }
+          port "metrics" {
+            static = 81
+          }
           port "https" {
             static = 443
           }
           port "api" {}
         }
-      }
-
-      service {
-        name = "https-proxy"
-        port = "https"
-        tags = [
-          "public", "edge"
-        ]
-      }
-
-      service {
-        name = "http-proxy"
-        port = "http"
       }
 
       service {
@@ -136,6 +137,8 @@ EOF
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
+          "nidito.metrics.enabled",
+          "nidito.metrics.port=81",
           "traefik.enable=true",
 
           "traefik.http.routers.traefik.rule=Host(`traefik.[[ consulKey "/nidito/config/dns/zone" ]]`)",

@@ -4,10 +4,12 @@
 <dict>
     <key>Label</key>
     <string>io.nomad.daemon</string>
+    <!--
+      I could not make nomad talk to docker on macos from any users
+      Other than admins or root :/
+    -->
     <key>UserName</key>
-    <string>_nomad</string>
-    <key>GroupName</key>
-    <string>_nomad</string>
+    <string>root</string>
     <key>Disabled</key>
     <false/>
     <key>RunAtLoad</key>

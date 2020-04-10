@@ -1,4 +1,8 @@
+{% if ansible_system == "Darwin" %}
+data_dir = "/private/var/lib/nomad"
+{% else %}
 data_dir = "/var/lib/nomad"
+{% endif %}
 datacenter = "brooklyn"
 name = "{{ ansible_hostname }}"
 
@@ -78,6 +82,9 @@ consul {
   server_service_name = "nomad-server" #}
 
   tags = [
-    "infra"
+    "infra",
+    "nidito.metrics.enabled",
+    "nidito.metrics.path=/v1/metrics",
+    "nidito.metrics.hc-prometheus-hack",
   ]
 }

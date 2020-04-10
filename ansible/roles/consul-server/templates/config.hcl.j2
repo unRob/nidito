@@ -11,9 +11,9 @@ bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw 
 client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
 
 server = true
-ui = {{ node.consul.ui | default("false") }}
+ui = {{ (node.consul.ui | default("false") | string ).lower() }}
 
-retry_join = [ 
+retry_join = [
   {% for host in node.consul.peers %}
   "{{ host }}.{{ nidito.dns.zone }}"{{ "," if not loop.last else "" }}
   {% endfor %}
@@ -41,11 +41,16 @@ ports {
   http = {{ nidito.consul.ports.http }}
 }
 
+telemetry {
+  prometheus_retention_time = "744h"
+}
+
 {# # We want to add traefik tags to services after they launch
 # and do so from any agent
 # https://discuss.hashicorp.com/t/remotely-update-service-tags-on-client-node/5807/8
 enable_tag_override = true #}
 
+{% if "http_services" in node.consul %}
 {% for svc_name, service in node.consul.http_services.items() %}
 services {
   id = "{{ svc_name }}"
@@ -55,18 +60,12 @@ services {
     "ansible",
     "nidito.dns.enabled",
     "traefik.enable=true",
-
     "traefik.http.routers.{{ svc_name }}.rule=Host(`{{ svc_name }}.{{ nidito.dns.zone }}`)",
     "traefik.http.routers.{{ svc_name }}.entrypoints=http,https",
     "traefik.http.routers.{{ svc_name }}.tls=true",
-    "traefik.http.routers.{{ svc_name }}.tls.certresolver=le",
-    "traefik.http.routers.{{ svc_name }}.tls.domains[0].main={{ nidito.dns.zone }}",
-    "traefik.http.routers.{{ svc_name }}.tls.domains[0].sans=*.{{ nidito.dns.zone }}",
-    
-    "traefik.http.middlewares.allowed-ips.ipwhitelist.sourcerange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
-    "traefik.http.middlewares.https-only.redirectscheme.scheme=https",
 
-    "traefik.http.routers.{{ svc_name }}.middlewares=allowed-ips,https-only",
+    "traefik.http.middlewares.allowed-ips-{{ svc_name }}.ipwhitelist.sourcerange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
+    "traefik.http.routers.{{ svc_name }}.middlewares=allowed-ips-{{ svc_name }},https-only@consul",
   ],
   checks = [
     {
@@ -79,3 +78,4 @@ services {
   ]
 }
 {% endfor %}
+{% endif %}

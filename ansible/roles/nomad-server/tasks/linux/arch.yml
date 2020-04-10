@@ -2,9 +2,10 @@
   shell: nomad --version | head -n 1 | cut -dv -f2
   register: installed_nomad_version
   ignore_errors: yes
+  check_mode: no
 
 - name: Install nomad
-  when: installed_nomad_version.stdout != nomad_config.version
+  when: installed_nomad_version.stdout != nidito.nomad.version
   become: yes
   unarchive:
     remote_src: yes

@@ -7,9 +7,14 @@
 - name: Get installed version
   shell: consul --version | head -n 1 | cut -dv -f2
   register: installed_consul_version
+  check_mode: no
+
+- set_fact:
+    needs_install: "{{ installed_consul_version.stdout != nidito.consul.version}}"
+  check_mode: no
 
 - name: Download a more recent consul version
-  when: installed_consul_version.stdout != consul_config.version
+  when: needs_install
   become: yes
   unarchive:
     remote_src: yes
