@@ -9,19 +9,24 @@
   roles:
     - server-users
 
-- hosts: platform_linux_dsm
-  roles:
-    - dsm
-    - plex
+# - hosts: platform_linux_dsm
+#   roles:
+#     - dsm
+#     - plex
 
-- hosts: all
-  roles:
-    - filebeat
+# - hosts: all
+#   roles:
+#     - filebeat
 
 - hosts: consul_server
   roles:
     - consul-server
 
+- hosts: vault_server
+  roles:
+    - vault-server
+
 - hosts: nomad_server
   roles:
     - nomad-server
+

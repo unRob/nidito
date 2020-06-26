@@ -132,8 +132,8 @@ nodes:
         ciphertext: 3qRxV8v767dqzf23R1uA1ZAbNg4fNa254siADXcfhrK3FCLLliZG4zEyAP3v4dyZIrWS11R15LWEoS5mR8N9CzsL+/kxBiszjrZ+3+Demb7+9nfM
         encrypted: true
         hash: 5339b8e20892f38e4bb535898bd7ce973450dc17eb9db26e9fa00279cd72838b
-      user: _consul
       ui: true
+      user: _consul
     hardware: mbp
     mac:
       ciphertext: HytShicxgywNDh0p41qWOLpE/CeACfz2wCOMx4GYlKNU8KOKSiEBH1UxtlxUJaOFKx0C04MRlOjgJoGqWDJiMDk=
@@ -276,14 +276,30 @@ router:
       size: 100
       vlan: 10
 services:
-  traefik:
-    # token traefik uses to query consul, supplied by nomad at run time
-    consul: SET_BY_TERRAFORM
-    # secret to use when setting letsencrypt dns records
-    digitalocean:
-      ciphertext: zOmnwZv3HYGhn7kVhFD6IBy0tmE8xdb+bN/6Xria+HHqD3fnQ8L+GIfv6lsV+MYV9kKaCfCRTRUUC6x4BzOB+tDPg1BtG/lFMTSHpm/Q46IX8fhQ8jhcZSbq3UxXfMLDxePJev3sOEp0LjwlUKSdEA==
+  homebridge:
+    nest:
+      id:
+        ciphertext: tK6VO4wGCSKJciydd7ieTgjybX/Idfn0ZkvPqrxKzfa9QDeHr8ftdtML+3OWVuIA0Cz/EXL21+tcYBZaO7tbW97Cn5rlVgFEJy2fRZvgiSvWBAW7
+        encrypted: true
+        hash: 87ad94cc992b2cb0c268e1b72025d0cb55eef5295064970e5878250c8d0a5c9f
+      secret:
+        ciphertext: /kd7jiok9TeWx1hrcxST3UEo4e0MlBpmiuN6wok2Nel5RZSjPtB5mncWb3RmGJwFZR+4IXbw86kYZMSYbWWJlj48nszxrFy/fA==
+        encrypted: true
+        hash: fa88cdaa0fb47270a2216955fda1471491fe7e9519e2c0de97290563b80f0a77
+      token:
+        ciphertext: pLPNW6skQVjm+EJqJzQpbEIlVu1o2ZLyf/1RwInAor3gK62xB0HVjVNlyYHapZKcrp/Xgq/ltV56pvjoQEANqa95QPQIDBUuwIR0UZS59wvLeoSl96gkOKwE62ppSP3Fu1T4WeB7OXLd/HPVAPnGaYk/IkVhMu5KZ1nFkT7OKvhjtBwZFY9HuM6jGL77GOYgZIMAiq1fnNU/cPIywh/+TUMKQ2FlvgxDJCUrXZgvkh3z5j3dMgnt6srm11E+qNYtYxc=
+        encrypted: true
+        hash: 1b01f3d119ca7fb1a8a02a2bf08c4fad9209bd04029b2a3dc0ed823d59f84a7a
+    pin:
+      ciphertext: WUSvblP5/svbY8Hylynuhinq5X/+DADePAi9JUSUyjep1f+BRf9ck6M/G5RqH+p09Ckkzu7JOlFVA6ox
       encrypted: true
-      hash: afe6d35ae8fbc96087e14c6c4afd1dede78c68013a158a87186a2b466a71cd62
+      hash: 6f98c410748be2e7131147df2cafd578b7b12c74fd44ecf270cd837b2f021c36
+    username: "13:37:D3:4D:B3:3F"
+  putio:
+    token:
+      ciphertext: xUvAHvMAk2cOWpT6Xx2BCxf76deKdLKrK5NPSa9ZI+7iiL9d3Fyp0NzkG7uob7NgnVcYf9J3mmaQMDvf1WaCVCoQKZI=
+      encrypted: true
+      hash: 8dd7051f66758119de6cbfa5137fdc5140dbe03e76c15c6a929aa664fe3e872a
   wireguard:
     clients:
     - public:
