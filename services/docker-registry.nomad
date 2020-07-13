@@ -6,6 +6,13 @@ job "docker-registry" {
     reachability = "private"
   }
 
+  vault {
+    policies = ["docker-registry"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
+
   group "registry" {
 
     restart {
@@ -24,11 +31,9 @@ job "docker-registry" {
     task "registry" {
       driver = "docker"
 
-      # run on NAS
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/chapultepec/hardware" ]]"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary"
       }
 
       template {
@@ -53,7 +58,9 @@ storage:
 
 http:
   addr: :5000
-  host: https://registry.[[ consulKey "/nidito/config/dns/zone" ]]
+  {{ with secret "kv/nidito/config/dns" }}
+  host: https://registry.{{ .Data.zone }}
+  {{ end }}
   secret: averysecuresecret
   debug:
     addr: :5001
@@ -72,7 +79,7 @@ EOF
         }
 
         volumes = [
-          "/nidito/data/docker-registry:/var/lib/registry",
+          "/nidito/docker-registry:/var/lib/registry",
           "local/config.yml:/etc/docker/registry/config.yml",
         ]
       }
@@ -110,13 +117,12 @@ EOF
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
-          "traefik.enable=true",
-
-          "traefik.http.routers.registry.rule=Host(`registry.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.registry.entrypoints=http,https",
-          "traefik.http.routers.registry.tls=true",
-          "traefik.http.routers.registry.middlewares=trusted-network@consul,https-only@consul",
+          "nidito.http.enabled",
         ]
+
+        meta = {
+          nidito-http-zone = "trusted"
+        }
 
         check {
           name     = "alive"

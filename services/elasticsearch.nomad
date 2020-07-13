@@ -16,7 +16,7 @@ job "logs" {
       # waiting after a crash
       delay = "25s"
       # after which, continue waiting `interval` units
-      # before retrying 
+      # before retrying
       mode = "delay"
     }
 
@@ -25,9 +25,8 @@ job "logs" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "dsm918+"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary+"
       }
 
       config {
@@ -68,12 +67,8 @@ job "logs" {
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
-          "traefik.enable=true",
-
-          "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.elasticsearch.entrypoints=http,https",
-          "traefik.http.routers.elasticsearch.tls=true",
-          "traefik.http.routers.elasticsearch.middlewares=trusted-network@consul",
+          "nidito.http.enabled",
+          "nidito.http.zone=trusted"
         ]
         check {
           name     = "alive"

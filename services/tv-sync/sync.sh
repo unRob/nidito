@@ -28,9 +28,11 @@ rm -rf tmp
 mkdir -p {tmp,tv-series,movies}
 touch tmp/purge.list
 
-rclone lsjson -R "putio:" |
+if ! rclone lsjson -R "putio:" |
   jq -r "map(select(.MimeType | contains(\"video\")) | .Path) | .[]" |
-  sort -n > tmp/source.list
+  sort -n > tmp/source.list; then
+  exit 2
+fi
 grep -i 'S[0-9][0-9]' tmp/source.list > tmp/tv-series.list
 grep -vi 'S[0-9][0-9]' tmp/source.list > tmp/movies.list
 

@@ -6,6 +6,13 @@ job "dns-update" {
     payload = "required"
   }
 
+  vault {
+    policies = ["dns-update"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
+
   group "dns-update" {
 
     task "doctl" {
@@ -13,7 +20,9 @@ job "dns-update" {
 
       template {
         data = <<EOF
-DIGITALOCEAN_ACCESS_TOKEN="{{ key "/nidito/config/dns/external/provider/token" }}"
+{{ with secret "kv/nidito/config/dns/external/provider" }}
+DIGITALOCEAN_ACCESS_TOKEN="{{ .Data.token }}"
+{{ end }}
 EOF
         destination = "secrets/file.env"
         env         = true
@@ -22,15 +31,19 @@ EOF
       dispatch_payload {
         file = "ip.txt"
       }
-      
+
       template {
         data = <<SH
 #!/usr/bin/env bash
 new_ip=$(cat local/ip.txt)
 echo "Updating record to $new_ip"
 
-zone="{{ key "/nidito/config/dns/zone" }}"
-record="{{ key "/nidito/config/dns/external/provider/record-id" }}"
+{{ with secret "kv/nidito/config/dns" }}
+zone="{{ .Data.zone" }}"
+{{ end }}
+{{ with secret "kv/nidito/config/dns/external/provider" }}
+record="{{ .Data.record-id }}"
+{{ end }}
 
 exec curl --fail \
   -H 'Content-type: application/json' \

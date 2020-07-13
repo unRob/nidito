@@ -1,10 +1,15 @@
+
 job "putio-media-ingest" {
   datacenters = ["brooklyn"]
   type = "batch"
+  priority = 10
 
-  // parameterized {
-  //   payload = "required"
-  // }
+  vault {
+    policies = ["putio"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
 
   group "putio-media-ingest" {
 
@@ -12,9 +17,8 @@ job "putio-media-ingest" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/chapultepec/hardware" ]]"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary"
       }
 
       env {
@@ -25,7 +29,9 @@ job "putio-media-ingest" {
         data = <<EOF
 [putio]
 type = putio
-token = {"access_token":"{{ key "/nidito/service/putio/token" }}","expiry":"0001-01-01T00:00:00Z"}
+{{ with secret "kv/nidito/service/putio" }}
+token = {"access_token":"{{ .Data.token }}","expiry":"0001-01-01T00:00:00Z"}
+{{ end }}
 EOF
         destination = "local/rclone.conf"
       }

@@ -33,15 +33,9 @@ resource consul_acl_token service-prometheus {
 data consul_acl_token_secret_id service-prometheus {
   accessor_id = "${consul_acl_token.service-prometheus.id}"
 }
-
-
-resource consul_key_prefix "service-prometheus-config" {
-  datacenter = "brooklyn"
-
-  # Prefix to add to prepend to all of the subkey names below.
-  path_prefix = "nidito/service/prometheus/"
-
-  subkeys = {
-    "consul/token"  = data.consul_acl_token_secret_id.service-prometheus.secret_id
-  }
+resource vault_generic_secret certificate {
+  path = "kv/nidito/service/prometheus/consul"
+  data_json = jsonencode({
+    token = data.consul_acl_token_secret_id.service-prometheus.secret_id,
+  })
 }

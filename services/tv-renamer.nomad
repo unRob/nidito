@@ -8,9 +8,8 @@ job "tv-renamer" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/chapultepec/hardware" ]]"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary"
       }
 
       config {

@@ -6,6 +6,13 @@ job "kibana" {
     reachability = "private"
   }
 
+  vault {
+    policies = ["dns-update"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
+
   group "kibana" {
 
     restart {
@@ -16,7 +23,7 @@ job "kibana" {
       # waiting after a crash
       delay = "25s"
       # after which, continue waiting `interval` units
-      # before retrying 
+      # before retrying
       mode = "delay"
     }
 
@@ -24,9 +31,8 @@ job "kibana" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/xitle/hardware" ]]"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary"
       }
 
       config {
@@ -37,9 +43,15 @@ job "kibana" {
         }
       }
 
-      env {
-        "SERVER_NAME" = "kibana.[[ consulKey "/nidito/config/dns/zone" ]]"
-        "ELASTICSEARCH_HOSTS" = "http://elasticsearch.[[ consulKey "/nidito/config/dns/zone" ]]"
+      template {
+        data = <<EOF
+{{ with secret "kv/nidito/config/dns" }}
+SERVER_NAME="kibana.{{ .Data.zone }}"
+ELASTICSEARCH_HOSTS="http://elasticsearch.{{ .Data.zone }}"
+{{ end }}
+EOF
+        destination = "secrets/file.env"
+        env         = true
       }
 
       resources {
@@ -57,12 +69,8 @@ job "kibana" {
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
-          "traefik.enable=true",
-
-          "traefik.http.routers.kibana.rule=Host(`kibana.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.kibana.entrypoints=http,https",
-          "traefik.http.routers.kibana.tls=true",
-          "traefik.http.routers.kibana.middlewares=trusted-network@consul,http-to-https@consul",
+          "nidito.http.enabled",
+          "nidito.http.zone=trusted",
         ]
         check {
           name     = "alive"

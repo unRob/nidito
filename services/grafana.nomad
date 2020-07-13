@@ -2,8 +2,6 @@ job "grafana" {
   datacenters = ["brooklyn"]
   type        = "service"
 
-
-
   group "grafana" {
     reschedule {
       delay          = "5s"
@@ -24,8 +22,7 @@ job "grafana" {
 
       constraint {
         attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/xitle/hardware" ]]"
+        value     = "mbp"
       }
 
       env {
@@ -39,7 +36,6 @@ job "grafana" {
           http = 3000
         }
 
-
         volumes = [
           "/nidito/grafana/data:/var/lib/grafana"
         ]
@@ -47,7 +43,7 @@ job "grafana" {
 
       resources {
         cpu    = 50
-        memory = 128
+        memory = 256
 
         network {
           mbits = 1
@@ -62,14 +58,13 @@ job "grafana" {
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
-           "nidito.metrics.enabled",
-          "traefik.enable=true",
-
-          "traefik.http.routers.grafana.rule=Host(`grafana.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.grafana.entrypoints=http,https",
-          "traefik.http.routers.grafana.tls=true",
-          "traefik.http.routers.grafana.middlewares=trusted-network@consul,https-only@consul",
+          "nidito.metrics.enabled",
+          "nidito.http.enabled",
         ]
+
+        meta = {
+          nidito-http-zone = "trusted"
+        }
 
         check {
           type     = "http"

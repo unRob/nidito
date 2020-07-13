@@ -2,6 +2,12 @@ job "prometheus" {
   datacenters = ["brooklyn"]
   type = "service"
 
+  vault {
+    policies = ["prometheus"]
+
+    change_mode   = "restart"
+  }
+
   group "prometheus" {
     reschedule {
       delay          = "5s"
@@ -22,15 +28,20 @@ job "prometheus" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        operator  = "="
-        value     = "[[ consulKey "/nidito/config/nodes/chapultepec/hardware" ]]"
+        attribute = "${meta.nidito-storage}"
+        value     = "primary"
       }
 
       # https://www.consul.io/docs/agent/options.html#telemetry-prometheus_retention_time
       template {
         change_mode = "restart"
         data = <<EOF
+{{- with secret "kv/nidito/config/consul/ports" }}
+{{- scratch.Set "consulPort" .Data.http }}
+{{- end }}
+{{- with secret "kv/nidito/service/prometheus/consul" }}
+{{- scratch.Set "consulToken" .Data.token }}
+{{- end }}
 scrape_configs:
   - job_name: consul-server
     scrape_interval: 15s
@@ -39,7 +50,7 @@ scrape_configs:
       format: ["prometheus"]
     dns_sd_configs:
       - names: ["consul.service.consul"]
-        port: [[ consulKey "/nidito/config/consul/ports/http" ]]
+        port: {{ scratch.Get "consulPort" }}
 
     relabel_configs:
       - source_labels: ['__address__']
@@ -49,15 +60,15 @@ scrape_configs:
       - source_labels: ['__address__']
         regex: '([^:]+):(\d+)'
         target_label: __address__
-        replacement: '$1:[[ consulKey "/nidito/config/consul/ports/http" ]]'
+        replacement: '$1:{{ scratch.Get "consulPort" }}'
 
   - job_name: consul-services
     scrape_interval: 15s
 
     consul_sd_configs:
-      - server: "consul.service.consul:[[ consulKey "/nidito/config/consul/ports/http" ]]"
+      - server: "consul.service.consul:{{ scratch.Get "consulPort" }}"
         datacenter: brooklyn
-        token: "[[ consulKey "/nidito/service/prometheus/consul/token" ]]"
+        token: "{{ scratch.Get "consulToken" }}"
         tags:
           - nidito.metrics.enabled
 
@@ -97,7 +108,7 @@ EOF
         }
 
         volumes = [
-          "/nidito/data/prometheus:/var/lib/prometheus",
+          "/nidito/prometheus:/var/lib/prometheus",
         ]
 
         args = [
@@ -126,13 +137,12 @@ EOF
           "nidito.infra",
           "nidito.dns.enabled",
           "nidito.metrics.enabled",
-          "traefik.enable=true",
-
-          "traefik.http.routers.prometheus.rule=Host(`prometheus.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.prometheus.entrypoints=http,https",
-          "traefik.http.routers.prometheus.tls=true",
-          "traefik.http.routers.prometheus.middlewares=trusted-network@consul,https-only@consul",
+          "nidito.http.enabled",
         ]
+
+        meta = {
+          nidito-http-zone = "trusted"
+        }
 
         check {
           type = "http"

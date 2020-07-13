@@ -18,8 +18,6 @@ crypto:
   provider: password
 dns:
   external:
-    # use this email with letsencrypt
-    email: nidito-traefik@un.rob.mx
     # when resolving non ${dns.zone} queries, forward to
     forwarders:
     - 1.1.1.1
@@ -46,11 +44,23 @@ home:
     lat: 40.686174
     lng: -73.930374
   time-zone: America/New_York
+http:
+  zones:
+    local:
+    - management
+    - vpn
+    - shared
+    public:
+    - external
+    trusted:
+    - management
+    - vpn
 networks:
-  # guests and iot
-  local-network: 10.20.0.0/24
+  external: 0.0.0.0/32
   # servers, trusted devices
   management: 10.10.0.0/24
+  # guests and iot
+  shared: 10.20.0.0/24
   # the network for network devices
   switch: 10.0.0.1/24
   vpn: 10.11.11.0/24
@@ -98,10 +108,8 @@ nodes:
         # chapultepec exposes its own admin panel stuff
         # expose that under dsm.nidi.to
         dsm:
-          allowed_networks:
-          - management
-          - vpn
           port: 5000
+          zone: trusted
       peers:
       - ajusco
       - xitle
@@ -117,8 +125,10 @@ nodes:
       hash: 51936351e6b2277c56c7b6424c1bf64e1d0ee694e5bcd6cdbadbb44ebb5fa9ab
     nomad:
       config: /etc/nomad
-      memory: 2000
+      memory: 8000
       user: root
+      meta:
+        nidito-storage: primary
     platform: linux/dsm
     reachability: private
   xitle:
@@ -129,9 +139,9 @@ nodes:
       - ajusco
       - chapultepec
       token:
-        ciphertext: 3qRxV8v767dqzf23R1uA1ZAbNg4fNa254siADXcfhrK3FCLLliZG4zEyAP3v4dyZIrWS11R15LWEoS5mR8N9CzsL+/kxBiszjrZ+3+Demb7+9nfM
+        ciphertext: wheXSeQ+61jOZ8iY3vKd31hFoOlpnIYh8PCwelCpOqw5d+6EM+YlLBhakzpwjo9a1aQPC78CcoW0KkDDRo6ypEPlxsNwI8mbN1zDvlgA8Nza4sXf
         encrypted: true
-        hash: 5339b8e20892f38e4bb535898bd7ce973450dc17eb9db26e9fa00279cd72838b
+        hash: 53e2ecb0758fd6b9575e247e78889da48274c51667656f57af780c4282754db5
       ui: true
       user: _consul
     hardware: mbp
@@ -145,11 +155,18 @@ nodes:
       user: root
     platform: macos
     reachability: private
+    vault:
+      config: /nidito/vault/config
+      user: _vault
 nomad:
   ports:
     http: 5560
     rpc: 5561
     serf: 5562
+  token:
+    ciphertext: 6t2f+D/Vly7BZ/N2JrRJ4NoR9UZN1JGsldvgDMuCzjZc3CNq1wBOUSP24CmgbbnEeDrbBqsYjk/rvwTaFlSzCtsZRzlKwiKKKsM=
+    encrypted: true
+    hash: 7c58186b3b631c6e96801ffdf12c627555608a9c8378fbcedcdd9a33493b65a6
   version: 0.10.5
 router:
   interfaces:
@@ -160,22 +177,31 @@ router:
     ethernet:
     - bond-group: bond0
       description: chapultepec 0
-      vlan: 10
+      vlans:
+        untagged: 10
     - bond-group: bond0
       description: chapultepec 1
-      vlan: 10
+      vlans:
+        untagged: 10
     - description: ajusco
-      vlan: 10
+      vlans:
+        untagged: 10
     - description: xitle
-      vlan: 10
+      vlans:
+        untagged: 10
     - description: "OFF"
-      vlan: 20
+      vlans:
+        untagged: 20
     - description: Apoltivi
-      vlan: 20
+      vlans:
+        untagged: 20
     - description: Hueberto
-      vlan: 20
+      vlans:
+        untagged: 20
     - description: UAP
-      vlans: [20, 10]
+      vlans:
+        untagged: 20
+        tagged: 10
     - description: Emergency
       address: 192.169.1.1/24
     - description: Internet
@@ -295,11 +321,26 @@ services:
       encrypted: true
       hash: 6f98c410748be2e7131147df2cafd578b7b12c74fd44ecf270cd837b2f021c36
     username: "13:37:D3:4D:B3:3F"
+  letsencrypt:
+    email: nidito@un.rob.mx
+    private_key:
+      ciphertext: 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
+      encrypted: true
+      hash: 59cf32f090aa7583e9f2960ec8dd212e496ef1c5bdb5773e77f177d686eb978f
+  mailgun:
+    domainkey:
+      ciphertext: IcvgQ2+2uhvaQ5vTmHXkgyYWtrNbMdKziOz2FQlgfuzDYBsGumu92vmpgGnWKnq+lHLdv4eIR6Az4Hxgb2/wgPGCwEeaUmDuoLype2wCHsDlbBdgW3j1w/pgXj+mUtUYpIKv2rMUBuVaq7F81GaxwpNZf3UD18oTvrkpAnYqo9YNz5eZcmg9e9mCQAVqOn9MY1kcCgwPuR6S4n+NmzVvbbMKN51tqDLycXbZI/mTc4EwAOTnYXlsYVjfx4TgOT4p22W/lEKCuPEJHfJlw1KRpHMqWPzyXM9XNRExrRAughPClP8NqPT8HPDgmgIYa6EWmEDdqG5HiaOJmDxSUzjg1Nv29Yv8HPA953ueLBK+c/bsi7OzO0YWoxOVbYDob9wFzpLsuNZNGOoxT7BYrjSYiRJ0Wfcl84eXSMepR0yoVsnVKq4eBKVKmFgh7xJEzfAM8Czi6aaxkRMgks5lEjsdnu2VHS/9PXcuFe1CSlPElXy/F/OZXwmppv4U6DYF8UX0QW5hv5Yk70OiFuZlrQluOm4yRebGQckwOWRH7UH2LnOZRfLlCJE8b9zqm+Y9PwHo0qCI5/Up9OxcmncV/CeeUiU=
+      encrypted: true
+      hash: db2bf63c2d1f89fd207de36b55d428114dab66d5e784137798ddc002b28f4c18
+    dsm:
+      ciphertext: RD5i7jUoREEXjmZ/R/IZpagjQuxN7ZRYRGqr9r+CXgqZ1hBeCeRNU8NqFpydSUbWa7/jkXXnZTZuV4Gk3bKdeHPxI6dULd/wmBmu9wdMF+j75rUaVR9x1Z5TTuSkW792F7E=
+      encrypted: true
+      hash: 3d856eb9a77ce054f2fa9ea632a6d515e57b2ffeb6767c7861fb8c1b253c1bf5
   putio:
     token:
-      ciphertext: xUvAHvMAk2cOWpT6Xx2BCxf76deKdLKrK5NPSa9ZI+7iiL9d3Fyp0NzkG7uob7NgnVcYf9J3mmaQMDvf1WaCVCoQKZI=
+      ciphertext: pJtv3uJRPHGGsIdKJQIaRroG5hm6qn4mrkJW+X2Jeytqh7V6IZMBKnOgE9OxS6VgHDh+QUKKMk11xiuatfMBlSloR4Y=
       encrypted: true
-      hash: 8dd7051f66758119de6cbfa5137fdc5140dbe03e76c15c6a929aa664fe3e872a
+      hash: 940097f2a4f9130a8355100b4340b7eb20ccec17b41df9c4237790b5f547a14b
   wireguard:
     clients:
     - public:
@@ -324,3 +365,6 @@ services:
       encrypted: true
       hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
     port: 1194
+vault:
+  port: 5570
+  version: 1.4.1

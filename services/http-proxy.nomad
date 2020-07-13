@@ -1,19 +1,16 @@
 job "http-proxy" {
   datacenters = ["brooklyn"]
-  type = "service"
+  type = "system"
+  priority = 80
 
-  meta {
-    reachability = "public"
+  vault {
+    policies = ["http-proxy"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
   }
 
   group "http-proxy" {
-    reschedule {
-      delay          = "5s"
-      delay_function = "fibonacci"
-      max_delay      = "1h"
-      unlimited      = true
-    }
-
     restart {
       # on failure, restart at most
       attempts = 10
@@ -27,88 +24,127 @@ job "http-proxy" {
     }
 
 
-    task "traefik" {
+    task "nginx" {
+      constraint {
+        attribute = "${meta.arch}"
+        operator  = "!="
+        value     = "Darwin"
+      }
+
       driver = "docker"
 
       template {
-        data = <<EOF
-CONSUL_HTTP_TOKEN="{{ key "/nidito/service/traefik/consul/token" }}"
-DO_AUTH_TOKEN="{{ key "/nidito/config/dns/external/provider/token" }}"
-EOF
-        destination = "secrets/file.env"
-        env         = true
+        destination = "secrets/ssl/star.nidi.to.crt"
+        data = <<PEM
+{{- with secret "kv/nidito/letsencrypt/cert/nidi.to" }}
+{{ .Data.cert }}
+{{- end }}
+PEM
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
       }
 
       template {
-        data = <<EOF
-[log]
-  level = "INFO"
-
-[certificatesResolvers.le.acme]
-  email = "{{ key "/nidito/config/dns/external/email" }}"
-  storage = "/acme/acme.json"
-
-  [certificatesResolvers.le.acme.dnsChallenge]
-    provider = "{{ key "/nidito/config/dns/external/provider/name" }}"
-    resolvers = {{ key "/nidito/config/dns/external/forwarders/_json" }}
-
-[entrypoints]
-  [entrypoints.http]
-    address = ":80"
-
-  [entrypoints.https]
-    address = ":443"
-  [entryPoints.https.http.tls]
-    certResolver = "le"
-
-[ping]
-
-[api]
-  dashboard=true
-
-[metrics]
-  [metrics.prometheus]
-    entryPoint = "traefik"
-
-# Store the rest of the config in consul
-[providers.consul]
-  endpoints = ["http://consul.service.consul:{{ key "/nidito/config/consul/ports/http" }}"]
-
-# Expose consul catalog services
-[providers.consulCatalog]
-  exposedByDefault = false
-  defaultRule = "Host(`{{ .Name }}.{{ key "/nidito/config/dns/zone" }}`)"
-
-  [providers.consulCatalog.endpoint]
-    address = "http://consul.service.consul:{{ key "/nidito/config/consul/ports/http" }}"
-EOF
-        destination = "local/traefik.toml"
+        destination = "secrets/ssl/star.nidi.to.key"
+        data = <<PEM
+{{- with secret "kv/nidito/letsencrypt/cert/nidi.to" }}
+{{ .Data.private_key }}
+{{- end }}
+PEM
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
       }
 
-      # Run wherever is tagged public
-      constraint {
-        attribute = "${meta.reachability}"
-        operator  = "="
-        value     = "public"
+      template {
+        destination = "local/default.conf"
+        data = <<NGINX
+server {
+  listen       80 default_server;
+  listen  [::]:80;
+  server_name  localhost;
+
+  location /status {
+    allow 127.0.0.1;
+    allow 10.10.0.0/28;
+    deny all;
+    stub_status;
+  }
+}
+
+{{- $nodeName := env "node.unique.name"}}
+{{- range services }}
+{{- if in .Tags "nidito.http.enabled" }}
+{{- range service .Name }}
+{{- if eq $nodeName .Node }}
+{{- $zoneName := index .ServiceMeta "nidito-http-zone" }}
+server {
+  listen 80;
+  server_name {{ .Name }} {{ .Name }}.nidi.to;
+  return 301 https://{{ .Name }}.nidi.to;
+}
+
+server {
+  listen 443 ssl http2;
+  server_name {{ .Name }}.nidi.to;
+
+  allow 127.0.0.1;
+  # Zone: {{ $zoneName }}
+  {{- with secret (printf "kv/nidito/config/http/zones/%s" $zoneName) }}
+  {{- $networkNames := .Data.json | parseJSON }}
+  {{- range $networkNames }}
+  {{- $network := . }}
+  {{- with secret "kv/nidito/config/networks" }}
+  allow {{ index .Data $network }};
+  {{- end }}
+  {{- end }}
+  {{- end }}
+  deny all;
+
+  ssl_certificate     /ssl/star.nidi.to.crt;
+  ssl_certificate_key /ssl/star.nidi.to.key;
+  ssl_protocols       TLSv1.2;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384";
+  {{- /*The most CPU-intensive operation is the SSL handshake. There are two ways to minimize the number of these operations per client: the first is by enabling keepalive connections to send several requests via one connection */}}
+  keepalive_timeout   70;
+
+  location / {
+    add_header X-Edge {{ $nodeName }} always;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    proxy_pass http://{{ .Name }}.service.consul:{{ .Port }};
+  }
+}
+
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+NGINX
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
       }
 
       config {
-        image = "traefik:v2.2.0"
+        image = "nginx:stable-alpine"
+        network_mode = "host"
 
         port_map {
           http = 80
-          metrics = 81
           https = 443
-          api = 8080
         }
 
         labels {
-          "co.elastic.logs/module" = "traefik"
+          "co.elastic.logs/module" = "nginx"
         }
 
         volumes = [
-          "local/traefik.toml:/etc/traefik/traefik.toml",
-          "/nidito/http-proxy/acme:/acme",
+          "secrets/ssl:/ssl",
+          "local/default.conf:/etc/nginx/conf.d/default.conf",
         ]
       }
 
@@ -120,42 +156,25 @@ EOF
           port "http" {
             static = 80
           }
-          port "metrics" {
-            static = 81
-          }
           port "https" {
             static = 443
           }
-          port "api" {}
         }
       }
 
       service {
-        name = "traefik"
-        port = "api"
+        name = "nginx"
+        port = "http"
 
         tags = [
           "nidito.infra",
           "nidito.dns.enabled",
-          "nidito.metrics.enabled",
-          "nidito.metrics.port=81",
-          "traefik.enable=true",
-
-          "traefik.http.routers.traefik.rule=Host(`traefik.[[ consulKey "/nidito/config/dns/zone" ]]`)",
-          "traefik.http.routers.traefik.entrypoints=http,https",
-          "traefik.http.routers.traefik.tls=true",
-          "traefik.http.routers.traefik.tls.certresolver=le",
-          "traefik.http.routers.traefik.tls.domains[0].main=[[ consulKey "/nidito/config/dns/zone" ]]",
-          "traefik.http.routers.traefik.tls.domains[0].sans=*.[[ consulKey "/nidito/config/dns/zone" ]]",
-          "traefik.http.routers.traefik.service=api@internal",
-
-          "traefik.http.routers.traefik.middlewares=trusted-network@consul,https-only@consul",
         ]
 
         check {
           type     = "http"
-          path     = "/ping"
-          interval = "10s"
+          path     = "/status"
+          interval = "60s"
           timeout  = "2s"
         }
       }
