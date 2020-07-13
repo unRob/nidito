@@ -1,0 +1,56 @@
+- name: Add the _vault user
+  become: true
+  user:
+    name: _vault
+    create_home: no
+    shell: /usr/bin/false
+    groups: _nidito
+    append: yes
+
+- name: Get installed version
+  shell: vault --version | head -n 1 | cut -dv -f2
+  register: installed_vault_version
+  ignore_errors: yes
+  check_mode: no
+
+- name: Install vault
+  when: installed_vault_version.stdout != nidito.vault.version
+  notify: Restart vault service
+  homebrew:
+    name: vault
+    state: present
+
+- name: Create the vault config directory
+  become: true
+  file:
+    path: "{{ node.vault.config }}"
+    owner: "{{ node.vault.user }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Create the vault data directory
+  become: true
+  file:
+    path: "/var/lib/vault"
+    owner: "{{ node.vault.user }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Create the vault log directory
+  become: true
+  file:
+    path: "/nidito/vault/log"
+    owner: "{{ node.vault.user }}"
+    group: _nidito
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Install vault launchd config
+  become: yes
+  copy:
+    src: files/service.plist
+    dest: /Library/LaunchDaemons/io.vault.daemon.plist
+
+

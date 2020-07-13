@@ -1,0 +1,10 @@
+- include: "{{ node.platform }}.yml"
+
+- name: Configure vault
+  become: true
+  template:
+    src: templates/config.hcl.j2
+    dest: "{{ node.vault.config }}/config.hcl"
+    owner: "{{ node.vault.user }}"
+    mode: u=rw,g=r,o=
+  notify: restart vault

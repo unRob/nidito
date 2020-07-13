@@ -1,0 +1,64 @@
+- name: Get installed version
+  shell: /usr/syno/bin/synopkg version vault
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != nidito.vault.version }}"
+    vault_zip: "vault_{{ nidito.vault.version }}_linux_amd64.zip"
+
+- name: Get vault SPK
+  when: needs_install
+  git:
+    name: https://github.com/numkem/vault-spk.git
+    dest: /tmp/vault-spk
+    update: no
+
+- name: Copy vault patch
+  when: needs_install
+  template:
+    src: "templates/vault-spk.patch"
+    dest: /tmp/vault.patch
+    mode: u=rw,g=r,o=
+
+- name: Apply vault patch
+  when: needs_install
+  shell: |
+    cd /tmp/vault-spk
+    git reset --hard
+    git apply ../vault.patch
+    rm -rf ../vault.patch
+
+- name: Get vault binary
+  when: needs_install
+  get_url:
+    url: "https://releases.hashicorp.com/vault/{{ nidito.vault.version }}/{{ vault_zip }}"
+    dest: /tmp/
+
+- name: Unzip binary
+  when: needs_install
+  shell: |
+    cd /tmp
+    7z e {{ vault_zip }}
+    mkdir -p /tmp/vault-spk/1_create_package/vault
+    mv -f /tmp/vault /tmp/vault-spk/1_create_package/vault/
+    rm -rf /tmp/{{ vault_zip }}
+
+- name: Create SPK
+  when: needs_install
+  shell: cd /tmp/vault-spk; sh ./create_spk.sh
+
+- name: Install SPK
+  when: needs_install
+  become: true
+  shell: /usr/syno/bin/synopkg install /tmp/vault-spk/vault.spk
+
+- name: Create the vault config directory
+  when: needs_install
+  become: true
+  file:
+    path: "{{ node.vault.config }}"
+    owner: "{{ node.vault.user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=

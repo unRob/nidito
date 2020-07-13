@@ -56,17 +56,15 @@ services {
   id = "{{ svc_name }}"
   name = "{{ svc_name }}"
   port = {{ service.port }}
+  address = "{{ node.address }}"
   tags = [
     "ansible",
     "nidito.dns.enabled",
-    "traefik.enable=true",
-    "traefik.http.routers.{{ svc_name }}.rule=Host(`{{ svc_name }}.{{ nidito.dns.zone }}`)",
-    "traefik.http.routers.{{ svc_name }}.entrypoints=http,https",
-    "traefik.http.routers.{{ svc_name }}.tls=true",
-
-    "traefik.http.middlewares.allowed-ips-{{ svc_name }}.ipwhitelist.sourcerange={% for name, address in nidito.networks.items() if name in service.allowed_networks %}{{ address }}{{ "," if not loop.last else "" }}{% endfor %}",
-    "traefik.http.routers.{{ svc_name }}.middlewares=allowed-ips-{{ svc_name }},https-only@consul",
+    "nidito.http.enabled",
   ],
+  meta = {
+    "nidito-http-zone" = "{{ service.zone }}"
+  }
   checks = [
     {
       id = "{{ svc_name }}-http-check-{{ service.port }}"

@@ -17,5 +17,10 @@ roles/coredns/files/linux/edgeos/coredns: .cache/coredns
 	make -C .cache/coredns coredns SYSTEM='GOOS=linux GOARCH=mips64'
 	mv .cache/coredns/coredns $(ROOT)/$@
 
+sync-config: SHELL:=/bin/bash
 sync-config:
-	consul kv import <(pipenv run python config-to-consul.py)
+	pipenv run python export-config.py vault | while read -r line; do \
+    cpath="$${line%% *}"; \
+    json="$${line#* }"; \
+    vault kv put "kv/$${cpath}" \@<(echo "$$json"); \
+  done

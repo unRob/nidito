@@ -1,0 +1,22 @@
+storage "consul" {
+  address = "{{ ansible_hostname }}.{{ nidito.dns.zone }}:{{ nidito.consul.ports.http }}"
+
+  path    = "vault"
+
+  service_tags = "infra,nidito.metrics.enabled,nidito.metrics.path=/v1/metrics,nidito.metrics.hc-prometheus-hack"
+}
+
+ui = true
+listener "tcp" {
+  address = "{{ ansible_default_ipv4.address }}:{{ nidito.vault.port }}"
+  tls_disable = true
+
+  telemetry {
+    unauthenticated_metrics_access = "true"
+  }
+}
+
+telemetry {
+  prometheus_retention_time = "1h",
+  disable_hostname = true
+}

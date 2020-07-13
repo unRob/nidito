@@ -2,7 +2,7 @@ diff --git a/1_create_package/nomad/put_nomad_binary_here b/1_create_package/nom
 deleted file mode 100644
 index e69de29..0000000
 diff --git a/1_create_package/ui/config b/1_create_package/ui/config
-index 2215f01..3c974a0 100644
+index 2215f01..25c2678 100644
 --- a/1_create_package/ui/config
 +++ b/1_create_package/ui/config
 @@ -8,7 +8,7 @@
@@ -14,8 +14,19 @@ index 2215f01..3c974a0 100644
              "grantPrivilege": "local"
          }
      }
+diff --git a/2_create_project/INFO b/2_create_project/INFO
+index a5abeb8..2c4a3dd 100644
+--- a/2_create_project/INFO
++++ b/2_create_project/INFO
+@@ -1,5 +1,5 @@
+ package="nomad"
+-version="0.10.0"
++version="{{ nidito.nomad.version }}"
+ description="Easily Deploy Applications at Any Scale"
+ support_url="https://github.com/hashicorp/nomad/"
+ displayname="nomad"
 diff --git a/2_create_project/scripts/nomad.sc b/2_create_project/scripts/nomad.sc
-index 3fea758..36104e3 100755
+index 3fea758..e84bab4 100755
 --- a/2_create_project/scripts/nomad.sc
 +++ b/2_create_project/scripts/nomad.sc
 @@ -2,5 +2,5 @@

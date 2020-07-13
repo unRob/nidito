@@ -1,0 +1,19 @@
+- name: Restart vault service
+  when: ansible_pkg_mgr == "homebrew"
+  listen: restart vault
+  become: yes
+  shell: "launchctl stop io.vault.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.vault.daemon.plist"
+
+- name: Restart vault service
+  when: ansible_pkg_mgr == "pacman"
+  listen: restart vault
+  become: yes
+  systemd:
+    name: vault
+    state: reloaded
+
+- name: Restart vault service
+  when: ansible_pkg_mgr == "unknown"
+  listen: restart vault
+  become: yes
+  shell: /usr/syno/bin/synopkg restart vault || /usr/syno/bin/synopkg start vault

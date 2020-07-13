@@ -1,0 +1,33 @@
+- name: Get installed version
+  shell: vault --version | head -n 1 | cut -dv -f2
+  register: installed_vault_version
+  ignore_errors: yes
+  check_mode: no
+
+- name: Install vault
+  when: installed_vault_version.stdout != nidito.vault.version
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "https://releases.hashicorp.com/vault/{{ nidito.vault.version }}/vault_{{ nidito.vault.version }}_linux_arm.zip"
+    dest: /usr/bin
+
+- name: Install systemd service
+  become: yes
+  copy:
+    src: files/vault.service
+    dest: /usr/lib/systemd/system/
+
+- name: Create the vault config directory
+  become: true
+  file:
+    path: "{{ node.vault.config }}"
+    owner: "{{ node.vault.user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Enable vault daemon
+  become: yes
+  systemd:
+    name: vault
+    enabled: yes

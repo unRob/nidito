@@ -1,0 +1,16 @@
+[Unit]
+Description=Vault server
+Requires=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+EnvironmentFile=-/etc/default/vault
+Restart=on-failure
+ExecStart=/usr/bin/vault agent -config=/etc/vault.d
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

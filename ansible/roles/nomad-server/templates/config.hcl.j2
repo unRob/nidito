@@ -53,6 +53,11 @@ client {
     machine = "{{ ansible_architecture }}"
     reachability = "{{ node.reachability }}"
     hardware = "{{ node.hardware }}"
+{% if "meta" in node.nomad %}
+{% for key, value in node.nomad.meta.items() %}
+    {{ key }} = "{{ value }}"
+{% endfor %}
+{% endif %}
   }
 }
 
@@ -87,4 +92,11 @@ consul {
     "nidito.metrics.path=/v1/metrics",
     "nidito.metrics.hc-prometheus-hack",
   ]
+}
+
+vault {
+  enabled = true
+  address = "http://vault.service.consul:{{ nidito.vault.port }}"
+  token = "{{ nidito.nomad.token }}"
+  create_from_role = "nomad-cluster"
 }
