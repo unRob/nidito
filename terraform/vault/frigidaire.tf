@@ -1,23 +1,16 @@
 
-resource vault_policy http-proxy {
-  name = "http-proxy"
+resource vault_policy frigidaire {
+  name = "frigidaire"
 
   policy = <<HCL
-path "kv/nidito/letsencrypt/*" {
+path "kv/nidito/config/services/frigidaire/*" {
   capabilities = ["read"]
 }
 
-path "kv/nidito/config/http/zones/*" {
+path "kv/nidito/config/services/frigidaire" {
   capabilities = ["read"]
 }
 
-path "kv/nidito/config/networks" {
-  capabilities = ["read"]
-}
-
-path "kv/nidito/config/dns" {
-  capabilities = ["read"]
-}
 
 # Allow checking the capabilities of our own token. This is used to validate the
 # token upon startup.

@@ -42,7 +42,7 @@ job "docker-registry" {
 version: 0.1
 log:
   accesslog:
-    disabled: true
+    disabled: false
 
 storage:
   filesystem:

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+if [[ $1 == "start" ]]; then
+  set -x
+  # make sure our well-known folder is not wiped out by updates
+  ln -sfv /volume1/nidito/ /nidito/
+  # free ports 80/443
+  sed -i -e 's/80/81/' -e 's/443/444/' /usr/syno/share/nginx/server.mustache /usr/syno/share/nginx/DSM.mustache /usr/syno/share/nginx/WWWService.mustache
+
+  synoservicecfg --restart nginx || true
+
+  # host ip => vlan subnet
+  # 192.168.0.10 => 192.162.10.0/16
+  # 192.168.0.20 => 192.162.20.0/16 ...etc
+  docker network create \
+    --driver macvlan \
+    --subnet="{{ nidito.networks.shared.split('.')[:2] + [
+      node.address.split('.')[-1]),
+      '.0/16'
+      ] | join('.')
+    }}" \
+    --gateway="{{ ansible_default_ipv4.gateway }}"\
+    -o parent="{{ ansible_default_ipv4.interface }}.20"\
+    shared_vlan
+
+  cat >/etc/sysconfig/network-scripts/ifcfg-bond0.20 <<EOF
+DEVICE=bond0.20
+VLAN_ROW_DEVICE=bond0
+VLAN_ID=20
+BOOTPROTO=dhcp
+ONBOOT=yes
+IPV6INIT=off
+IPV6_ACCEPT_RA=1
+BONDING_OPTS="mode=2 use_carrier=1 miimon=100 updelay=100"
+USERCTL=no
+EOF
+
+  docker network create \
+    --driver macvlan \
+    --subnet="{{ nidito.networks.management.split('.')[:2] + [
+      node.address.split('.')[-1]),
+      '.0/16'
+      ] | join('.')
+    }}" \
+    --gateway="{{ ansible_default_ipv4.gateway }}"\
+    -o parent="{{ ansible_default_ipv4.interface }}"\
+    management_vlan
+fi

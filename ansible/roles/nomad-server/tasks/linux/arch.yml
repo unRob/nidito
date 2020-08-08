@@ -7,6 +7,7 @@
 - name: Install nomad
   when: installed_nomad_version.stdout != nidito.nomad.version
   become: yes
+  notify: really restart nomad
   unarchive:
     remote_src: yes
     src: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/nomad_{{ nidito.nomad.version }}_linux_arm.zip"

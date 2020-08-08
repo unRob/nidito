@@ -1,17 +1,17 @@
-- name: create nfs users
-  become: true
-  shell: |
-    # synouser {--add} username passwd full name expired email app privilege
-    synouser --add "{{ item.key }}.{{ nidito.dns.zone }}" {{ item.value }} "host: {{ item.key }}" 0 "" 2
-  with_items:
-    - asdf
+# - name: create nfs users
+#   become: true
+#   shell: |
+#     # synouser {--add} username passwd full name expired email app privilege
+#     synouser --add "{{ item.key }}.{{ nidito.dns.zone }}" {{ item.value }} "host: {{ item.key }}" 0 "" 2
+#   with_items:
+#     - asdf
 
 
-- name: Create nfs share
-  become: true
-  shell: |
-    # sharename share_desc share_path user_list_na user_list_rw user_list_ro share_browsable adv_privilege
-    /usr/syno/sbin/synoshare --get nidito || /usr/syno/sbin/synoshare --add nidito "share for nidito services" "/volume1/nidito" "guest" "@nomad-servers,@admin" "" 0 0
+# - name: Create nfs share
+#   become: true
+#   shell: |
+#     # sharename share_desc share_path user_list_na user_list_rw user_list_ro share_browsable adv_privilege
+#     /usr/syno/sbin/synoshare --get nidito || /usr/syno/sbin/synoshare --add nidito "share for nidito services" "/volume1/nidito" "guest" "@nomad-servers,@admin" "" 0 0
 
 - name: Install boot script
   become: true

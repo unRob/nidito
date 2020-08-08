@@ -1,23 +1,16 @@
 
-resource vault_policy http-proxy {
-  name = "http-proxy"
+resource vault_policy icecast {
+  name = "icecast"
 
   policy = <<HCL
-path "kv/nidito/letsencrypt/*" {
-  capabilities = ["read"]
-}
-
-path "kv/nidito/config/http/zones/*" {
-  capabilities = ["read"]
-}
-
-path "kv/nidito/config/networks" {
+path "kv/nidito/config/services/icecast/*" {
   capabilities = ["read"]
 }
 
 path "kv/nidito/config/dns" {
   capabilities = ["read"]
 }
+
 
 # Allow checking the capabilities of our own token. This is used to validate the
 # token upon startup.

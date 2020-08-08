@@ -28,6 +28,7 @@ rm -rf tmp
 mkdir -p {tmp,tv-series,movies}
 touch tmp/purge.list
 
+set -o pipefail
 if ! rclone lsjson -R "putio:" |
   jq -r "map(select(.MimeType | contains(\"video\")) | .Path) | .[]" |
   sort -n > tmp/source.list; then
@@ -38,6 +39,7 @@ grep -vi 'S[0-9][0-9]' tmp/source.list > tmp/movies.list
 
 downloadMedia tv-series || fail "Could not download tv-series"
 downloadMedia movies || fail "Could not download movies"
+echo "Downloading complete"
 
 if [ -s tmp/purge.list ]; then
   echo "Purging directories:"
@@ -48,3 +50,4 @@ if [ -s tmp/purge.list ]; then
 fi
 
 rm -rf tmp
+echo "Sync complete"

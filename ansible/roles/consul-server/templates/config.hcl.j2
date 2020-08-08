@@ -11,7 +11,7 @@ bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw 
 client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
 
 server = true
-ui = {{ (node.consul.ui | default("false") | string ).lower() }}
+ui = true
 
 retry_join = [
   {% for host in node.consul.peers %}
@@ -44,11 +44,6 @@ ports {
 telemetry {
   prometheus_retention_time = "744h"
 }
-
-{# # We want to add traefik tags to services after they launch
-# and do so from any agent
-# https://discuss.hashicorp.com/t/remotely-update-service-tags-on-client-node/5807/8
-enable_tag_override = true #}
 
 {% if "http_services" in node.consul %}
 {% for svc_name, service in node.consul.http_services.items() %}

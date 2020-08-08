@@ -3,3 +3,4 @@ _data/*
 ansible/.cache
 .terraform
 .terraform
+.vscode

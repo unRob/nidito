@@ -1,10 +1,8 @@
-{% if ansible_system == "Darwin" %}
-data_dir = "/private/var/lib/nomad"
-{% else %}
-data_dir = "/var/lib/nomad"
-{% endif %}
+data_dir = "{{ node.nomad.data }}"
 datacenter = "brooklyn"
 name = "{{ ansible_hostname }}"
+log_level = "warn"
+{# enable_syslog = true #}
 
 bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ nidito.networks.management }}\" | attr \"address\" {% raw %}}}{% endraw %}"
 
@@ -35,17 +33,12 @@ client {
   enabled       = true
   node_class = "{{ ansible_system }}-{{ ansible_architecture }}"
   memory_total_mb = {{ node.nomad.memory | default("1000") }}
-  {# nomad 0.10 only #}
-  {# host_volume "shared" {
-    path = "/nidito/data"
-  }
 
-  host_volume "scratch" {
-    path = "/nidito/scratch"
-  } #}
+  cni_path = "/opt/cni/bin"
+  cni_config_dir = "/opt/cni/config"
 
   options {
-    driver.whitelist = "docker,raw_exec"
+    driver.whitelist = "docker,exec,raw_exec"
   }
 
   meta {
@@ -72,6 +65,12 @@ plugin "docker" {
     gc {
       image_delay = "24h"
     }
+
+    {# Not ready to do iSCSI or proper storage management #}
+
+    volumes {
+      enabled = true
+    }
   }
 }
 
@@ -82,9 +81,6 @@ consul {
   auto_advertise = true
   server_auto_join = true
   client_auto_join = true
-
-  {# client_service_name = "nomad"
-  server_service_name = "nomad-server" #}
 
   tags = [
     "infra",

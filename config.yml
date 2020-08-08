@@ -45,6 +45,8 @@ home:
     lng: -73.930374
   time-zone: America/New_York
 http:
+  # zones are groups of networks referenced by consul services
+  # using the `nidito-http-zone` meta field.
   zones:
     local:
     - management
@@ -84,6 +86,7 @@ nodes:
       hash: f7462b010db2fce63c45774b5f71b49b9321d831c95607f0d789f89c30238a64
     nomad:
       config: /etc/nomad.d
+      data: /var/lib/nomad
       user: root
     platform: linux/arch
     reachability: public
@@ -125,10 +128,11 @@ nodes:
       hash: 51936351e6b2277c56c7b6424c1bf64e1d0ee694e5bcd6cdbadbb44ebb5fa9ab
     nomad:
       config: /etc/nomad
+      data: /volume1/nomad
       memory: 8000
-      user: root
       meta:
         nidito-storage: primary
+      user: root
     platform: linux/dsm
     reachability: private
   xitle:
@@ -142,7 +146,6 @@ nodes:
         ciphertext: wheXSeQ+61jOZ8iY3vKd31hFoOlpnIYh8PCwelCpOqw5d+6EM+YlLBhakzpwjo9a1aQPC78CcoW0KkDDRo6ypEPlxsNwI8mbN1zDvlgA8Nza4sXf
         encrypted: true
         hash: 53e2ecb0758fd6b9575e247e78889da48274c51667656f57af780c4282754db5
-      ui: true
       user: _consul
     hardware: mbp
     mac:
@@ -151,6 +154,7 @@ nodes:
       hash: 2174b10ed9202452bbb79213e316c40279880791dc005d7677ce37e8b36b1f29
     nomad:
       config: /nidito/nomad
+      data: /private/var/lib/nomad
       memory: 4000
       user: root
     platform: macos
@@ -167,7 +171,7 @@ nomad:
     ciphertext: 6t2f+D/Vly7BZ/N2JrRJ4NoR9UZN1JGsldvgDMuCzjZc3CNq1wBOUSP24CmgbbnEeDrbBqsYjk/rvwTaFlSzCtsZRzlKwiKKKsM=
     encrypted: true
     hash: 7c58186b3b631c6e96801ffdf12c627555608a9c8378fbcedcdd9a33493b65a6
-  version: 0.10.5
+  version: 0.12.1
 router:
   interfaces:
     bonding:
@@ -302,8 +306,25 @@ router:
       size: 100
       vlan: 10
 services:
+  frigidaire:
+    email:
+      ciphertext: kSAv36BU/pAfXeXmMdld8ZSMiSMWJ9pp/XXDiqcinCucuHmM2x5HDtRmrm0JBCJQLLCRl2oHJMqN
+      encrypted: true
+      hash: fdb94a6db49472fee8d0f1f737d9ba82fbd3e85591056fee0238f4ab96033b8a
+    # It gets cold in winter
+    enabled: true
+    password:
+      ciphertext: 7s0cv8YjN9d/ZWFtUCvyOr8igdSF9fIM9YI6Za/YeUJehCscp7J0Xhnp3723wRmTrFemAx9BniIQ0BwSULtV
+      encrypted: true
+      hash: bd87686fcb88e3b1ef1c0ca96dd14c182b6b6fccdc9e0cd27b3ac2b15d3717bf
+    pin:
+      ciphertext: WUSvblP5/svbY8Hylynuhinq5X/+DADePAi9JUSUyjep1f+BRf9ck6M/G5RqH+p09Ckkzu7JOlFVA6ox
+      encrypted: true
+      hash: 6f98c410748be2e7131147df2cafd578b7b12c74fd44ecf270cd837b2f021c36
   homebridge:
     nest:
+      # landlord shuts down the whole system cause it's old
+      enabled: false
       id:
         ciphertext: tK6VO4wGCSKJciydd7ieTgjybX/Idfn0ZkvPqrxKzfa9QDeHr8ftdtML+3OWVuIA0Cz/EXL21+tcYBZaO7tbW97Cn5rlVgFEJy2fRZvgiSvWBAW7
         encrypted: true
@@ -321,6 +342,16 @@ services:
       encrypted: true
       hash: 6f98c410748be2e7131147df2cafd578b7b12c74fd44ecf270cd837b2f021c36
     username: "13:37:D3:4D:B3:3F"
+  icecast:
+    credentials:
+      admin:
+        ciphertext: kbX/HY9RAyKlKNNOC5DSXa/RUqblTYwXRJcJaLBQqaVws9fQaol/Smp8CmS8to1rQfExNnxjFpRO1h1kig+rk9YZi9Djc4OLYX8+pLpdi6A=
+        encrypted: true
+        hash: 24c10c726c3b70f9c34803a8c3282dc77fbffebb773050b41beb9082eecdb236
+      source:
+        ciphertext: JgTJdC1NY+QQApE7UNKLZ5I/qZC8s2QSC4SzmJndK5612HDT/UBdxou3O+t7yhUN+c6lXhaZRL3CqW3dgVN09Qg=
+        encrypted: true
+        hash: 2221cb4077211a07b66143f4cd6cd885798355ac36c90a91c1502b0dc2098547
   letsencrypt:
     email: nidito@un.rob.mx
     private_key:

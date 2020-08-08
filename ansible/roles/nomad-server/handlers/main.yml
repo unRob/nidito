@@ -4,13 +4,21 @@
   become: yes
   shell: "launchctl stop io.nomad.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.nomad.daemon.plist"
 
-- name: Restart nomad service
+- name: Reload nomad service
   when: ansible_pkg_mgr == "pacman"
   listen: restart nomad
   become: yes
   systemd:
     name: nomad
     state: reloaded
+
+- name: Restart nomad service
+  when: ansible_pkg_mgr == "pacman"
+  listen: really restart nomad
+  become: yes
+  systemd:
+    name: nomad
+    state: restarted
 
 - name: Restart nomad service
   when: ansible_pkg_mgr == "unknown"

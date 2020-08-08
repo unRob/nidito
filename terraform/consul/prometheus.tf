@@ -1,3 +1,9 @@
+provider consul {}
+
+data consul_key_prefix cfg {
+  path_prefix = "/nidito/config"
+}
+
 resource consul_acl_policy service-prometheus {
   name        = "service-prometheus"
   description = "prometheus policy"
@@ -33,6 +39,7 @@ resource consul_acl_token service-prometheus {
 data consul_acl_token_secret_id service-prometheus {
   accessor_id = "${consul_acl_token.service-prometheus.id}"
 }
+
 resource vault_generic_secret certificate {
   path = "kv/nidito/service/prometheus/consul"
   data_json = jsonencode({

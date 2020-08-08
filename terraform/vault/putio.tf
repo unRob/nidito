@@ -3,11 +3,11 @@ resource vault_policy putio {
   name = "putio"
 
   policy = <<HCL
-path "kv/nidito/service/putio/*" {
+path "kv/nidito/config/services/putio/*" {
   capabilities = ["read"]
 }
 
-path "kv/nidito/service/putio" {
+path "kv/nidito/config/services/putio" {
   capabilities = ["read"]
 }
 

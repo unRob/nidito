@@ -237,6 +237,7 @@ server {
   keepalive_timeout   70;
 
   location / {
+    client_max_body_size 500m;
     add_header X-Edge {{ $nodeName }} always;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;

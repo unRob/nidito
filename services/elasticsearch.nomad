@@ -26,7 +26,7 @@ job "logs" {
 
       constraint {
         attribute = "${meta.nidito-storage}"
-        value     = "primary+"
+        value     = "primary"
       }
 
       config {
@@ -68,8 +68,12 @@ job "logs" {
           "nidito.infra",
           "nidito.dns.enabled",
           "nidito.http.enabled",
-          "nidito.http.zone=trusted"
         ]
+
+        meta = {
+          nidito-http-zone = "trusted"
+        }
+
         check {
           name     = "alive"
           type     = "tcp"
@@ -83,7 +87,6 @@ job "logs" {
         port = "tcp"
         tags = [
           "infra",
-          "traefik.enable=false",
         ]
         check {
           name     = "alive"
