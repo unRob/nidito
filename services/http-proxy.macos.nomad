@@ -13,11 +13,11 @@ job "http-proxy-macos" {
   group "http-proxy-macos" {
     restart {
       # on failure, restart at most
-      attempts = 10
+      attempts = 20
       # during
-      interval = "5m"
+      interval = "20m"
       # waiting after a crash
-      delay = "25s"
+      delay = "5s"
       # after which, continue waiting `interval` units
       # before retrying
       mode = "delay"
@@ -35,7 +35,7 @@ job "http-proxy-macos" {
       driver = "raw_exec"
 
       template {
-        destination = "secrets/ssl/star.nidi.to.crt"
+        destination = "local/ssl/star.nidi.to.crt"
         data = <<PEM
 {{- with secret "kv/nidito/letsencrypt/cert/nidi.to" }}
 {{ .Data.cert }}
@@ -46,7 +46,7 @@ PEM
       }
 
       template {
-        destination = "secrets/ssl/star.nidi.to.key"
+        destination = "local/ssl/star.nidi.to.key"
         data = <<PEM
 {{- with secret "kv/nidito/letsencrypt/cert/nidi.to" }}
 {{ .Data.private_key }}
@@ -57,167 +57,31 @@ PEM
       }
 
       template {
-        destination = "local/mime.types"
+        destination = "local/default.conf"
         data = <<NGINX
-types {
-    text/html                                        html htm shtml;
-    text/css                                         css;
-    text/xml                                         xml;
-    image/gif                                        gif;
-    image/jpeg                                       jpeg jpg;
-    application/javascript                           js;
-    application/atom+xml                             atom;
-    application/rss+xml                              rss;
-
-    text/mathml                                      mml;
-    text/plain                                       txt;
-    text/vnd.sun.j2me.app-descriptor                 jad;
-    text/vnd.wap.wml                                 wml;
-    text/x-component                                 htc;
-
-    image/png                                        png;
-    image/svg+xml                                    svg svgz;
-    image/tiff                                       tif tiff;
-    image/vnd.wap.wbmp                               wbmp;
-    image/webp                                       webp;
-    image/x-icon                                     ico;
-    image/x-jng                                      jng;
-    image/x-ms-bmp                                   bmp;
-
-    font/woff                                        woff;
-    font/woff2                                       woff2;
-
-    application/java-archive                         jar war ear;
-    application/json                                 json;
-    application/mac-binhex40                         hqx;
-    application/msword                               doc;
-    application/pdf                                  pdf;
-    application/postscript                           ps eps ai;
-    application/rtf                                  rtf;
-    application/vnd.apple.mpegurl                    m3u8;
-    application/vnd.google-earth.kml+xml             kml;
-    application/vnd.google-earth.kmz                 kmz;
-    application/vnd.ms-excel                         xls;
-    application/vnd.ms-fontobject                    eot;
-    application/vnd.ms-powerpoint                    ppt;
-    application/vnd.oasis.opendocument.graphics      odg;
-    application/vnd.oasis.opendocument.presentation  odp;
-    application/vnd.oasis.opendocument.spreadsheet   ods;
-    application/vnd.oasis.opendocument.text          odt;
-    application/vnd.openxmlformats-officedocument.presentationml.presentation
-                                                     pptx;
-    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-                                                     xlsx;
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document
-                                                     docx;
-    application/vnd.wap.wmlc                         wmlc;
-    application/x-7z-compressed                      7z;
-    application/x-cocoa                              cco;
-    application/x-java-archive-diff                  jardiff;
-    application/x-java-jnlp-file                     jnlp;
-    application/x-makeself                           run;
-    application/x-perl                               pl pm;
-    application/x-pilot                              prc pdb;
-    application/x-rar-compressed                     rar;
-    application/x-redhat-package-manager             rpm;
-    application/x-sea                                sea;
-    application/x-shockwave-flash                    swf;
-    application/x-stuffit                            sit;
-    application/x-tcl                                tcl tk;
-    application/x-x509-ca-cert                       der pem crt;
-    application/x-xpinstall                          xpi;
-    application/xhtml+xml                            xhtml;
-    application/xspf+xml                             xspf;
-    application/zip                                  zip;
-
-    application/octet-stream                         bin exe dll;
-    application/octet-stream                         deb;
-    application/octet-stream                         dmg;
-    application/octet-stream                         iso img;
-    application/octet-stream                         msi msp msm;
-
-    audio/midi                                       mid midi kar;
-    audio/mpeg                                       mp3;
-    audio/ogg                                        ogg;
-    audio/x-m4a                                      m4a;
-    audio/x-realaudio                                ra;
-
-    video/3gpp                                       3gpp 3gp;
-    video/mp2t                                       ts;
-    video/mp4                                        mp4;
-    video/mpeg                                       mpeg mpg;
-    video/quicktime                                  mov;
-    video/webm                                       webm;
-    video/x-flv                                      flv;
-    video/x-m4v                                      m4v;
-    video/x-mng                                      mng;
-    video/x-ms-asf                                   asx asf;
-    video/x-ms-wmv                                   wmv;
-    video/x-msvideo                                  avi;
-}
-NGINX
-      }
-
-      template {
-        destination = "local/nginx.conf"
-        data = <<NGINX
-daemon off;
-user  _wwwproxy;
-worker_processes  auto;
-
-events {
-    worker_connections  1024;
-}
-
-
-http {
-    include       mime.types;
-    default_type  application/octet-stream;
-
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
-
-    sendfile        on;
-    #tcp_nopush     on;
-
-    keepalive_timeout  65;
-
-    #gzip  on;
-
-server {
-  listen       80 default_server;
-  listen  [::]:80;
-  server_name  localhost;
-
-  location /status {
-    allow 127.0.0.1;
-    allow 10.10.0.0/28;
-    deny all;
-    stub_status;
-  }
-}
-
+{{- with secret "kv/nidito/config/dns" }}
+{{- scratch.Set "zone" .Data.zone }}
+{{- end }}
 {{- $nodeName := env "node.unique.name"}}
-{{- $secretsDir := env "NOMAD_SECRETS_DIR"}}
-{{- range services }}
+{{ range services }}
 {{- if in .Tags "nidito.http.enabled" }}
 {{- range service .Name }}
-{{- if eq $nodeName .Node }}
-{{- $zoneName := index .ServiceMeta "nidito-http-zone" }}
+{{- if or (eq $nodeName .Node) (in .Tags "nidito.http.public") }}
+{{- $zoneName := or (index .ServiceMeta "nidito-http-zone") "trusted" }}
+
 server {
-  listen 80;
-  server_name {{ .Name }} {{ .Name }}.nidi.to;
-  return 301 https://{{ .Name }}.nidi.to;
+  listen *:80;
+  server_name {{ .Name }} {{ .Name }}.{{ scratch.Get "zone" }};
+  return 301 https://{{ .Name }}.{{ scratch.Get "zone" }};
 }
 
 server {
-  listen 443 ssl http2;
-  server_name {{ .Name }}.nidi.to;
+  listen *:443 ssl http2;
+  server_name {{ .Name }}.{{ scratch.Get "zone" }};
 
   allow 127.0.0.1;
-  # Zone: {{ $zoneName }}
   {{- with secret (printf "kv/nidito/config/http/zones/%s" $zoneName) }}
+  # Zone: {{ $zoneName }}
   {{- $networkNames := .Data.json | parseJSON }}
   {{- range $networkNames }}
   {{- $network := . }}
@@ -226,10 +90,15 @@ server {
   {{- end }}
   {{- end }}
   {{- end }}
+  {{- if not (in .Tags "nidito.http.public") }}
+  {{- scratch.MapSet "services" .Name "local" }}
   deny all;
+  {{- else }}
+  {{- scratch.MapSet "services" .Name "public" }}
+  {{ end }}
 
-  ssl_certificate     {{ $secretsDir }}/ssl/star.nidi.to.crt;
-  ssl_certificate_key {{ $secretsDir }}/ssl/star.nidi.to.key;
+  ssl_certificate     {{ env "NOMAD_TASK_DIR" }}/ssl/star.{{ scratch.Get "zone" }}.crt;
+  ssl_certificate_key {{ env "NOMAD_TASK_DIR" }}/ssl/star.{{ scratch.Get "zone" }}.key;
   ssl_protocols       TLSv1.2;
   ssl_prefer_server_ciphers on;
   ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384";
@@ -238,31 +107,70 @@ server {
 
   location / {
     client_max_body_size 500m;
+
     add_header X-Edge {{ $nodeName }} always;
+    add_header X-Nidito-Service {{ .Name }} always;
+
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 
-    proxy_pass http://{{ .Name }}.service.consul:{{ .Port }};
+    {{- if eq (index .ServiceMeta "nidito-http-buffering") "off" }}
+    proxy_buffering "off";
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    {{- end }}
+
+    resolver 10.10.0.1 valid=30s;
+    proxy_pass http://{{ .Address }}:{{ .Port }};
   }
 }
 
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 
-{{- end }}
-{{- end }}
-{{- end }}
-{{- end }}
+server {
+  listen      *:80 default_server;
+  server_name  localhost;
+
+  location /status {
+    allow 127.0.0.1;
+    allow 10.10.0.0/28;
+    deny all;
+    stub_status;
+    access_log off;
+  }
+
+  location /nidito/proxied-services {
+    allow 127.0.0.1;
+    allow 10.10.0.0/28;
+    deny all;
+    access_log off;
+    default_type application/json;
+    return 200 '{ "node": "{{ $nodeName }}", "services": {{ scratch.Get "services" | explodeMap | toJSON }} }';
+  }
+
+  location / {
+    client_max_body_size 128k;
+    default_type application/json;
+    return 200 '{"token": "$request_id", "role": "admin"}';
+  }
 }
+
 NGINX
         change_mode   = "signal"
         change_signal = "SIGHUP"
+        splay = "30s"
       }
 
       config {
-        command = "/usr/local/bin/nginx"
+        command = "/usr/local/etc/nginx/nomad.sh"
         args = [
-          "-c", "${NOMAD_TASK_DIR}/nginx.conf"
+          "-c", "/usr/local/etc/nginx/nginx.conf"
         ]
       }
 

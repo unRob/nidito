@@ -13,7 +13,7 @@ job "http-proxy" {
   group "http-proxy" {
     restart {
       # on failure, restart at most
-      attempts = 100
+      attempts = 20
       # during
       interval = "20m"
       # waiting after a crash
@@ -61,30 +61,11 @@ PEM
 {{- scratch.Set "zone" .Data.zone }}
 {{- end }}
 {{- $nodeName := env "node.unique.name"}}
-server {
-  listen      *:80 default_server;
-  server_name  localhost;
-
-  location /status {
-    allow 127.0.0.1;
-    allow 10.10.0.0/28;
-    deny all;
-    stub_status;
-  }
-
-  location / {
-    client_max_body_size 128k;
-    default_type application/json;
-    return 200 '{"token": "$request_id", "role": "admin"}';
-  }
-}
-
 {{ range services }}
 {{- if in .Tags "nidito.http.enabled" }}
 {{- range service .Name }}
 {{- if or (eq $nodeName .Node) (in .Tags "nidito.http.public") }}
 {{- $zoneName := or (index .ServiceMeta "nidito-http-zone") "trusted" }}
-
 
 server {
   listen *:80;
@@ -108,7 +89,10 @@ server {
   {{- end }}
   {{- end }}
   {{- if not (in .Tags "nidito.http.public") }}
+  {{- scratch.MapSet "services" .Name "local" }}
   deny all;
+  {{- else }}
+  {{- scratch.MapSet "services" .Name "public" }}
   {{ end }}
 
   ssl_certificate     /ssl/star.{{ scratch.Get "zone" }}.crt;
@@ -129,14 +113,16 @@ server {
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_buffering {{- or (index .ServiceMeta "nidito-http-buffering") "on" }};
 
+    {{- if eq (index .ServiceMeta "nidito-http-buffering") "off" }}
+    proxy_buffering "off";
     sendfile on;
     tcp_nopush on;
     tcp_nodelay on;
+    {{- end }}
 
-
-    proxy_pass http://{{ .Name }}.service.consul:{{ .Port }};
+    resolver 10.10.0.1 valid=30s;
+    proxy_pass http://{{ .Address }}:{{ .Port }};
   }
 }
 
@@ -145,9 +131,38 @@ server {
 {{- end }}
 {{- end }}
 
+server {
+  listen      *:80 default_server;
+  server_name  localhost;
+
+  location /status {
+    allow 127.0.0.1;
+    allow 10.10.0.0/28;
+    deny all;
+    stub_status;
+    access_log off;
+  }
+
+  location /nidito/proxied-services {
+    allow 127.0.0.1;
+    allow 10.10.0.0/28;
+    deny all;
+    access_log off;
+    default_type application/json;
+    return 200 '{ "node": "{{ $nodeName }}", "services": {{ scratch.Get "services" | explodeMap | toJSON }} }';
+  }
+
+  location / {
+    client_max_body_size 128k;
+    default_type application/json;
+    return 200 '{"token": "$request_id", "role": "admin"}';
+  }
+}
+
 NGINX
         change_mode   = "signal"
         change_signal = "SIGHUP"
+        splay = "30s"
       }
 
       config {
@@ -166,6 +181,7 @@ NGINX
         volumes = [
           "secrets/ssl:/ssl",
           "local/default.conf:/etc/nginx/conf.d/default.conf",
+          "/nidito/cajon:/cajon"
         ]
       }
 
@@ -204,7 +220,6 @@ NGINX
           timeout  = "2s"
         }
       }
-
     }
 
 

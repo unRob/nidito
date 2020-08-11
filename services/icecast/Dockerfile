@@ -14,4 +14,8 @@ RUN wget "https://github.com/karlheyes/icecast-kh/archive/icecast-$IC_VERSION.ta
 
 RUN apk del --no-cache .build-deps
 
+COPY --from=minio/mc /usr/bin/mc /usr/local/bin/
+COPY --chown=icecast:icecast on-disconnect.sh /home/icecast/on-disconnect.sh
+COPY --chown=icecast:icecast web/* /usr/share/icecast/web/
+
 CMD ["icecast", "-c", "/etc/icecast.xml"]

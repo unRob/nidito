@@ -26,6 +26,7 @@ job "icecast" {
 
     task "radio" {
       driver = "docker"
+      user = "icecast"
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -39,18 +40,8 @@ job "icecast" {
 {{- scratch.Set "zone" .Data.zone }}
 {{-  end }}
 <icecast>
-    <!-- location and admin are two arbitrary strings that are e.g. visible
-         on the server info page of the icecast web interface
-         (server_version.xsl). -->
     <location>Earth</location>
     <admin>icecast@{{ scratch.Get "zone" }}</admin>
-
-    <!-- IMPORTANT!
-         Especially for inexperienced users:
-         Start out by ONLY changing all passwords and restarting Icecast.
-         For detailed setup instructions please refer to the documentation.
-         It's also available here: http://icecast.org/docs/
-    -->
 
     <limits>
         <clients>300</clients>
@@ -59,30 +50,17 @@ job "icecast" {
         <client-timeout>30</client-timeout>
         <header-timeout>15</header-timeout>
         <source-timeout>60</source-timeout>
-        <!-- If enabled, this will provide a burst of data when a client
-             first connects, thereby significantly reducing the startup
-             time for listeners that do substantial buffering. However,
-             it also significantly increases latency between the source
-             client and listening client.  For low-latency setups, you
-             might want to disable this. -->
-        <!-- burst-on-connect>1</burst-on-connect -->
-        <!-- same as burst-on-connect, but this allows for being more
-             specific on how much to burst. Most people won't need to
-             change from the default 64k. Applies to all mountpoints  -->
         <burst-size>65535</burst-size>
     </limits>
 
     <authentication>
-        {{ with secret "kv/nidito/config/services/icecast/credentials" }}
-        <!-- Sources log in with username 'source' -->
+        {{- with secret "kv/nidito/config/services/icecast/credentials" }}
         <source-password>{{ .Data.source }}</source-password>
-        <!-- Relays log in with username 'relay' -->
         <relay-password>{{ .Data.source }}</relay-password>
 
-        <!-- Admin logs in with the username given below -->
         <admin-user>admin</admin-user>
         <admin-password>{{ .Data.admin }}</admin-password>
-        {{ end }}
+        {{- end }}
     </authentication>
 
     <!-- This is the hostname other people will use to connect to your server.
@@ -93,29 +71,17 @@ job "icecast" {
 
     <listen-socket><port>8000</port></listen-socket>
 
-    <!-- Global header settings
-         Headers defined here will be returned for every HTTP request to Icecast.
-
-         The ACAO header makes Icecast public content/API by default
-         This will make streams easier embeddable (some HTML5 functionality needs it).
-         Also it allows direct access to e.g. /status-json.xsl from other sites.
-         If you don't want this, comment out the following line or read up on CORS.
-    -->
-    <!-- http-headers>
-        <header name="Access-Control-Allow-Origin" value="*" />
-    </http-headers-->
-
 
     <mount type="normal">
         <mount-name>/live.mp3</mount-name>
-        <dump-file>/recordings/%Y-%m-%d-%H-%M-%S.mp3</dump-file>
+        <dump-file>/recordings/%Y-%m-%dT%H-%M-%S.mp3</dump-file>
         <!-- <fallback-mount>/example2.ogg</fallback-mount> -->
         <!-- <fallback-override>1</fallback-override> -->
         <!-- <fallback-when-full>1</fallback-when-full> -->
         <!-- <intro>/example_intro.ogg</intro> -->
         <!-- <hidden>1</hidden> -->
         <!-- <on-connect>/home/icecast/bin/stream-start</on-connect> -->
-        <!-- <on-disconnect>/home/icecast/bin/stream-stop</on-disconnect> -->
+        <on-disconnect>/home/icecast/on-disconnect.sh</on-disconnect>
     </mount>
 
     <fileserve>1</fileserve>
@@ -132,7 +98,8 @@ job "icecast" {
         <adminroot>/usr/share/icecast/admin</adminroot>
         <!-- <pidfile>/usr/share/icecast/icecast.pid</pidfile> -->
 
-        <alias source="/" dest="/status.xsl"/>
+        <alias source="/" dest="/index.html"/>
+        <alias source="/status.json" dest="/status-json.xsl"/>
     </paths>
 
     <logging>
@@ -141,13 +108,6 @@ job "icecast" {
         <!-- <playlistlog>playlist.log</playlistlog> -->
         <loglevel>3</loglevel> <!-- 4 Debug, 3 Info, 2 Warn, 1 Error -->
         <logsize>10000</logsize> <!-- Max size of a logfile -->
-        <!-- If logarchive is enabled (1), then when logsize is reached
-             the logfile will be moved to [error|access|playlist].log.DATESTAMP,
-             otherwise it will be moved to [error|access|playlist].log.old.
-             Default is non-archive mode (i.e. overwrite)
-             sigh
-        -->
-        <!-- <logarchive>1</logarchive> -->
     </logging>
 
     <security>
@@ -164,62 +124,25 @@ XML
         change_signal = "SIGHUP"
       }
 
+
       template {
-        destination = "local/status.xsl"
-        data = <<HTML
-<?xml version="1.0"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-<xsl:output omit-xml-declaration="no" method="xml" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" indent="yes" encoding="UTF-8"/>
-<xsl:template match="/icestats">
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-    <title>Radio Nidito</title>
-    <link href="//fonts.googleapis.com/css?family=Literata:400,400i,700,700i&amp;display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://rob.mx/cv/styles.css"/>
-  </head>
-  <body>
-    <main id="container">
-      <h1>Radio Nidito</h1>
-      <p>Transmitiendo desde Bruclin, Nuevayorc con hasta 45watts/h de consumo el&#xE9;ctrico.</p>
-
-      <xsl:for-each select="source">
-        <xsl:choose>
-          <xsl:when test="listeners">
-
-            <h2>Al aire: <xsl:if test="artist"><xsl:value-of select="artist"/> - </xsl:if><xsl:if test="title"><xsl:value-of select="title"/></xsl:if></h2>
-
-            <xsl:if test="stream_start">
-              <p>&#x1F4C5; <xsl:value-of select="stream_start"/></p>
-            </xsl:if>
-
-
-            <xsl:if test="server_type">
-              <audio controls="controls" preload="none">
-                <source src="https://radio.nidi.to/live.mp3" />
-              </audio>
-            </xsl:if>
-          </xsl:when>
-          <xsl:otherwise>
-            <h2>Fuera del aire</h2>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:for-each>
-    </main>
-  </body>
-</html>
-</xsl:template>
-</xsl:stylesheet>
-HTML
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
+        destination = "local/minio-env.sh"
+        data = <<ENV
+#!/usr/bin/env sh
+{{- with secret "kv/nidito/config/dns" }}
+{{- scratch.Set "zone" .Data.zone }}
+{{-  end }}
+{{- with secret "kv/nidito/config/services/minio" }}
+export MC_HOST_cajon="https://{{ .Data.key }}:{{ .Data.secret }}@cajon.{{ scratch.Get "zone" }}/"
+{{- end }}
+export MC_CONFIG_DIR="/home/icecast/.mc"
+ENV
+        perms = "777"
       }
 
-
       config {
-        image = "registry.nidi.to/icecast:2.4.0-kh15"
+        image = "registry.nidi.to/icecast:2.4.1-kh15"
+        force_pull = true
 
         port_map {
           http = 8000
@@ -227,7 +150,7 @@ HTML
 
         volumes = [
           "local/icecast.xml:/etc/icecast.xml",
-          "local/status.xsl:/usr/share/icecast/web/status.xsl",
+          "local/minio-env.sh:/home/icecast/minio-env.sh",
           "/nidito/icecast:/recordings"
         ]
       }
@@ -264,8 +187,14 @@ HTML
         check {
           type     = "http"
           path     = "/"
-          interval = "60s"
+          interval = "30s"
           timeout  = "2s"
+
+          check_restart {
+            limit = 3
+            grace = "15s"
+            ignore_warnings = false
+          }
         }
       }
 

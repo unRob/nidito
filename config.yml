@@ -345,9 +345,9 @@ services:
   icecast:
     credentials:
       admin:
-        ciphertext: kbX/HY9RAyKlKNNOC5DSXa/RUqblTYwXRJcJaLBQqaVws9fQaol/Smp8CmS8to1rQfExNnxjFpRO1h1kig+rk9YZi9Djc4OLYX8+pLpdi6A=
+        ciphertext: WY0uRSXzREIp8BnN5/HiXz6ajcYQMP3Qq8UTlfsQhpjfxzk7re00pbroD1JSnLfJBwTYnAsdFT08/tvmZKJI82ly2CD4lTRWc+aipNNcNy0=
         encrypted: true
-        hash: 24c10c726c3b70f9c34803a8c3282dc77fbffebb773050b41beb9082eecdb236
+        hash: 86292b0aa0220e62c96ce132cb2bba38b5af2c4f687a130ca0899078cf4250d1
       source:
         ciphertext: JgTJdC1NY+QQApE7UNKLZ5I/qZC8s2QSC4SzmJndK5612HDT/UBdxou3O+t7yhUN+c6lXhaZRL3CqW3dgVN09Qg=
         encrypted: true
@@ -367,6 +367,15 @@ services:
       ciphertext: RD5i7jUoREEXjmZ/R/IZpagjQuxN7ZRYRGqr9r+CXgqZ1hBeCeRNU8NqFpydSUbWa7/jkXXnZTZuV4Gk3bKdeHPxI6dULd/wmBmu9wdMF+j75rUaVR9x1Z5TTuSkW792F7E=
       encrypted: true
       hash: 3d856eb9a77ce054f2fa9ea632a6d515e57b2ffeb6767c7861fb8c1b253c1bf5
+  minio:
+    key:
+      ciphertext: iJ9j7LmqYDJypNCOgeCZlnO+dK1/aq45bLosayCbtCmTxsgmn/w4HF2SPAM93FRRS1kiYGg=
+      encrypted: true
+      hash: 5ae0a39b9dc084b59aa32256335bd60eac3107bac9ecc6eb1688d2ff2ec67c87
+    secret:
+      ciphertext: kuuyuE5wE7loigXTOyUiG+473/HiVQ9oF6SwZ0sepPyTe0a29ZqdFyhdQY8v4fQhRqdJ4olfvlP7R1R/0xyPXc59aPPTtvbRCk2nooYRlzk=
+      encrypted: true
+      hash: 80a8bd31044087e0fb91b09352caec645fbe877a413952b929be5e7bb6fbb2a7
   putio:
     token:
       ciphertext: pJtv3uJRPHGGsIdKJQIaRroG5hm6qn4mrkJW+X2Jeytqh7V6IZMBKnOgE9OxS6VgHDh+QUKKMk11xiuatfMBlSloR4Y=
