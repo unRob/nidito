@@ -378,9 +378,9 @@ services:
       hash: 80a8bd31044087e0fb91b09352caec645fbe877a413952b929be5e7bb6fbb2a7
   putio:
     token:
-      ciphertext: pJtv3uJRPHGGsIdKJQIaRroG5hm6qn4mrkJW+X2Jeytqh7V6IZMBKnOgE9OxS6VgHDh+QUKKMk11xiuatfMBlSloR4Y=
+      ciphertext: foEDv5DnJBCc8pyLEVGcLjzDiU7w2Lzb/S3xv+mldmOFCifkOaKg3o2a48UI8IiEfAmo7jUe+sIF/2dJmC3IB8++KKM=
       encrypted: true
-      hash: 940097f2a4f9130a8355100b4340b7eb20ccec17b41df9c4237790b5f547a14b
+      hash: 185c617da3d73d02902b97048f792efdaa742f1ba44b8175547fdc88189debbb
   wireguard:
     clients:
     - public:

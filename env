@@ -1,4 +1,53 @@
+#!/usr/bin/env bash
+
 export CONSUL_HTTP_ADDR="http://consul.service.consul:5555"
 export NOMAD_ADDR="http://nomad.service.consul:5560"
 export VAULT_ADDR="http://vault.service.consul:5570"
 export CONFIG_FILE="$(git rev-parse --show-toplevel)/config.yml"
+
+function nidito_exec () {
+  local alloc
+  if ! alloc=$(curl -s "${NOMAD_ADDR}/v1/job/${1}/allocations" | jq -r '.[0].ID'); then
+    echo "Unknown job <${1}>" >&2
+    return 2
+  fi
+
+  shift;
+  interactive="false"
+  passtty="false"
+  [ -t 1 ] && interactive="true"
+  [ -t 2 ] && passtty="true"
+
+  args=(/bin/sh)
+  if [[ ${#@} -gt 0 ]]; then
+    args+=(-c "${*}")
+  fi
+
+  nomad alloc exec \
+    -i="$interactive" \
+    -t="$passtty" \
+    "$alloc" "${args[@]}"
+}
+
+function nidito_exec_local () {
+  docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
+}
+
+function nidito_build () {
+  service="$1"
+  tag=$(date -u "+%Y%m%d%H%M")
+  if [[ -n "$2" ]]; then
+    tag="${2}-$tag"
+  fi
+
+  if [[ -n "$TESTING" ]]; then
+    docker build \
+      -t "registry.nidi.to/${service}:test" \
+      "services/$service"
+  else
+    docker buildx build \
+      --platform linux/amd64 \
+      -t "registry.nidi.to/${service}:$tag" \
+      "services/$service" --push
+  fi
+}

@@ -7,18 +7,18 @@
 <xsl:variable name="output">true</xsl:variable>
 
 <!-- hide certain nodes from all sources -->
-<xsl:template match="icestats/source/max_listeners"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
+<!-- <xsl:template match="icestats/source/max_listeners"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/source/public"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/source/source_ip"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/source/slow_listeners"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/source/*[contains(name(), 'total_bytes')]"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
-<xsl:template match="icestats/source/user_agent" ><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
+<xsl:template match="icestats/source/user_agent" ><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template> -->
 
 <!-- hide certain global nodes -->
 <xsl:template match="icestats/sources"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
-<xsl:template match="icestats/clients"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
+<!-- <xsl:template match="icestats/clients"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/stats"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
 <xsl:template match="icestats/listeners"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
-<xsl:template match="node()[contains(name(), 'connections')]"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template>
+<xsl:template match="node()[contains(name(), 'connections')]"><xsl:if test="not(following-sibling::*)">"dummy":null}</xsl:if></xsl:template> -->
 
 </xsl:stylesheet>

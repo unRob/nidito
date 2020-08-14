@@ -71,19 +71,23 @@ job "icecast" {
 
     <listen-socket><port>8000</port></listen-socket>
 
-
-    <mount type="normal">
-        <mount-name>/live.mp3</mount-name>
-        <dump-file>/recordings/%Y-%m-%dT%H-%M-%S.mp3</dump-file>
+<mount type="normal">
+        <mount-name>/practicando.*</mount-name>
+        <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
         <!-- <fallback-mount>/example2.ogg</fallback-mount> -->
         <!-- <fallback-override>1</fallback-override> -->
         <!-- <fallback-when-full>1</fallback-when-full> -->
         <!-- <intro>/example_intro.ogg</intro> -->
         <!-- <hidden>1</hidden> -->
         <!-- <on-connect>/home/icecast/bin/stream-start</on-connect> -->
-        <on-disconnect>/home/icecast/on-disconnect.sh</on-disconnect>
+        <on-disconnect>/usr/share/icecast/on-disconnect.sh</on-disconnect>
     </mount>
 
+    <mount type="normal">
+        <mount-name>/presenta.*</mount-name>
+        <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
+        <on-disconnect>/home/icecast/on-disconnect.sh</on-disconnect>
+    </mount>
     <fileserve>1</fileserve>
 
     <paths>
@@ -138,11 +142,12 @@ export MC_HOST_cajon="https://{{ .Data.key }}:{{ .Data.secret }}@cajon.{{ scratc
 export MC_CONFIG_DIR="/home/icecast/.mc"
 ENV
         perms = "777"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
       }
 
       config {
-        image = "registry.nidi.to/icecast:2.4.1-kh15"
-        force_pull = true
+        image = "registry.nidi.to/icecast:2.4.0-kh15-202008140520"
 
         port_map {
           http = 8000
