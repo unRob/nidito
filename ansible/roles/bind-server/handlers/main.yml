@@ -1,5 +1,0 @@
-- name: Restart bind service
-  when: ansible_pkg_mgr == "homebrew"
-  listen: restart bind
-  become: yes
-  shell: "sudo brew services restart bind"
