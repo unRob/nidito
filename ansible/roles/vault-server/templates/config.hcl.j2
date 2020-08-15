@@ -3,7 +3,7 @@ storage "consul" {
 
   path    = "vault"
 
-  service_tags = "infra,nidito.metrics.enabled,nidito.metrics.path=/v1/metrics,nidito.metrics.hc-prometheus-hack"
+  service_tags = "infra,nidito.metrics.enabled,nidito.metrics.path=/sys/metrics,nidito.metrics.hc-prometheus-hack"
 }
 
 ui = true

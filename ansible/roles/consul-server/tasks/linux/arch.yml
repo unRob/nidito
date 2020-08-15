@@ -18,7 +18,7 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/consul/{{ nidito.consul.version }}/consul_{{ nidito.consul.version }}_linux_arm.zip"
+    src: "https://releases.hashicorp.com/consul/{{ nidito.consul.version }}/consul_{{ nidito.consul.version }}_linux_armhfv6.zip"
     dest: /usr/bin
 
 - name: Enable consul daemon

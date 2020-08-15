@@ -19,6 +19,7 @@
 #     - filebeat
 
 - hosts: consul_server
+  serial: 1
   roles:
     - consul-server
 

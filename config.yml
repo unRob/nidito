@@ -12,7 +12,7 @@ consul:
     serf_lan: 5551
     serf_wan: 5552
     server: 5550
-  version: 1.6.1
+  version: 1.8.3
 crypto:
   key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
   provider: password
@@ -155,7 +155,7 @@ nodes:
     nomad:
       config: /nidito/nomad
       data: /private/var/lib/nomad
-      memory: 4000
+      memory: 10000
       user: root
     platform: macos
     reachability: private
@@ -171,7 +171,7 @@ nomad:
     ciphertext: 6t2f+D/Vly7BZ/N2JrRJ4NoR9UZN1JGsldvgDMuCzjZc3CNq1wBOUSP24CmgbbnEeDrbBqsYjk/rvwTaFlSzCtsZRzlKwiKKKsM=
     encrypted: true
     hash: 7c58186b3b631c6e96801ffdf12c627555608a9c8378fbcedcdd9a33493b65a6
-  version: 0.12.1
+  version: 0.12.3
 router:
   interfaces:
     bonding:
