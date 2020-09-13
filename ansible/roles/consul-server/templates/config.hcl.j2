@@ -52,14 +52,18 @@ services {
   name = "{{ svc_name }}"
   port = {{ service.port }}
   address = "{{ node.address }}"
+
   tags = [
     "ansible",
     "nidito.dns.enabled",
     "nidito.http.enabled",
-  ],
+  ]
+
   meta = {
-    "nidito-http-zone" = "{{ service.zone }}"
+    nidito-http-zone = "{{ service.zone }}"
+    nidito-http-buffering = "off"
   }
+
   checks = [
     {
       id = "{{ svc_name }}-http-check-{{ service.port }}"

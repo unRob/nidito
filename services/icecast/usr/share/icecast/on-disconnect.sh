@@ -11,8 +11,8 @@ log "Mirror starting triggered by kind=$kind name=$name"
 
 sleep 5
 
-if echo mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
-  echo rm -rfv /recordings/*.mp3
+if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
+  rm -rfv /recordings/*.mp3
   log "Mirror complete"
 else
   log "MC crapped its pants"

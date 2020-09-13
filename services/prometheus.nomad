@@ -2,12 +2,6 @@ job "prometheus" {
   datacenters = ["brooklyn"]
   type = "service"
 
-  vault {
-    policies = ["prometheus"]
-
-    change_mode   = "restart"
-  }
-
   group "prometheus" {
     reschedule {
       delay          = "5s"
@@ -26,6 +20,13 @@ job "prometheus" {
 
     task "prometheus" {
       driver = "docker"
+
+      vault {
+        policies = ["prometheus"]
+
+        change_mode   = "restart"
+      }
+
 
       constraint {
         attribute = "${meta.nidito-storage}"

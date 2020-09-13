@@ -1,9 +1,31 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
+# shellcheck shell=bash
 
+NIDITO_ROOT="${0:a:h}"
 export CONSUL_HTTP_ADDR="http://consul.service.consul:5555"
 export NOMAD_ADDR="http://nomad.service.consul:5560"
 export VAULT_ADDR="http://vault.service.consul:5570"
-export CONFIG_FILE="$(git rev-parse --show-toplevel)/config.yml"
+export CONFIG_FILE="$NIDITO_ROOT/config.yml"
+
+
+function nidito_logs () {
+  local service spec
+  service="$1"
+  shift
+  spec="$NIDITO_ROOT/services/$service.nomad"
+
+  if [[ ! -f "$spec" ]]; then
+    echo "Unknown service: $service" >&2
+    nidito_services >&2
+    return 2
+  fi
+
+  nomad alloc logs $* -job "$service"
+}
+
+function nidito_services () {
+  find $NIDITO_ROOT/services -name '*.nomad' | sort | sed -E 's/.*\/(.*).nomad/\1/'
+}
 
 function nidito_exec () {
   local alloc
@@ -34,20 +56,55 @@ function nidito_exec_local () {
 }
 
 function nidito_build () {
+  local service tag image
   service="$1"
-  tag=$(date -u "+%Y%m%d%H%M")
-  if [[ -n "$2" ]]; then
-    tag="${2}-$tag"
+
+  if [[ ! -f "$NIDITO_ROOT/services/$service.nomad" ]]; then
+    echo "Unknown service: $service" >&2
+    nidito_services >&2
+    return 2
   fi
 
-  if [[ -n "$TESTING" ]]; then
-    docker build \
-      -t "registry.nidi.to/${service}:test" \
-      "services/$service"
-  else
-    docker buildx build \
-      --platform linux/amd64 \
-      -t "registry.nidi.to/${service}:$tag" \
-      "services/$service" --push
+  if [[ -f "$NIDITO_ROOT/services/$service/Dockerfile" ]]; then
+    tag=$(date -u "+%Y%m%d%H%M")
+    if [[ -n "$2" ]]; then
+      tag="${2}-$tag"
+    fi
+    image="registry.nidi.to/${service}:$tag"
+    if [[ -n "$TESTING" ]]; then
+      docker build -t "${image%:*}:testing" "$NIDITO_ROOT/services/$service"
+    else
+      docker buildx build \
+        --platform linux/amd64 \
+        -t "$image" \
+        "services/$service" --push
+
+      sed -i '' -E 's#^( *image *= *)"[^"]*"#\1"'"$image"'"#' "$NIDITO_ROOT/services/$service.nomad"
+    fi
+  elif [[ -f "$NIDITO_ROOT/services/$service/Makefile" ]]; then
+    (
+      cd "$NIDITO_ROOT/services/$service"
+      make nidito-build
+    )
   fi
+}
+
+function nidito_deploy () {
+  local service spec
+  service="$1"
+  spec="$NIDITO_ROOT/services/$service.nomad"
+
+  if [[ ! -f "$spec" ]]; then
+    echo "Unknown service: $service" >&2
+    nidito_services >&2
+    return 2
+  fi
+
+  nomad plan -verbose "$spec"
+  result="$?"
+  if [[ "$result" -gt 1 ]]; then
+    return $result
+  fi
+
+  nomad run -verbose "$spec"
 }

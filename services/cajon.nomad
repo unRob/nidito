@@ -2,13 +2,6 @@ job "cajon" {
   datacenters = ["brooklyn"]
   priority = 80
 
-  vault {
-    policies = ["minio"]
-
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
-  }
-
   group "cajon" {
     restart {
       attempts = 20
@@ -19,6 +12,13 @@ job "cajon" {
 
     task cajon {
       driver = "docker"
+
+      vault {
+        policies = ["minio"]
+
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -53,7 +53,7 @@ ENV
 
       resources {
         cpu    = 30
-        memory = 128
+        memory = 256
         network {
           mbits = 10
           port "http" {}

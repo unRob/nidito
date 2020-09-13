@@ -109,10 +109,13 @@ nodes:
       config: /etc/consul
       http_services:
         # chapultepec exposes its own admin panel stuff
-        # expose that under dsm.nidi.to
+        # publish that under dsm.nidi.to
         dsm:
           port: 5000
           zone: trusted
+        plex:
+          port: 32400
+          zone: local
       peers:
       - ajusco
       - xitle

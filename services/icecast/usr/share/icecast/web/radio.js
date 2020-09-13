@@ -33,6 +33,7 @@ function toggleLive() {
     let radioURL = new URL(src.listenurl)
     radioURL.host = window.location.host
     radioURL.protocol = window.location.protocol
+    radioURL.port = window.location.port
     let currentSrc = document.querySelector("#al-aire audio source")
     if (currentSrc.src != radioURL) {
       console.log("going live")
@@ -44,6 +45,29 @@ function toggleLive() {
   })
 }
 
+function renderPlayer(filename, wrapper="div") {
+  let [date, time, kind, name, ext] = filename.split(".");
+  if (ext != "mp3") {
+    return ""
+  }
+  let parseableDate = `${date}T${time.replace(/-/g,":")}.000+00:00`
+  let instant = new Date(Date.parse(parseableDate))
+  kind = kind[0].toLocaleUpperCase() + kind.slice(1)
+  name = name.split("-").join(" ")
+
+  let dateHTML = `<code>${instant.toLocaleDateString()} @ ${instant.toLocaleTimeString()}</code>`
+  if (wrapper == "li") {
+    dateHTML = `<a href="/play.html?track=${filename}">${dateHTML}</a>`
+  }
+
+  return `<${wrapper}>
+    <h3>${dateHTML} ${kind}: ${name}</h3>
+    <audio controls="controls" preload="metadata" style="width:100%">
+        <source src="${cajonURL}/${filename}" type="audio/mpeg"></source>
+    </audio>
+  </${wrapper}>`
+}
+
 function fetchRecordings() {
   window.fetch(`${cajonURL}/`)
     .then(response => response.text())
@@ -52,24 +76,9 @@ function fetchRecordings() {
       let keys = xml.querySelectorAll("Contents Key")
       xml.querySelectorAll("Contents Key")
       let data = Array.prototype.slice.call(keys, Math.max(keys.length - 10, 0))
-      .reverse()
-      .map(c => {
-        let filename = c.innerHTML
-        let [date, time, info] = filename.split(".");
-        let parseableDate = `${date}T${time.replace(/-/g,":")}.000+00:00`
-        let instant = new Date(Date.parse(parseableDate))
-        let kind_name = info.split('-')
-        let kind = kind_name[0][0].toLocaleUpperCase() + kind_name[0].slice(1)
-        let name = kind_name.slice(1).join(" ")
-
-        return `<li>
-          <h3><code>${instant.toLocaleDateString()} @ ${instant.toLocaleTimeString()}</code> ${kind}: ${name}</h3>
-          <audio controls="controls" preload="metadata" style="width:100%">
-              <source src="${cajonURL}/${filename}" type="audio/mpeg"></source>
-          </audio>
-        </li>`
-      })
-      .join("")
+        .reverse()
+        .map(c => renderPlayer(c.innerHTML, "li"))
+        .join("")
 
       document.querySelector("#anteriormente").innerHTML = data
     }).catch(err => {
@@ -79,5 +88,14 @@ function fetchRecordings() {
     })
 }
 
-toggleLive()
-fetchRecordings()
+if (window.location.pathname == "/") {
+  toggleLive()
+  fetchRecordings()
+} else if (window.location.pathname == "/play.html" ) {
+  let {track} = window.location.search.substr(1).split("&").reduce((col, qp) => {
+      let [k, v] = qp.split("=")
+      col[k] = v
+      return col
+  }, {})
+  document.querySelector("#track").innerHTML = renderPlayer(track)
+}

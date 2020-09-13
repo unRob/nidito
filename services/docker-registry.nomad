@@ -1,27 +1,20 @@
 job "docker-registry" {
   datacenters = ["brooklyn"]
-  type = "service"
+  type = "system"
 
   meta {
     reachability = "private"
-  }
-
-  vault {
-    policies = ["docker-registry"]
-
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
   }
 
   group "registry" {
 
     restart {
       # on failure, restart at most
-      attempts = 10
+      attempts = 20
       # during
-      interval = "5m"
+      interval = "20m"
       # waiting after a crash
-      delay = "25s"
+      delay = "5s"
       # after which, continue waiting `interval` units
       # before retrying
       mode = "delay"
@@ -30,6 +23,14 @@ job "docker-registry" {
 
     task "registry" {
       driver = "docker"
+
+      vault {
+        policies = ["docker-registry"]
+
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
+
 
       constraint {
         attribute = "${meta.nidito-storage}"

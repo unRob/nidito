@@ -63,6 +63,7 @@
         <!-- <pidfile>/usr/share/icecast/icecast.pid</pidfile> -->
 
         <alias source="/" dest="/index.html"/>
+        <alias source="/play.html" dest="/play.html"/>
         <alias source="/status.json" dest="/status-json.xsl"/>
     </paths>
 
