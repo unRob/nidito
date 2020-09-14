@@ -37,7 +37,7 @@ EOF
       }
 
       config {
-        image = "registry.nidi.to/putio-media-ingest:latest"
+        image = "registry.nidi.to/putio-media-ingest:202009142341"
 
         volumes = [
           "local/rclone.conf:/config/rclone/rclone.conf",

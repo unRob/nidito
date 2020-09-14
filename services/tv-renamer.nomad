@@ -13,7 +13,7 @@ job "tv-renamer" {
       }
 
       config {
-        image = "registry.nidi.to/tv-renamer:latest"
+        image = "registry.nidi.to/tv-renamer:202009142342"
 
         volumes = [
           "/volume1/media/:/media",
