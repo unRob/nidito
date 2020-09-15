@@ -8,4 +8,9 @@ if [[ $1 == "start" ]]; then
   sed -i -e 's/80/81/' -e 's/443/444/' /usr/syno/share/nginx/server.mustache /usr/syno/share/nginx/DSM.mustache /usr/syno/share/nginx/WWWService.mustache
 
   synoservicecfg --restart nginx || true
+
+  synoservice --disable pkgctl-SynoFinder
+
+  cd /var/packages/FileStation/target/etc/conf/
+  mv thumbd.conf thumbd.conf.bak
 fi

@@ -174,7 +174,7 @@ nomad:
     ciphertext: 6t2f+D/Vly7BZ/N2JrRJ4NoR9UZN1JGsldvgDMuCzjZc3CNq1wBOUSP24CmgbbnEeDrbBqsYjk/rvwTaFlSzCtsZRzlKwiKKKsM=
     encrypted: true
     hash: 7c58186b3b631c6e96801ffdf12c627555608a9c8378fbcedcdd9a33493b65a6
-  version: 0.12.3
+  version: 0.12.4
 router:
   interfaces:
     bonding:
@@ -384,6 +384,11 @@ services:
       ciphertext: foEDv5DnJBCc8pyLEVGcLjzDiU7w2Lzb/S3xv+mldmOFCifkOaKg3o2a48UI8IiEfAmo7jUe+sIF/2dJmC3IB8++KKM=
       encrypted: true
       hash: 185c617da3d73d02902b97048f792efdaa742f1ba44b8175547fdc88189debbb
+  tvdb:
+    key:
+      ciphertext: kitleWBismWyiCCnGAfN2PWCQslwWhIj0JinNUDz5OEe+eycTtix0za1uRoZdxtB5dGGFXaSVl7dd4ejRjUAUw==
+      encrypted: true
+      hash: 67bc04fea9369cb5b9791b01b7dd21d3615b13d1dc59dd9c4843c7a58d6b2e0e
   wireguard:
     clients:
     - public:

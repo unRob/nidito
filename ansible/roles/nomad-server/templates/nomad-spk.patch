@@ -15,12 +15,12 @@ index 2215f01..25c2678 100644
          }
      }
 diff --git a/2_create_project/INFO b/2_create_project/INFO
-index a5abeb8..2c4a3dd 100644
+index c218db0..2c4a3dd 100644
 --- a/2_create_project/INFO
 +++ b/2_create_project/INFO
 @@ -1,5 +1,5 @@
  package="nomad"
--version="0.10.0"
+-version="0.12.4"
 +version="{{ nidito.nomad.version }}"
  description="Easily Deploy Applications at Any Scale"
  support_url="https://github.com/hashicorp/nomad/"

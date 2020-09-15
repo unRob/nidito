@@ -13,7 +13,7 @@
   git:
     name: https://github.com/numkem/nomad-spk.git
     dest: /tmp/nomad-spk
-    update: no
+    update: yes
 
 - name: Copy nomad patch
   when: needs_install
@@ -28,7 +28,6 @@
     cd /tmp/nomad-spk
     git reset --hard
     git apply ../nomad.patch
-    rm -rf ../nomad.patch
 
 - name: Get nomad binary
   when: needs_install

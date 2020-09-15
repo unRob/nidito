@@ -4,17 +4,17 @@ job "putio-media-ingest" {
   type = "batch"
   priority = 10
 
-  vault {
-    policies = ["putio"]
-
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
-  }
-
   group "putio-media-ingest" {
 
     task "rclone" {
       driver = "docker"
+
+      vault {
+        policies = ["putio"]
+
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
 
       constraint {
         attribute = "${meta.nidito-storage}"

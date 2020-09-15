@@ -181,7 +181,6 @@ NGINX
         volumes = [
           "secrets/ssl:/ssl",
           "local/default.conf:/etc/nginx/conf.d/default.conf",
-          "/nidito/cajon:/cajon"
         ]
       }
 
