@@ -10,6 +10,10 @@ path "auth/token/create/nomad-cluster" {
   capabilities = ["update"]
 }
 
+path "kv/nidito/config/*" {
+  capabilities = ["read"]
+}
+
 # Allow looking up "nomad-cluster" token role. The token role name should be
 # updated if "nomad-cluster" is not used.
 path "auth/token/roles/nomad-cluster" {

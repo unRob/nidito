@@ -3,7 +3,18 @@ terraform {
     path    = "nidito/state/letsencrypt"
   }
 
-  required_version = ">= 0.12.0"
+  required_providers {
+    acme = {
+      source = "terraform-providers/acme"
+       version = "~> 2.14.0"
+    }
+    vault = {
+      source = "hashicorp/vault"
+      version = "~> 1.5.0"
+    }
+  }
+
+  required_version = ">= 0.13.0"
 }
 
 provider acme {

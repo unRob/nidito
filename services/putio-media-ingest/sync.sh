@@ -34,8 +34,8 @@ if ! rclone lsjson -R "putio:" |
   sort -n > tmp/source.list; then
   exit 2
 fi
-grep -i 'S[0-9][0-9]' tmp/source.list > tmp/tv-series.list
-grep -vi 'S[0-9][0-9]' tmp/source.list > tmp/movies.list
+grep -i '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/tv-series.list
+grep -vi '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/movies.list
 
 downloadMedia tv-series || fail "Could not download tv-series"
 downloadMedia movies || fail "Could not download movies"
