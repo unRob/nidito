@@ -1,21 +1,49 @@
 # Network
 
+![network diagram](./diagram.png)
+
 ## Physical
 
-Hosts:
-  - Brooklyn: `10.0.0.1`
-  - AP0: `10.0.0.5`
+### Router @ `10.0.0.1`
+
+- `eth0`/`switch0`: chapultepec (bond)
+- `eth1`/`switch0`: chapultepec (bond)
+- `eth2`/`switch0`: ajusco
+- `eth3`/`switch0`: xitle
+- `eth4`/`switch0`: _unused_
+- `eth5`/`switch0`: _unused_
+- `eth6`/`switch0`: _unused_
+- `eth7`/`switch0`: _unused_
+- `eth8`: _unused_
+- `eth9`: wan
+- `eth10` (sfp): switch @ `10.0.1.2`
+- `eth11` (sfp): _unused_
+
+### Switch @ `10.0.1.2`
+
+- `eth0`: ap0 @ `10.0.1.10`
+- `eth1`: ap1 @ `10.0.1.11`
+- `eth2`: ap2 @ `10.0.1.12`
+- `eth3`: _unused_
+- `eth4`: _unused_
+- `eth5`: _unused_
+- `eth6`: _unused_
+- `eth7`: cloudkey @ `10.0.1.3`
+- `eth8` (sfp): router @ `10.0.0.1`
+- `eth9` (sfp): _unused_
 
 
-## Trusted - `10.10.0.0/16`
+## VLANs
+
+### Trusted - `10.10.0.0/16`
 
 Hosts: `10.10.0.0/24`
 
 Reservations:
-  - *Chapultepec: `10.10.0.2`
-  - *Ajusco: `10.10.0.3`
-  - *Xitle: `10.10.0.4`
-  - *Tláloc: `10.10.0.10`
+  - (router-eth0+1) Chapultepec: `10.10.0.2`
+  - (router-eth2) Ajusco: `10.10.0.3`
+  - (router-eth3) Xitle: `10.10.0.4`
+  - Tláloc: `10.10.0.10`
   - Chiquhuite: `10.10.0.11`
   - Citlaltepetl: `10.10.0.12`
 
@@ -24,15 +52,14 @@ Containers:`10.10.1y.0/24`, `y := sprintf("%0d", lastOctet(host.address))`, i.e.
 VPN: `10.11.0.0/24`
 
 
-## Shared - `10.20.0.0/16`
+### Shared - `10.20.0.0/16`
 
 Hosts: `10.20.0.0/24`
 
 Reservations:
-  - Apoltivi: `10.20.0.2/24`
-  - Hueberto: `10.20.0.3/24`
-  - Suich: `10.20.0.4/24`
-  - Tepeyac: `10.20.0.5/24`
+  - (switch-eth3) Apoltivi: `10.20.0.2/24`
+  - (switch-eth4) Hueberto: `10.20.0.3/24`
+  - (switch-eth5) Suich: `10.20.0.4/24`
 
 DHCP:
   - BR30
@@ -40,8 +67,6 @@ DHCP:
   - Lock
   - Wemo
   - Outdoors
-  - Nest
-  - Soplador
 
 VPN: `10.21.0.0/24`
 
