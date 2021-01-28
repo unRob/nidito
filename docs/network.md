@@ -45,29 +45,64 @@
   - Tláloc: `10.42.20.10`
   - Chiquhuite: `10.42.20.11`
   - Citlaltepetl: `10.42.20.12`
-- **Containers**: `10.42.2{2-8}.0/23`, `10.42.3{2-8}.0/23`
-- **VPN**: `10.42.101.0/24`
+- **Containers**: `10.42.2{2-8}.0/23`
+- **VPN**: `10.42.21.0/24`
 
 ### Shared - 40
 
-- **Range**: `10.42.40.0/23`
+- **Range**: `10.42.32.0/20`
 - **DHCP**: `10.42.40.0/24`
+- **Containers**: `10.42.3{2-8}.0/23`
 - **VPN**: `10.42.41.0/24`
 
 ### Robotitos - 100
 
-- **Range**: `10.42.100.0/24`
+- **Range**: `10.42.96.0/20`
 - **DHCP**: `10.42.100.0/24`
 - **Reservations**:
   - apoltivi: `10.42.100.2`
   - hueberto: `10.42.100.3`
   - suich: `10.42.100.4`
+- **Containers**: `10.42.10{2-8}.0/23`
 
 ### Guests - 200
 
 - **Range**: `10.42.200.0/24`
 - **DHCP**: `10.42.200.0/24`
 
+
+## IP Range overview
+
+- `10.42.0.0/16`
+  - `10.42.0.0/24` network devices
+    - `10.42.0.1` router
+    - `10.42.0.2` switch
+    - `10.42.0.10` cloudkey
+    - `10.42.0.10{0,n}` ap
+  - `10.42.{1-19}.0/24` reserved
+  - `10.42.20.0/20` trusted network
+    - `10.42.20.0/25` servers
+    - `10.42.20.128/25` trusted dhcp
+    - `10.42.21.0/24` trusted vpn
+    - `10.42.2{2-9}.0/24` containers from `10.42.20.{2-9}`
+  - `10.42.3{0,1}.0/24` reserved
+  - `10.42.32.0/20` home network
+    - `10.42.3{2-9}.0/24` containers from `10.42.20.{2-9}`
+    - `10.42.40.0/24` home dhcp
+    - `10.42.41.0/24` home vpn
+    - `10.42.42.0/24` reserved
+  - `10.42.96.0/20` robotitos network
+    - `10.42.100.0/24` appliance dhcp
+    - `10.42.10{2-9}.0/24` containers from `10.42.20.{2-9}`
+  - `10.42.200.0/24` guest dhcp
+
+
+## SSIDs
+
+- `␖/␆`: trusted vlan
+- `📡`: home vlan
+- `robotitos`: robotitos vlan
+- `mi wifi es su wifi`: guest vlan
 
 # TODO
 
