@@ -4,7 +4,7 @@
 
 ## Physical
 
-### Router @ `10.0.0.1`
+### Router @ `10.42.0.1`
 
 - `eth0`/`switch0`: chapultepec (bond)
 - `eth1`/`switch0`: chapultepec (bond)
@@ -16,58 +16,59 @@
 - `eth7`/`switch0`: _unused_
 - `eth8`: _unused_
 - `eth9`: wan
-- `eth10` (sfp): switch @ `10.0.1.2`
-- `eth11` (sfp): _unused_
+- `eth10` (sfp): _unused_
+- `eth11` (sfp): switch @ `10.42.0.2`
 
-### Switch @ `10.0.1.2`
+### Switch @ `10.42.0.2`
 
-- `eth0`: ap0 @ `10.0.1.10`
-- `eth1`: ap1 @ `10.0.1.11`
-- `eth2`: ap2 @ `10.0.1.12`
-- `eth3`: _unused_
-- `eth4`: _unused_
-- `eth5`: _unused_
-- `eth6`: _unused_
-- `eth7`: cloudkey @ `10.0.1.3`
-- `eth8` (sfp): router @ `10.0.0.1`
-- `eth9` (sfp): _unused_
-
+- `eth0`: ap0 @ `10.42.0.100`
+- `eth1`: ap1 @ `10.42.0.101`
+- `eth2`: ap2 @ `10.42.0.102`
+- `eth3`: cloudkey @ `10.42.0.10`
+- `eth4`: apoltivi
+- `eth5`: hueberto
+- `eth6`: suich
+- `eth7`: _unused_
+- `eth8` (sfp): _unused_
+- `eth9` (sfp): router @ `10.42.0.1`
 
 ## VLANs
 
-### Trusted - `10.10.0.0/16`
+### Trusted - 20
 
-Hosts: `10.10.0.0/24`
+- **Range**: `10.42.20.0/20`
+- **DHCP**: `10.42.20.128/25`
+- **Reservations**:
+  - chapultepec: `10.42.20.2`
+  - ajusco: `10.42.20.3`
+  - xitle: `10.42.20.4`
+  - Tláloc: `10.42.20.10`
+  - Chiquhuite: `10.42.20.11`
+  - Citlaltepetl: `10.42.20.12`
+- **Containers**: `10.42.2{2-8}.0/23`, `10.42.3{2-8}.0/23`
+- **VPN**: `10.42.101.0/24`
 
-Reservations:
-  - (router-eth0+1) Chapultepec: `10.10.0.2`
-  - (router-eth2) Ajusco: `10.10.0.3`
-  - (router-eth3) Xitle: `10.10.0.4`
-  - Tláloc: `10.10.0.10`
-  - Chiquhuite: `10.10.0.11`
-  - Citlaltepetl: `10.10.0.12`
+### Shared - 40
 
-Containers:`10.10.1y.0/24`, `y := sprintf("%0d", lastOctet(host.address))`, i.e. `10.10.102.0/24` for host address `10.10.0.2`
+- **Range**: `10.42.40.0/23`
+- **DHCP**: `10.42.40.0/24`
+- **VPN**: `10.42.41.0/24`
 
-VPN: `10.11.0.0/24`
+### Robotitos - 100
+
+- **Range**: `10.42.100.0/24`
+- **DHCP**: `10.42.100.0/24`
+- **Reservations**:
+  - apoltivi: `10.42.100.2`
+  - hueberto: `10.42.100.3`
+  - suich: `10.42.100.4`
+
+### Guests - 200
+
+- **Range**: `10.42.200.0/24`
+- **DHCP**: `10.42.200.0/24`
 
 
-### Shared - `10.20.0.0/16`
+# TODO
 
-Hosts: `10.20.0.0/24`
-
-Reservations:
-  - (switch-eth3) Apoltivi: `10.20.0.2/24`
-  - (switch-eth4) Hueberto: `10.20.0.3/24`
-  - (switch-eth5) Suich: `10.20.0.4/24`
-
-DHCP:
-  - BR30
-  - Strip
-  - Lock
-  - Wemo
-  - Outdoors
-
-VPN: `10.21.0.0/24`
-
-Containers: `10.20.1y.0/24`, `y := sprintf("%0d", lastOctet(host.address))`, i.e. `10.20.110.0/24` for host address `10.10.0.10`
+Do macvlan for containers. See [here](https://kcore.org/2020/08/18/macvlan-host-access/).
