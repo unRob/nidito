@@ -1,0 +1,1 @@
+[{% for host in node.nomad.peers %}"{{ host }}:{{ nidito.nomad.ports.rpc }}"{{ "," if not loop.last else "" }}{% endfor %}]

@@ -1,5 +1,6 @@
 
 const cajonURL = "https://cajon.nidi.to/ruiditos"
+const tzs = {'America/New_York': "Bruclin, Nuevayorc", 'America/Mexico_City': 'México, Distrito Federal'}
 
 function toggleLive() {
   window.fetch("/status.json")
@@ -45,46 +46,39 @@ function toggleLive() {
   })
 }
 
-function renderPlayer(filename, wrapper="div") {
-  let [date, time, kind, name, ext] = filename.split(".");
-  if (ext != "mp3") {
-    return ""
-  }
-  let parseableDate = `${date}T${time.replace(/-/g,":")}.000+00:00`
-  let instant = new Date(Date.parse(parseableDate))
-  kind = kind[0].toLocaleUpperCase() + kind.slice(1)
-  name = name.split("-").join(" ")
+function renderPlayer(track, wrapper="div") {
+  let instant = new Date(Date.parse(track.timestamp))
 
-  let dateHTML = `<code>${instant.toLocaleDateString()} @ ${instant.toLocaleTimeString()}</code>`
+  let title = `${track.title}`
   if (wrapper == "li") {
-    dateHTML = `<a href="/play.html?track=${filename}">${dateHTML}</a>`
+    title = `<a href="/play.html?track=${track.path}">${title}</a>`
   }
 
-  return `<${wrapper}>
-    <h3>${dateHTML} ${kind}: ${name}</h3>
-    <audio controls="controls" preload="metadata" style="width:100%">
-        <source src="${cajonURL}/${filename}" type="audio/mpeg"></source>
+  return `<${wrapper} style="background-image: url(${cajonURL}/processed/${track.path.replace(/\.mp3$/, '.png')}); background-size: contain;background-position: center center;">
+    <h3><code>${track.genre}/${track.album}</code> ${title}</h3>
+    <audio controls="controls" preload="metadata" style="width:100%;">
+        <source src="${cajonURL}/${track.path}" type="audio/mpeg"></source>
     </audio>
   </${wrapper}>`
 }
 
+function renderError(err, message="Quién sabe, algo falló cuando buscaba las transmisiones") {
+  console.error(err)
+  let anteriormente = document.querySelector("#anteriormente")
+  anteriormente.innerHTML = `<p>${message}</p>`
+}
+
 function fetchRecordings() {
-  window.fetch(`${cajonURL}/`)
-    .then(response => response.text())
-    .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
-    .then(xml => {
-      let keys = xml.querySelectorAll("Contents Key")
-      xml.querySelectorAll("Contents Key")
-      let data = Array.prototype.slice.call(keys, Math.max(keys.length - 10, 0))
-        .reverse()
-        .map(c => renderPlayer(c.innerHTML, "li"))
+  window.fetch(`${cajonURL}/tracks.json`)
+    .then(response => response.json())
+    .then(tracks => {
+      let data = tracks.slice(0,15)
+        .map(track => renderPlayer(track, "li"))
         .join("")
 
       document.querySelector("#anteriormente").innerHTML = data
     }).catch(err => {
-      console.error(err)
-      let anteriormente = document.querySelector("#anteriormente")
-      anteriormente.innerHTML = '<p>Quién sabe, algo falló cuando buscaba las transmisiones</p>'
+      renderError(err)
     })
 }
 
@@ -92,10 +86,27 @@ if (window.location.pathname == "/") {
   toggleLive()
   fetchRecordings()
 } else if (window.location.pathname == "/play.html" ) {
-  let {track} = window.location.search.substr(1).split("&").reduce((col, qp) => {
+  let {track: trackPath} = window.location.search.substr(1).split("&").reduce((col, qp) => {
       let [k, v] = qp.split("=")
-      col[k] = v
+      col[k] = decodeURI(v)
       return col
   }, {})
-  document.querySelector("#track").innerHTML = renderPlayer(track)
+
+  window.fetch(`${cajonURL}/tracks.json`)
+    .then(response => response.json())
+    .then(tracks => {
+      let track = tracks.find(t => t.path == trackPath)
+
+      if (!track) {
+        document.querySelector("#track").innerHTML = "Esa transmisión ya no existe :("
+        return
+      }
+
+      document.querySelector("#location").innerHTML = tzs[track.timezone] || "mi casa"
+      document.querySelector("#track").innerHTML = renderPlayer(track)
+    })
+    .catch(err => {
+      renderError(err)
+    })
+
 }

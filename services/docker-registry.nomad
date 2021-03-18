@@ -1,9 +1,9 @@
 job "docker-registry" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   type = "system"
 
   meta {
-    reachability = "private"
+    nidito-acl = "private"
   }
 
   group "registry" {
@@ -20,6 +20,11 @@ job "docker-registry" {
       mode = "delay"
     }
 
+    network {
+      port "http" {}
+      port "metrics" {}
+    }
+
 
     task "registry" {
       driver = "docker"
@@ -30,7 +35,6 @@ job "docker-registry" {
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }
-
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -58,13 +62,13 @@ storage:
       enabled: true
 
 http:
-  addr: :5000
+  addr: :{{ env "NOMAD_PORT_http" }}
   {{ with secret "kv/nidito/config/dns" }}
   host: https://registry.{{ .Data.zone }}
   {{ end }}
   secret: averysecuresecret
   debug:
-    addr: :5001
+    addr: :{{ env "NOMAD_PORT_metrics" }}
     prometheus:
       enabled: true
 
@@ -74,10 +78,7 @@ EOF
       config {
         image = "registry:2.7"
 
-        port_map {
-          http = 5000
-          metrics = 5001
-        }
+        ports = ["http", "metrics"]
 
         volumes = [
           "/nidito/docker-registry:/var/lib/registry",
@@ -88,11 +89,6 @@ EOF
       resources {
         cpu    = 100
         memory = 128
-        network {
-          mbits = 10
-          port "http" {}
-          port "metrics" {}
-        }
       }
 
       service {
@@ -123,6 +119,7 @@ EOF
 
         meta = {
           nidito-http-zone = "trusted"
+          nidito-acl = "allow trusted"
         }
 
         check {

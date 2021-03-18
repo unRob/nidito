@@ -1,6 +1,29 @@
+- name: Get coredns repo
+  delegate_to: localhost
+  git:
+    name: https://github.com/coredns/coredns.git
+    dest: /tmp/coredns
+    update: no
+    refspec: "refs/tags/v{{ coredns_version }}"
+
+- name: Add consul plugin
+  delegate_to: localhost
+  lineinfile:
+    path: /tmp/coredns/plugin.cfg
+    state: present
+    insertafter: '^kubernetes:kubernetes'
+    line: consul_catalog:github.com/unRob/coredns-consul
+
+- name: Compile coredns
+  delegate_to: localhost
+  shell: |
+    cd /tmp/coredns
+    go generate
+    make coredns SYSTEM="GOARCH=mips64 GOOS=linux"
+
 - name: Get installed version
   shell: |
-    /config/coredns/coredns --version | awk -F- '/CoreDNS/ {print $2}'
+    /config/coredns/coredns -version | awk -F- '/CoreDNS/ {print $2}'
   register: installed_version
   check_mode: no
   ignore_errors: yes
@@ -19,10 +42,9 @@
 
 - name: Install coredns binary
   become: true
-  when: needs_install
   # notify: restart coredns
   copy:
-    src: "files/{{ node.platform }}/coredns"
+    src: "/tmp/coredns/coredns"
     dest: /config/coredns/coredns
     mode: u=rwx,g=rwx,o=
 
@@ -48,4 +70,7 @@
     mode: u=rwx,g=rwx,o=rx
     dest: /config/scripts/post-config.d/coredns.sh
 
-
+- name: Run post-config script
+  when: needs_install
+  become: true
+  shell: /config/scripts/post-config.d/coredns.sh

@@ -6,9 +6,9 @@ data_dir = "/var/lib/consul"
 
 # from https://blog.tjll.net/distributed-homelab-cluster/
 # let only localhost and the docker network talk to the consul client
-bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }}"{% endraw %}
+bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.trusted }}{% raw %}\" | attr \"address\" }}"{% endraw %}
 
-client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.management }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
+client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.trusted }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
 
 server = true
 ui = true
@@ -60,6 +60,7 @@ services {
   ]
 
   meta = {
+    nidito-acl = "allow {{ service.zone }}"
     nidito-http-zone = "{{ service.zone }}"
     nidito-http-buffering = "off"
   }

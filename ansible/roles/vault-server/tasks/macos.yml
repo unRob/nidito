@@ -16,9 +16,10 @@
 - name: Install vault
   when: installed_vault_version.stdout != nidito.vault.version
   notify: Restart vault service
-  homebrew:
-    name: vault
-    state: present
+  unarchive:
+    src: "https://releases.hashicorp.com/vault/{{ nidito.vault.version }}/vault_{{ nidito.vault.version }}_darwin_amd64.zip"
+    remote_src: yes
+    dest: /usr/local/bin
 
 - name: Create the vault config directory
   become: true

@@ -16,19 +16,26 @@
     dest: /tmp/consul-spk
     update: no
 
-- name: Copy consul patch
-  when: needs_install
-  template:
-    src: "templates/consul-spk.patch"
-    dest: /tmp/consul.patch
-    mode: u=rw,g=r,o=
-
-- name: Apply consul patch
-  when: needs_install
-  shell: |
-    cd /tmp/consul-spk
-    git reset --hard
-    git apply ../consul.patch
+- name: patch ui port
+  lineinfile:
+    path: "/tmp/consul-spk/{{ item.path }}"
+    state: present
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    backrefs: yes
+  with_items:
+    - path: 1_create_package/ui/config
+      regex: '^(\s+)"port":"[\d+]"(,?)'
+      line: '\g<1>"port": "{{ nidito.consul.ports.http }}"\g<2>'
+    - path: 2_create_project/INFO
+      regex: '^version="[\d.]+"'
+      line: 'version="{{ nidito.consul.version }}"'
+    - path: 2_create_project/INFO
+      regex: '^adminport="?[\d.]+"?'
+      line: 'adminport={{ nidito.consul.ports.http }}'
+    - path: 2_create_project/scripts/consul.sc
+      regex: '^dst.ports=.+'
+      line: 'dst.ports="{{ nidito.consul.ports.http }}/tcp {{ nidito.consul.ports.serf_lan }},{{ nidito.consul.ports.serf_wan }}/tcp,udp {{ nidito.consul.ports.dns }}/udp"'
 
 - name: Get consul binary
   when: needs_install

@@ -1,5 +1,5 @@
 job "cajon" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   priority = 80
 
   group "cajon" {
@@ -8,6 +8,10 @@ job "cajon" {
       interval = "20m"
       delay = "5s"
       mode = "delay"
+    }
+
+    network {
+      port "http" {}
     }
 
     task cajon {
@@ -46,6 +50,8 @@ ENV
           ":${NOMAD_PORT_http}",
         ]
 
+        ports = ["http"]
+
         volumes = [
           "/nidito/cajon:/data",
         ]
@@ -54,10 +60,6 @@ ENV
       resources {
         cpu    = 30
         memory = 256
-        network {
-          mbits = 10
-          port "http" {}
-        }
       }
 
       service {
@@ -71,7 +73,7 @@ ENV
         ]
 
         meta = {
-          nidito-http-zone = "public"
+          nidito-acl = "allow external"
           nidito-http-buffering = "off"
         }
 

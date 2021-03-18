@@ -1,0 +1,36 @@
+- name: Get latest version url
+  shell: |
+    curl --silent https://api.github.com/repos/WireGuard/wireguard-vyatta-ubnt/releases/latest |
+      jq -r '.assets[] | select(.name | contains("e300-v2-")) | .browser_download_url'
+  register: latest_wireguard_download_url
+  check_mode: no
+
+- name: Create the wireguard directory
+  become: true
+  file:
+    path: "/config/wireguard"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
+- name: Get the latest installer
+  get_url:
+    url: "{{ latest_wireguard_download_url }}"
+    dest: /config/wireguard/installer.deb
+  register: new_installer
+
+- name: Install wireguard
+  become: true
+  when: new_installer.changed
+  shell:
+    dpkg -i /config/wireguard/installer.deb
+
+- name: Install edgerouter post-config.d script
+  become: true
+  copy:
+    src: files/post-config.sh
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/post-config.d/wireguard.sh
+
+

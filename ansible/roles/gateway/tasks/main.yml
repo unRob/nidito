@@ -1,7 +1,14 @@
-- name: Configurate the router
-  edgeos_config:
-    src: templates/edgeos.cfg.j2
-    backup: yes
-    backup_options:
-      filename: backup.cfg
-      dir_path: /home/user
+- name: Install ddclient nsupdate script
+  become: true
+  copy:
+    src: files/dyndns.sh
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/dyndns.sh
+
+# - name: Configure the router
+#   edgeos_config:
+#     src: templates/edgeos.cfg.j2
+#     backup: yes
+#     backup_options:
+#       filename: backup.cfg
+#       dir_path: /home/user

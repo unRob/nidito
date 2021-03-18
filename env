@@ -77,7 +77,7 @@ function nidito_build () {
       docker buildx build \
         --platform linux/amd64 \
         -t "$image" \
-        "services/$service" --push
+        "$NIDITO_ROOT/services/$service" --push
 
       sed -i '' -E 's#^( *image *= *)"[^"]*"#\1"'"$image"'"#' "$NIDITO_ROOT/services/$service.nomad"
     fi

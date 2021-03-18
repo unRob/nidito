@@ -1,3 +1,13 @@
+
+---
+# - hosts: reachability_gateway
+#   gather_facts: no
+#   tasks:
+#     - debug:
+#         var: rendered_template
+#       vars:
+#         rendered_template: "{{ lookup('template', './roles/coredns/templates/Corefile.j2') }}"
+
 - hosts: reachability_gateway
   gather_facts: no
   roles:
@@ -5,29 +15,28 @@
     - coredns
     - wireguard
 
-- hosts: platform_macos
-  roles:
-    - server-users
-
-# - hosts: platform_linux_dsm
+# - hosts: platform_macos
 #   roles:
-#     - dsm
-#     - plex
+#     - server-users
 
-# - hosts: all
-#   roles:
-#     - filebeat
+# # - hosts: platform_linux_dsm
+# #   roles:
+# #     - dsm
+# #     - plex
 
 - hosts: consul_server
+  tags: consul
   serial: 1
   roles:
     - consul-server
 
 - hosts: vault_server
+  tags: vault
   roles:
     - vault-server
 
 - hosts: nomad_server
+  tags: nomad
   roles:
     - nomad-server
 

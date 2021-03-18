@@ -1,7 +1,6 @@
 consul:
   allowed_networks:
-  - management
-  - vpn
+  - trusted
   encryption_key:
     ciphertext: utp3DmeQIpL6nB/6MBBekfDFvzd2tEFO/h002fSwzv5gkY8NVzCs2ANRoUBgLSnUMxaRuRcde/7Qj0uWCozMabcuooNMNE0KRIo4NZg/0LLTNIVad71vJ0dFyNs=
     encrypted: true
@@ -12,7 +11,7 @@ consul:
     serf_lan: 5551
     serf_wan: 5552
     server: 5550
-  version: 1.8.3
+  version: 1.9.4
 crypto:
   key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
   provider: password
@@ -40,35 +39,34 @@ filebeat:
   version: 7.4.0
 home:
   location:
-    elevation: 17
-    lat: 40.686174
-    lng: -73.930374
-  time-zone: America/New_York
+    elevation: 2240
+    lat: 19.4048495
+    lng: -99.1643187
+  time-zone: America/Mexico_City
 http:
   # zones are groups of networks referenced by consul services
   # using the `nidito-http-zone` meta field.
   zones:
     local:
-    - management
-    - vpn
+    - trusted
     - shared
     public:
     - external
     trusted:
-    - management
-    - vpn
+    - trusted
 networks:
-  external: 0.0.0.0/32
-  # servers, trusted devices
-  management: 10.10.0.0/24
-  # guests and iot
-  shared: 10.20.0.0/24
+  external: 0.0.0.0/0
   # the network for network devices
-  switch: 10.0.0.1/24
-  vpn: 10.11.11.0/24
+  physical: 10.42.0.0/24
+  # iot
+  robotitos: 10.42.96.0/20
+  # shared network
+  shared: 10.42.32.0/20
+  # servers, trusted devices
+  trusted: 10.42.20.0/20
 nodes:
   ajusco:
-    address: 10.10.0.3
+    address: 10.42.20.3
     consul:
       config: /etc/consul.d
       peers:
@@ -87,24 +85,14 @@ nodes:
     nomad:
       config: /etc/nomad.d
       data: /var/lib/nomad
+      peers:
+      - 10.42.20.2
+      - 10.42.20.4
       user: root
     platform: linux/arch
     reachability: public
-  brooklyn:
-    _ansible:
-      ansible_command_timeout: 120
-      ansible_connection: ssh
-      ansible_user: router
-    address: 10.0.0.1
-    dns:
-      config: /home/coredns
-      enabled: true
-      mode: leader
-    hardware: edgerouter-12p
-    platform: linux/edgeos
-    reachability: gateway
   chapultepec:
-    address: 10.10.0.2
+    address: 10.42.20.2
     consul:
       config: /etc/consul
       http_services:
@@ -115,7 +103,7 @@ nodes:
           zone: trusted
         plex:
           port: 32400
-          zone: local
+          zone: shared,trusted,robotitos
       peers:
       - ajusco
       - xitle
@@ -135,11 +123,27 @@ nodes:
       memory: 8000
       meta:
         nidito-storage: primary
+      peers:
+      - 10.42.20.3
+      - 10.42.20.4
       user: root
     platform: linux/dsm
     reachability: private
+  tehuantepec:
+    _ansible:
+      ansible_command_timeout: 120
+      ansible_connection: ssh
+      ansible_user: roberto
+    address: 10.42.0.1
+    dns:
+      config: /home/coredns
+      enabled: true
+      mode: leader
+    hardware: edgerouter-12p
+    platform: linux/edgeos
+    reachability: gateway
   xitle:
-    address: 10.10.0.4
+    address: 10.42.20.4
     consul:
       config: /nidito/consul
       peers:
@@ -158,7 +162,10 @@ nodes:
     nomad:
       config: /nidito/nomad
       data: /private/var/lib/nomad
-      memory: 10000
+      memory: 16000
+      peers:
+      - 10.42.20.2
+      - 10.42.20.3
       user: root
     platform: macos
     reachability: private
@@ -170,11 +177,12 @@ nomad:
     http: 5560
     rpc: 5561
     serf: 5562
+  recover_cluster: false
   token:
-    ciphertext: 6t2f+D/Vly7BZ/N2JrRJ4NoR9UZN1JGsldvgDMuCzjZc3CNq1wBOUSP24CmgbbnEeDrbBqsYjk/rvwTaFlSzCtsZRzlKwiKKKsM=
+    ciphertext: 2yWmK9yMhfGKoRn2e0/E9/y9G/sOkODBdq80KZdmw+cxP5iqcjqASoOiSxDHSxwwj/0IiwVbCFH1W4sQ0ZoOax7tYPB+jm8nmpw=
     encrypted: true
-    hash: 7c58186b3b631c6e96801ffdf12c627555608a9c8378fbcedcdd9a33493b65a6
-  version: 0.12.4
+    hash: 1ed2efa94744684ae4a08ae9f1975f9e85a40406021a74914e28a77760f8abf2
+  version: 1.0.4
 router:
   interfaces:
     bonding:
@@ -198,44 +206,44 @@ router:
         untagged: 10
     - description: "OFF"
       vlans:
-        untagged: 20
-    - description: Apoltivi
+        untagged: 200
+    - description: "OFF"
       vlans:
-        untagged: 20
-    - description: Hueberto
+        untagged: 200
+    - description: "OFF"
       vlans:
-        untagged: 20
-    - description: UAP
+        untagged: 200
+    - description: "OFF"
       vlans:
-        untagged: 20
-        tagged: 10
+        untagged: 200
     - description: Emergency
       address: 192.169.1.1/24
     - description: Internet
-      address: dhcp
+      address: pppoe
       firewall in ipv6-name: WANv6_IN
       firewall in name: WAN_IN
       firewall local ipv6-name: WANv6_LOCAL
       firewall local name: WAN_LOCAL
     - description: "OFF"
-    - description: "OFF"
+    - description: edgeswitch
+      address: dhcp
     wan: eth9
   networks:
     default:
       address: 192.168.1.0/24
       lease: 86400
       size: 20
-    guest:
-      address: 10.20.0.0/24
+    robotitos:
+      address: 10.42.100.0/24
       hosts:
       - name: Apoltivi
-        address: 10.20.0.20
+        address: 10.42.100.10
         mac:
           ciphertext: yiar7p2IroNyFz4kqBGXUapTTU48vu7jF/LLgeJuXlsf03d97w5bU2Loh8gdLJkmppcWvvgbwPm9J5eLIzr55/c=
           encrypted: true
           hash: 81e0033034e9646c61fce3f4b6ed9a943f563bee5d629a770eb9466368e51101
       - name: Hueberto
-        address: 10.20.0.30
+        address: 10.42.100.11
         mac:
           hash: 856261d46ca21d660926a776f097442010cc57a81d6ecf4372ff031c9eae1be3
           ciphertext: Sp9FWN+fI20VzXY9zt5SDdodeyGlsWFmCmEXUHH97DSx4cQ9HTfx5mDxEF5RwE82uVo/LQrHEkPvUOHzEtUzk9o=
@@ -274,28 +282,28 @@ router:
       size: 100
       vlan: 20
     trusted:
-      address: 10.10.0.0/24
+      address: 10.42.20.0/20
       hosts:
       - name: Tlaloc
-        address: 10.10.0.10
+        address: 10.42.30.2
         mac:
           hash: 81e0033034e9646c61fce3f4b6ed9a943f563bee5d629a770eb9466368e51101
           ciphertext: KczKLyf0e5LJtbX74vL4gXLMjUs63vpGeIXY8sIBEBWqb+flIjTkzfNGxJlgsiOewjrpcNLbeK3Pq5Vi3C/QEuE=
           encrypted: true
       - name: Chiquihuite
-        address: 10.10.0.11
+        address: 10.42.30.3
         mac:
           ciphertext: RByB3E3J5BFZtEBA6H0inSZxdlCE0WRkBYVWwvvfbInyo1e3jymVcSJW0EXPBvYGMLMv/AfT3AEMxKNe90Cr3do=
           encrypted: true
           hash: 3fae35c0adcb53afbf52ecd3bcbbc413f00edfac3ac6b8b92f826edc2d2d3c15
       - name: Citlaltepetl
-        address: 10.10.0.12
+        address: 10.42.30.4
         mac:
           ciphertext: nhWWi8bZP0SaNGDaJFeN1zejzpnssYnPLMAmAnbBvHG1SAHPr078yIYwpHIuwY4F64XNlJtfMbKmW7/hd9hBcI8=
           encrypted: true
           hash: 3460a45cbdd95e71fe2637afebc29db7a0292ff95f958c2c644c6d67458442d8
       - name: Zempoala
-        address: 10.10.0.13
+        address: 10.42.30.5
         mac:
           hash: 96862d63d71895072c91b99c059a1fa2238b23ad15071e0ae274faa0ed5dc664
           ciphertext: Oqh41T2/yUvzqf5Z8dUoEISEkiqX7bjA3o2faxhrFzbcbTnjcj0JZdPTY+03Q9LM3TQerEjclriRBl+BGnzQTuE=
@@ -315,7 +323,7 @@ services:
       encrypted: true
       hash: fdb94a6db49472fee8d0f1f737d9ba82fbd3e85591056fee0238f4ab96033b8a
     # It gets cold in winter
-    enabled: true
+    enabled: false
     password:
       ciphertext: 7s0cv8YjN9d/ZWFtUCvyOr8igdSF9fIM9YI6Za/YeUJehCscp7J0Xhnp3723wRmTrFemAx9BniIQ0BwSULtV
       encrypted: true
@@ -407,7 +415,7 @@ services:
         ciphertext: BX2GOz6dGqb2nATTIBFKzXPNECAUAH1CtkkdWL7Gk0LfG9UNu3Qf8KSAk9EJDPT8ELYh6mgjl1wRsHdudsi5/Z/UoEGLRO0wTI70h3135lwZV3yh50ToLJ2KOoc=
         encrypted: true
         hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
-    interface: eth0
+    interface: pppoe0
     key:
       ciphertext: LMx495cguGZfcMsD/Z0s5F2RfYFM80XJAC9dmKzuFLC7Hw8S/zNzu+njIM61L62EclqADy7s+9v1ov1EfoqYVWaihNb7xMK0wptJtqHP3Nm8jLf3IO3Vmr2905c=
       encrypted: true
@@ -415,4 +423,4 @@ services:
     port: 1194
 vault:
   port: 5570
-  version: 1.4.1
+  version: 1.6.3

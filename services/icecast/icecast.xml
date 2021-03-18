@@ -1,51 +1,6 @@
-job "icecast" {
-  datacenters = ["casa"]
-  priority = 50
-
-  group "icecast" {
-    reschedule {
-      delay          = "5s"
-      delay_function = "fibonacci"
-      max_delay      = "1h"
-      unlimited      = true
-    }
-
-    restart {
-      attempts = 10
-      interval = "10m"
-      delay = "10s"
-      mode = "delay"
-    }
-
-    network {
-      port "http" {
-        to = 8000
-        static = 8000
-      }
-    }
-
-    task "radio" {
-      driver = "docker"
-      user = "icecast"
-
-      vault {
-        policies = ["icecast"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
-
-      constraint {
-        attribute = "${meta.nidito-storage}"
-        value     = "primary"
-      }
-
-      template {
-        destination = "local/icecast.xml"
-        data = <<XML
 {{- with secret "kv/nidito/config/dns" }}
 {{- scratch.Set "zone" .Data.zone }}
-{{-  end }}
+{{- end }}
 <icecast>
     <location>Earth</location>
     <admin>icecast@{{ scratch.Get "zone" }}</admin>
@@ -99,11 +54,12 @@ job "icecast" {
     <fileserve>1</fileserve>
 
     <paths>
-        <x-forwarded-for>10.10.0.2</x-forwarded-for>
+        <x-forwarded-for>10.42.20.2</x-forwarded-for>
         <!-- basedir is only used if chroot is enabled -->
         <basedir>/usr/share/icecast</basedir>
 
-        <!-- Note that if <chroot> is turned on below, these paths must both be relative to the new root, not the original root -->
+        <!-- Note that if <chroot> is turned on below, these paths must both
+             be relative to the new root, not the original root -->
         <logdir>/var/log/icecast</logdir>
         <webroot>/usr/share/icecast/web</webroot>
         <adminroot>/usr/share/icecast/admin</adminroot>
@@ -130,78 +86,3 @@ job "icecast" {
         </changeowner>
     </security>
 </icecast>
-
-XML
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
-
-
-      template {
-        destination = "local/minio-env.sh"
-        data = <<SHELL
-#!/usr/bin/env sh
-{{- with secret "kv/nidito/config/dns" }}
-{{- scratch.Set "zone" .Data.zone }}
-{{-  end }}
-{{- with secret "kv/nidito/config/services/minio" }}
-export MC_HOST_cajon="https://{{ .Data.key }}:{{ .Data.secret }}@cajon.{{ scratch.Get "zone" }}/"
-{{- end }}
-export MC_CONFIG_DIR="/home/icecast/.mc"
-        SHELL
-        perms = "777"
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
-
-      config {
-        image = "registry.nidi.to/icecast:202103180652"
-
-        ports = ["http"]
-
-        volumes = [
-          "local/icecast.xml:/etc/icecast.xml",
-          "local/minio-env.sh:/home/icecast/minio-env.sh",
-          "/nidito/icecast:/recordings"
-        ]
-      }
-
-      resources {
-        cpu    = 100
-        memory = 128
-      }
-
-      service {
-        name = "radio"
-        port = "http"
-
-        tags = [
-          "nidito.service",
-          "nidito.dns.enabled",
-          "nidito.http.enabled",
-          "nidito.http.public",
-        ]
-
-        meta {
-          nidito-allowed-networks = "external"
-          nidito-acl = "allow external"
-          nidito-http-buffering = "off"
-        }
-
-        check {
-          type     = "http"
-          path     = "/status.json"
-          interval = "30s"
-          timeout  = "2s"
-
-          check_restart {
-            limit = 10
-            grace = "15s"
-            ignore_warnings = false
-          }
-        }
-      }
-
-    }
-  }
-}

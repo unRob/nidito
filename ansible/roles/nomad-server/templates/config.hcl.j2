@@ -1,10 +1,10 @@
 data_dir = "{{ node.nomad.data }}"
-datacenter = "brooklyn"
+datacenter = "casa"
 name = "{{ ansible_hostname }}"
 log_level = "warn"
 {# enable_syslog = true #}
 
-bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ nidito.networks.management }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ nidito.networks.trusted }}\" | attr \"address\" {% raw %}}}{% endraw %}"
 
 server {
   enabled          = true

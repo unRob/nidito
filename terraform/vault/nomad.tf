@@ -63,7 +63,12 @@ resource vault_token_auth_backend_role nomad {
 
 # vault token create -policy nomad-server -period 72h -orphan
 resource vault_token nomad-server {
+  display_name = "nomad-server-token"
   policies = [vault_policy.nomad.name]
   no_parent = true
   period = "72h"
+}
+
+output "nomad-server-token" {
+  value = vault_token.nomad-server
 }

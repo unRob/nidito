@@ -1,5 +1,14 @@
 - include: "{{ node.platform }}.yml"
 
+- name: Recover cluster
+  become: true
+  notify: Restart nomad service
+  when: nidito.nomad.recover_cluster
+  template:
+    src: templates/peers.json.j2
+    dest: "/var/lib/nomad/server/raft/peers.json"
+    owner: "{{ node.nomad.user }}"
+
 - name: Configure nomad
   become: true
   template:

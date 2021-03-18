@@ -93,7 +93,7 @@ set firewall name {{ name }}_in rule {{ 10 + idx }} {{ k }} {{ v }}
 {% endfor %}
 {% endfor %}
 
-# local 
+# local
 set firewall name {{ name }}_local default-action {{ net.rules.default }}
 set firewall name {{ name }}_local description ''
 {% for idx, rule in net.rules.local.items() %}
@@ -241,3 +241,11 @@ set system traffic-analysis export enable
 
 set system task-scheduler task updateDNS executable path /config/scripts/update-dns-record.sh
 set system task-scheduler task updateDNS executable interval 5m
+
+set service dns dynamic interface pppoe0 web http://ipinfo.io/ip
+set service dns dynamic interface pppoe0 service custom-digitalocean host-name {{ nidito.dns.zone }}
+set service dns dynamic interface pppoe0 service custom-digitalocean login /config/dyndns.sh
+set service dns dynamic interface pppoe0 service custom-digitalocean options zone={{ nidito.dns.zone }}
+set service dns dynamic interface pppoe0 service custom-digitalocean password {{ nidito.dns.provider.external.token }}
+set service dns dynamic interface pppoe0 service custom-digitalocean protocol nsupdate
+server {{ nidito.dns.provider.external.record_id }}
