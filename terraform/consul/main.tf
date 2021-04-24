@@ -1,9 +1,20 @@
 terraform {
   backend "consul" {
-    path    = "nidito/state/consul"
+    path = "nidito/state/consul"
   }
 
-  required_version = ">= 0.12.20"
+  required_providers {
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~> 2.11.0"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 2.19.0"
+    }
+  }
+
+  required_version = ">= 0.13"
 }
 
 resource "consul_prepared_query" "dns-services" {
@@ -18,5 +29,28 @@ resource "consul_prepared_query" "dns-services" {
   name         = "dns-services"
   only_passing = false
 
-  tags    = ["nidito.dns.enabled"]
+  tags = ["nidito.dns.enabled"]
+}
+
+locals {
+  static_entries = {
+    consul = 5555
+    nomad = 5560
+    vault = 5570
+  }
+}
+
+resource "consul_keys" "static-services" {
+  key {
+    delete = false
+    path = "dns/static-entries"
+    value = jsonencode(zipmap(
+      keys(local.static_entries),
+      [for name, port in local.static_entries : {
+        target = "@service_proxy"
+        acl    = ["allow trusted"]
+        port = port
+      }]
+    ))
+  }
 }

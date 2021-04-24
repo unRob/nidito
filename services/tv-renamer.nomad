@@ -1,18 +1,20 @@
 job "tv-renamer" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   type = "batch"
+
+  vault {
+    policies = ["tv-renamer"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
+
+  parameterized {}
 
   group "tv-renamer" {
 
     task "tv-renamer" {
       driver = "docker"
-
-      vault {
-        policies = ["tv-renamer"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -51,9 +53,6 @@ job "tv-renamer" {
       resources {
         cpu = 100
         memory = 300
-        network {
-          mbits = 10
-        }
       }
     }
   }

@@ -3,9 +3,7 @@ job "process-recordings" {
   datacenters = ["casa"]
   type = "batch"
 
-  parameterized {
-
-  }
+  parameterized {}
 
   group "icecast" {
     task "process-recordings" {

@@ -38,5 +38,5 @@ resource consul_acl_token admin {
 }
 
 data consul_acl_token_secret_id admin {
-  accessor_id = "${consul_acl_token.admin.id}"
+  accessor_id = consul_acl_token.admin.id
 }

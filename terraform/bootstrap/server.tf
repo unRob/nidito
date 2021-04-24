@@ -36,6 +36,10 @@ resource consul_acl_policy consul-server {
     service_prefix "" {
       policy = "write"
     }
+
+    key_prefix "dns/static-entries" {
+      policy = "read"
+    }
   RULE
 }
 
@@ -83,6 +87,6 @@ resource consul_acl_token server {
 
 data consul_acl_token_secret_id server {
   for_each = toset(local.servers.all)
-  accessor_id = "${consul_acl_token.server[each.value].id}"
+  accessor_id = consul_acl_token.server[each.value].id
 }
 

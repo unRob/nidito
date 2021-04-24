@@ -1,20 +1,20 @@
 
 job "putio-media-ingest" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   type = "batch"
   priority = 10
+
+   vault {
+    policies = ["putio"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
 
   group "putio-media-ingest" {
 
     task "rclone" {
       driver = "docker"
-
-      vault {
-        policies = ["putio"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -37,7 +37,7 @@ EOF
       }
 
       config {
-        image = "registry.nidi.to/putio-media-ingest:202009142341"
+        image = "registry.nidi.to/putio-media-ingest:202104220414"
 
         volumes = [
           "local/rclone.conf:/config/rclone/rclone.conf",
@@ -48,9 +48,6 @@ EOF
       resources {
         cpu = 40
         memory = 800
-        network {
-          mbits = 100
-        }
       }
     }
   }

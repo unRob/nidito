@@ -1,7 +1,18 @@
 terraform {
   backend "consul" {
-    path    = "nidito/state/bootstrap"
+    path = "nidito/state/bootstrap"
   }
 
-  required_version = ">= 0.12.20"
+  required_providers {
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~> 2.11.0"
+    }
+    external = {
+      source  = "hashicorp/external"
+      version = "~> 2.1.0"
+    }
+  }
+
+  required_version = ">= 0.13"
 }

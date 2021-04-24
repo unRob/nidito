@@ -9,20 +9,12 @@
 #         rendered_template: "{{ lookup('template', './roles/coredns/templates/Corefile.j2') }}"
 
 - hosts: reachability_gateway
+  tags: coredns
   gather_facts: no
   roles:
     - gateway
     - coredns
     - wireguard
-
-# - hosts: platform_macos
-#   roles:
-#     - server-users
-
-# # - hosts: platform_linux_dsm
-# #   roles:
-# #     - dsm
-# #     - plex
 
 - hosts: consul_server
   tags: consul

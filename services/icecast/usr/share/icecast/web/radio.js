@@ -54,7 +54,7 @@ function renderPlayer(track, wrapper="div") {
     title = `<a href="/play.html?track=${track.path}">${title}</a>`
   }
 
-  return `<${wrapper} style="background-image: url(${cajonURL}/processed/${track.path.replace(/\.mp3$/, '.png')}); background-size: contain;background-position: center center;">
+  return `<${wrapper} style="background-image: url(${cajonURL}/processed/${track.path.replace(/\.mp3$/, '.png')}); background-size: cover;background-position: center center;background-repeat: no-repeat;">
     <h3><code>${track.genre}/${track.album}</code> ${title}</h3>
     <audio controls="controls" preload="metadata" style="width:100%;">
         <source src="${cajonURL}/${track.path}" type="audio/mpeg"></source>

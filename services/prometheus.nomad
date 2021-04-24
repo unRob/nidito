@@ -1,6 +1,11 @@
 job "prometheus" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   type = "service"
+
+  vault {
+    policies = ["prometheus"]
+    change_mode   = "restart"
+  }
 
   group "prometheus" {
     reschedule {
@@ -17,16 +22,14 @@ job "prometheus" {
       mode     = "delay"
     }
 
+    network {
+      port "http" {
+        to = 9090
+      }
+    }
 
     task "prometheus" {
       driver = "docker"
-
-      vault {
-        policies = ["prometheus"]
-
-        change_mode   = "restart"
-      }
-
 
       constraint {
         attribute = "${meta.nidito-storage}"
@@ -36,77 +39,75 @@ job "prometheus" {
       # https://www.consul.io/docs/agent/options.html#telemetry-prometheus_retention_time
       template {
         change_mode = "restart"
-        data = <<EOF
-{{- with secret "kv/nidito/config/consul/ports" }}
-{{- scratch.Set "consulPort" .Data.http }}
-{{- end }}
-{{- with secret "kv/nidito/service/prometheus/consul" }}
-{{- scratch.Set "consulToken" .Data.token }}
-{{- end }}
-scrape_configs:
-  - job_name: consul-server
-    scrape_interval: 15s
-    metrics_path: /v1/agent/metrics
-    params:
-      format: ["prometheus"]
-    dns_sd_configs:
-      - names: ["consul.service.consul"]
-        port: {{ scratch.Get "consulPort" }}
+        data = <<-EOF
+          {{- with secret "kv/nidito/config/consul/ports" }}
+          {{- scratch.Set "consulPort" .Data.http }}
+          {{- end }}
+          {{- with secret "kv/nidito/service/prometheus/consul" }}
+          {{- scratch.Set "consulToken" .Data.token }}
+          {{- end }}
+          scrape_configs:
+            - job_name: consul-server
+              scrape_interval: 15s
+              metrics_path: /v1/agent/metrics
+              params:
+                format: ["prometheus"]
+              dns_sd_configs:
+                - names: ["consul.service.consul"]
+                  port: {{ scratch.Get "consulPort" }}
 
-    relabel_configs:
-      - source_labels: ['__address__']
-        regex:         '([^.]+)\.node\..+\.consul:\d+'
-        target_label:  'instance'
-        replacement:   '$1'
-      - source_labels: ['__address__']
-        regex: '([^:]+):(\d+)'
-        target_label: __address__
-        replacement: '$1:{{ scratch.Get "consulPort" }}'
+              relabel_configs:
+                - source_labels: ['__address__']
+                  regex:         '([^.]+)\.node\..+\.consul:\d+'
+                  target_label:  'instance'
+                  replacement:   '$1'
+                - source_labels: ['__address__']
+                  regex: '([^:]+):(\d+)'
+                  target_label: __address__
+                  replacement: '$1:{{ scratch.Get "consulPort" }}'
 
-  - job_name: consul-services
-    scrape_interval: 15s
+            - job_name: consul-services
+              scrape_interval: 15s
 
-    consul_sd_configs:
-      - server: "consul.service.consul:{{ scratch.Get "consulPort" }}"
-        datacenter: brooklyn
-        token: "{{ scratch.Get "consulToken" }}"
-        tags:
-          - nidito.metrics.enabled
+              consul_sd_configs:
+                - server: "consul.service.consul:{{ scratch.Get "consulPort" }}"
+                  datacenter: brooklyn
+                  token: "{{ scratch.Get "consulToken" }}"
+                  tags:
+                    - nidito.metrics.enabled
 
-    relabel_configs:
-      - source_labels: ['__meta_consul_tags']
-        # drop nomad's non-http services
-        regex: ',(rpc|serf),(.*)'
-        action: drop
-      - source_labels: ['__meta_consul_tags']
-        regex: '.*,nidito\.metrics\.path=([^,]+),.*'
-        target_label: __metrics_path__
-        replacement: '$1'
-      - source_labels: ['__address__', '__meta_consul_tags']
-        regex: '([^:]+)(?::\d+)?;.*,nidito\.metrics\.port=([^,]+),.*'
-        target_label: __address__
-        replacement: '$1:$2'
-      - source_labels: ['__meta_consul_tags']
-        regex: '.*,nidito\.metrics\.hc-prometheus-hack,.*'
-        target_label: __param_format
-        replacement: 'prometheus'
-      - source_labels: ['__meta_consul_service']
-        regex:         '(.*)(-metrics)?'
-        target_label:  'job'
-        replacement:   '$1'
-      - source_labels: ['__meta_consul_node']
-        regex:         '(.*)'
-        target_label:  'instance'
-        replacement:   '$1'
-EOF
+              relabel_configs:
+                - source_labels: ['__meta_consul_tags']
+                  # drop nomad's non-http services
+                  regex: ',(rpc|serf),(.*)'
+                  action: drop
+                - source_labels: ['__meta_consul_tags']
+                  regex: '.*,nidito\.metrics\.path=([^,]+),.*'
+                  target_label: __metrics_path__
+                  replacement: '$1'
+                - source_labels: ['__address__', '__meta_consul_tags']
+                  regex: '([^:]+)(?::\d+)?;.*,nidito\.metrics\.port=([^,]+),.*'
+                  target_label: __address__
+                  replacement: '$1:$2'
+                - source_labels: ['__meta_consul_tags']
+                  regex: '.*,nidito\.metrics\.hc-prometheus-hack,.*'
+                  target_label: __param_format
+                  replacement: 'prometheus'
+                - source_labels: ['__meta_consul_service']
+                  regex:         '(.*)(-metrics)?'
+                  target_label:  'job'
+                  replacement:   '$1'
+                - source_labels: ['__meta_consul_node']
+                  regex:         '(.*)'
+                  target_label:  'instance'
+                  replacement:   '$1'
+          EOF
         destination = "local/prometheus.yml"
       }
 
       config {
-        image = "prom/prometheus:v2.17.1"
-        port_map {
-          http = 9090
-        }
+        image = "prom/prometheus:v2.26.0"
+        ports = ["http"]
 
         volumes = [
           "/nidito/prometheus:/var/lib/prometheus",
@@ -124,10 +125,6 @@ EOF
       resources {
         cpu    = 100
         memory = 200
-
-        network {
-          port "http" {}
-        }
       }
 
       service {
@@ -141,8 +138,8 @@ EOF
           "nidito.http.enabled",
         ]
 
-        meta = {
-          nidito-http-zone = "trusted"
+        meta {
+          nidito-acl = "allow trusted"
         }
 
         check {

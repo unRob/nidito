@@ -1,5 +1,5 @@
 job "grafana" {
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   type        = "service"
 
   group "grafana" {
@@ -17,6 +17,12 @@ job "grafana" {
       mode     = "delay"
     }
 
+    network {
+      port "http" {
+        to = 3000
+      }
+    }
+
     task "grafana" {
       driver = "docker"
 
@@ -30,25 +36,16 @@ job "grafana" {
       }
 
       config {
-        image = "grafana/grafana"
-
-        port_map {
-          http = 3000
-        }
-
+        image = "grafana/grafana:7.5.4"
+        ports = ["http"]
         volumes = [
           "/nidito/grafana/data:/var/lib/grafana"
         ]
       }
 
       resources {
-        cpu    = 50
+        cpu    = 100
         memory = 256
-
-        network {
-          mbits = 1
-          port  "http" {}
-        }
       }
 
       service {
@@ -62,8 +59,8 @@ job "grafana" {
           "nidito.http.enabled",
         ]
 
-        meta = {
-          nidito-http-zone = "trusted"
+        meta {
+          nidito-acl = "allow trusted"
         }
 
         check {

@@ -1,14 +1,14 @@
 [Interface]
-Address = {{ nidito.networks.vpn | ipaddr('next_usable') }}
-PrivateKey = {{ nidito.wireguard.key }}
-ListenPort = {{ nidito.wireguard.port }}
+Address = {{ network.range | ipaddr('next_usable') }}
+PrivateKey = {{ network.key }}
+ListenPort = {{ network.port }}
 DNS = {{ dns_servers | join(",") }}
 
-PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o {{ nidito.wireguard.interface }} -j MASQUERADE; iptables -A FORWARD -i %i -o {{ nidito.wireguard.interface }} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i {{ nidito.wireguard.interface }} -o %i -j ACCEPT
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o {{ nidito.wireguard.interface }} -j MASQUERADE
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o {{ network.interface }} -j MASQUERADE; iptables -A FORWARD -i %i -o {{ network.interface }} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i {{ network.interface }} -o %i -j ACCEPT
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o {{ network.interface }} -j MASQUERADE
 
-{% for client in wireguard.clients %}
+{% for client in network.clients %}
 [Peer]
 PublicKey = {{ client.public }}
-AllowedIPs = {{ nidito.networks.vpn | ipmath(100+loop.index) }}/32
+AllowedIPs = {{ network.range | ipmath(2+loop.index) }}/32
 {% endfor %}

@@ -180,6 +180,7 @@ export MC_CONFIG_DIR="/home/icecast/.mc"
           "nidito.dns.enabled",
           "nidito.http.enabled",
           "nidito.http.public",
+          "nidito.ingress.enabled",
         ]
 
         meta {

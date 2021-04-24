@@ -51,3 +51,7 @@ fi
 
 rm -rf tmp
 echo "Sync complete"
+
+set -o xtrace
+curl \
+  -XPOST http://nomad.service.consul:5560/v1/job/tv-renamer/dispatch --data "{}"

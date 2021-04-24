@@ -14,12 +14,27 @@
     insertafter: '^kubernetes:kubernetes'
     line: consul_catalog:github.com/unRob/coredns-consul
 
+- name: remove unused plugins
+  delegate_to: localhost
+  lineinfile:
+    path: /tmp/coredns/plugin.cfg
+    state: absent
+    line: "{{ item }}"
+  with_items:
+    - route53:route53
+    - azure:azure
+    - clouddns:clouddns
+    - k8s_external:k8s_external
+    - kubernetes:kubernetes
+    - etcd:etcd
+
 - name: Compile coredns
   delegate_to: localhost
   shell: |
     cd /tmp/coredns
+    go get -u github.com/unRob/coredns-consul
     go generate
-    make coredns SYSTEM="GOARCH=mips64 GOOS=linux"
+    make coredns SYSTEM="GOARCH=mips64 GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
 
 - name: Get installed version
   shell: |
@@ -46,14 +61,14 @@
   copy:
     src: "/tmp/coredns/coredns"
     dest: /config/coredns/coredns
-    mode: u=rwx,g=rwx,o=
+    mode: u=rwx,g=rwx,o=rw
 
 - name: Install coredns systemd config
   become: yes
   # notify: restart coredns
   template:
     src: templates/coredns.service.j2
-    mode: u=rwx,g=rw,o=
+    mode: u=rwx,g=rwx,o=
     dest: /etc/systemd/system/coredns.service
 
 - name: Install coredns systemd config backup

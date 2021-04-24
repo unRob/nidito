@@ -15,13 +15,17 @@
     }
 
     consul_catalog nidito.dns.enabled {
-        endpoint 10.42.20.2:{{ nidito.consul.ports.http }}
+        endpoint consul.service.consul:{{ nidito.consul.ports.http }}
+        token {{ nidito.dns.consul_token }}
         ttl 1m
+
         acl_metadata_tag nidito-acl
         {% for network, range in nidito.networks.items() -%}
         acl_zone {{ network }} {{ range }}
         {% endfor %}
 
+        service_proxy nidito.http.enabled nginx
+        config_kv_path dns/static-entries
     }
 
     file {{ node.dns.config }}/zones/main

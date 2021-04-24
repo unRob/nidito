@@ -72,7 +72,7 @@ ENV
           "nidito.http.public",
         ]
 
-        meta = {
+        meta {
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
         }
