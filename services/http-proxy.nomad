@@ -64,16 +64,18 @@ job "http-proxy" {
       }
 
       template {
-        destination = "local/services.json"
+        destination = "local/nidito/proxied-services"
         data = <<-JSON
         {{- $nodeName := env "node.unique.name"}}
         {{ range services }}
         {{- if in .Tags "nidito.http.enabled" }}
         {{- range service .Name }}
+
         {{- if not (in .Tags "nidito.http.public") }}
         {{- scratch.MapSet "services" .Name "local" }}
         {{- else }}
         {{- scratch.MapSet "services" .Name "public" }}
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- end }}
@@ -207,7 +209,7 @@ job "http-proxy" {
             allow 127.0.0.1;
             allow 10.42.20.0/20;
             deny all;
-            root
+            root /var/lib/www;
 
             ssl_certificate     /ssl/star.nidi.to.crt;
             ssl_certificate_key /ssl/star.nidi.to.key;
@@ -216,7 +218,7 @@ job "http-proxy" {
             ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384";
             keepalive_timeout   70;
 
-            location /nidito/proxied-services {
+            location /nidito {
               allow 127.0.0.1;
               allow 10.42.20.0/24;
               allow 10.42.30.0/23;
@@ -236,6 +238,7 @@ job "http-proxy" {
           server {
             listen      *:80 default_server;
             server_name  _;
+            root /var/lib/www;
             location /status {
               allow 127.0.0.1;
               allow 10.42.20.0/24;
@@ -244,7 +247,7 @@ job "http-proxy" {
               stub_status;
               access_log off;
             }
-            location /nidito/proxied-services {
+            location /nidito {
               allow 127.0.0.1;
               allow 10.42.20.0/24;
               allow 10.42.30.0/23;
@@ -255,7 +258,7 @@ job "http-proxy" {
             location / {
               client_max_body_size 128k;
               default_type application/json;
-              return 200 '{"token": "$request_id", "role": "admin"}';
+              return 404 '{"message": "Not found"}';
             }
           }
 
