@@ -1,0 +1,13 @@
+summary: Deploy a service
+description: |
+  Deploys a service to nomad
+arguments:
+  - name: service
+    description: The name of the service to deploy
+    set:
+      from: { subcommand: service list }
+    required: true
+options:
+  skip-plan:
+    type: boolean
+    description: Skips planning the nomad job

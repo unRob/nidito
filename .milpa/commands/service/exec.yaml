@@ -1,0 +1,14 @@
+summary: Runs a command on a service
+description: |
+  Runs a command on a SERVICE, or opens a shell session to it, if no COMMAND is provided.
+
+  `/bin/sh -c` will be prepended automatically to COMMAND if more than one argument is passed.
+arguments:
+  - name: service
+    description: The service to run a command on
+    set:
+      from: { subcommand: service list }
+    required: true
+  - name: command
+    variadic: true
+    description: The command to execute on the service

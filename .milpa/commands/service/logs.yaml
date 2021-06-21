@@ -1,0 +1,12 @@
+summary: obtains service logs
+description: |
+  Obtains logs for a given service. Extra parameters are passed directly to `nomad alloc logs`
+arguments:
+  - name: service
+    set:
+      from: { subcommand: service list }
+    description: the service to query logs from
+    required: true
+  - name: log-args
+    variadic: true
+    description: See `nomad alloc logs -help` for details
