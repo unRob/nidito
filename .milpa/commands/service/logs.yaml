@@ -9,4 +9,4 @@ arguments:
     required: true
   - name: log-args
     variadic: true
-    description: See `nomad alloc logs -help` for details
+    description: Extra parameters to pass to `nomad alloc logs`. See `nomad alloc logs -help` for details
