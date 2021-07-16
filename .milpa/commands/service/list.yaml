@@ -3,5 +3,5 @@ description: |
   Lists nidito services, local ones (as defined by nomad services under /services) by default.
 options:
   remote:
-    type: boolean
+    type: bool
     description: List remote services instead of local ones

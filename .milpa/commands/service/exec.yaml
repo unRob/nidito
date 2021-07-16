@@ -6,8 +6,7 @@ description: |
 arguments:
   - name: service
     description: The service to run a command on
-    set:
-      from: { subcommand: service list }
+    values-subcommand: service list
     required: true
   - name: command
     variadic: true

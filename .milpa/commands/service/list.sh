@@ -2,7 +2,7 @@
 
 set -o pipefail
 if [[ ! "$MILPA_OPT_REMOTE" ]]; then
-  find "$NIDITO_ROOT/services" -name '*.nomad' |
+  find "$(dirname "$MILPA_COMMAND_REPO")/services" -name '*.nomad' |
     sort |
     sed -E 's/.*\/(.*).nomad/\1/'
 else
