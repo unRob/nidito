@@ -183,8 +183,7 @@ nomad:
     serf: 5562
   recover_cluster: false
   token:
-    ciphertext: oZNOrNayNHELSIF+VEWrxcA3K869Hk+gDTgRPfKYAOQslfVDi78cKYPvKGPtl
-jkHg56MZpzUu1EX255zY4qELrX882hSCgeXzBY=
+    ciphertext: oZNOrNayNHELSIF+VEWrxcA3K869Hk+gDTgRPfKYAOQslfVDi78cKYPvKGPtljkHg56MZpzUu1EX255zY4qELrX882hSCgeXzBY=
     encrypted: true
     hash: e7a60665d6235316d67901a9166373c118267c018a3a236482d9da68ef532851
   version: 1.0.4
