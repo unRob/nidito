@@ -5,12 +5,12 @@ terraform {
 
   required_providers {
     acme = {
-      source = "terraform-providers/acme"
-       version = "~> 2.14.0"
+      source = "vancluever/acme"
+       version = "~> 2.5.2"
     }
     vault = {
       source = "hashicorp/vault"
-      version = "~> 1.5.0"
+      version = "~> 2.20.0"
     }
   }
 

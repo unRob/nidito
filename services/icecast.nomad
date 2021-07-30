@@ -155,7 +155,7 @@ export MC_CONFIG_DIR="/home/icecast/.mc"
       }
 
       config {
-        image = "registry.nidi.to/icecast:202103180652"
+        image = "registry.nidi.to/icecast:202105150228”
 
         ports = ["http"]
 
