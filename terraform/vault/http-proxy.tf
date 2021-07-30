@@ -15,6 +15,10 @@ path "kv/nidito/config/networks" {
   capabilities = ["read"]
 }
 
+path "kv/nidito/config/networks/json" {
+  capabilities = ["read"]
+}
+
 path "kv/nidito/config/dns" {
   capabilities = ["read"]
 }

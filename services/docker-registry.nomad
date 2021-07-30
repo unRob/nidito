@@ -117,7 +117,7 @@ EOF
           "nidito.http.enabled",
         ]
 
-        meta = {
+        meta {
           nidito-http-zone = "trusted"
           nidito-acl = "allow trusted"
         }
