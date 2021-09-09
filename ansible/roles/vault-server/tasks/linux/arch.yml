@@ -4,12 +4,39 @@
   ignore_errors: yes
   check_mode: no
 
+- name: Add the vault user
+  # https://www.vaultproject.io/docs/configuration#disable_mlock
+  become: true
+  user:
+    create_home: no
+    system: yes
+    shell: /sbin/nologin
+    name: "{{ vault_user }}"
+    state: present
+
+- name: Add the vault user
+  become: true
+  user:
+    create_home: no
+    system: yes
+    shell: /sbin/nologin
+    name: "{{ vault_user }}"
+    state: present
+
+- set_fact:
+    golang_artifact_arch: "armhfv6"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
 - name: Install vault
-  when: installed_vault_version.stdout != nidito.vault.version
+  when: installed_vault_version.stdout != config.services.vault.version
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/vault/{{ nidito.vault.version }}/vault_{{ nidito.vault.version }}_linux_arm.zip"
+    src: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: /usr/bin
 
 - name: Install systemd service
@@ -21,8 +48,8 @@
 - name: Create the vault config directory
   become: true
   file:
-    path: "{{ node.vault.config }}"
-    owner: "{{ node.vault.user }}"
+    path: "{{ vault_config_dir }}"
+    owner: "{{ vault_user }}"
     state: directory
     mode: u=rwx,g=rwx,o=
 

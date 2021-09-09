@@ -10,10 +10,6 @@ path "auth/token/create/nomad-cluster" {
   capabilities = ["update"]
 }
 
-path "kv/nidito/config/*" {
-  capabilities = ["read"]
-}
-
 # Allow looking up "nomad-cluster" token role. The token role name should be
 # updated if "nomad-cluster" is not used.
 path "auth/token/roles/nomad-cluster" {
@@ -30,7 +26,7 @@ path "auth/token/lookup-self" {
 # the tokens they are requesting. This is only required if
 # `allow_unauthenticated` is set to false.
 path "auth/token/lookup" {
-  capabilities = ["update"]
+  capabilities = ["update", "read"]
 }
 
 # Allow revoking tokens that should no longer exist. This allows revoking
@@ -49,6 +45,10 @@ path "sys/capabilities-self" {
 path "auth/token/renew-self" {
   capabilities = ["update"]
 }
+
+path "kv/nidito/config/*" {
+  capabilities = ["read"]
+}
 HCL
 }
 
@@ -66,7 +66,7 @@ resource vault_token nomad-server {
   display_name = "nomad-server-token"
   policies = [vault_policy.nomad.name]
   no_parent = true
-  period = "72h"
+  period = "21900h"
 }
 
 output "nomad-server-token" {

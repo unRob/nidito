@@ -1,20 +1,2 @@
 #!/usr/bin/env bash
-
-CONFIG_FILE="${CONFIG_FILE:-../config.yml}"
-
-case $1 in
-  --list)
-    # continue
-    ;;
-  --host)
-    echo "{}"
-    exit 0
-    ;;
-  *)
-    >&2 echo "unknown args: $*"
-    exit 2
-esac
-
-SRC_DIR="${BASH_SOURCE%/*}"
-
-jq -f "${SRC_DIR}/inventory.jq" <(gcy get "$CONFIG_FILE" ".")
+exec milpa provisioning ansible-inventory "$@"

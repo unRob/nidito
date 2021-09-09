@@ -1,52 +1,53 @@
-data external inventory {
-  program = ["./config.sh", "../../config.yml", "nodes", <<-JQ
-  {
-    consul: ([ to_entries[] | select( .value | has("consul") ) | .key ]),
-    vault: ([ to_entries[] | select( .value | has("vault") ) | .key ]),
-    all: ([
-      to_entries[] | select( .value | (has("vault") or has("consul")) ) | .key
-    ])
+data consul_nodes casa {
+  query_options {
+    datacenter = "casa"
   }
-  JQ
-  ]
+}
+
+data consul_nodes nyc1 {
+  query_options {
+    datacenter = "nyc1"
+  }
 }
 
 locals {
-  servers = jsondecode(data.external.inventory.result.data)
+  all_node_names = toset(concat(data.consul_nodes.casa.node_names, data.consul_nodes.nyc1.node_names, ["tepeyac"]))
+  # all_node_names = ["bootstrap"]
 }
 
-resource consul_acl_policy consul-server {
-  for_each = toset(local.servers.consul)
-  name        = "server-consul-${each.value}"
-  description = "${each.value} server policy"
-  datacenters = ["brooklyn"]
-  rules       = <<-RULE
-    agent_prefix "" {
-      policy = "write"
-    }
-
-    event_prefix "" {
-      policy = "read"
-    }
-
-    node_prefix "" {
-      policy = "write"
-    }
-
-    service_prefix "" {
-      policy = "write"
-    }
-
-    key_prefix "dns/static-entries" {
-      policy = "read"
-    }
-  RULE
+# Acl Replication
+resource consul_acl_policy acl-replication {
+  name = "server-consul-acl-replication"
+  description = "https://learn.hashicorp.com/tutorials/consul/access-control-replication-multiple-datacenters?in=consul/security-operations#create-the-replication-token-for-acl-management"
+  rules = <<-RULES
+  acl = "write"
+  operator = "write"
+  service_prefix "" {
+    policy = "read"
+    intentions = "read"
+  }
+RULES
 }
 
+resource consul_acl_token acl-replication {
+  description = "ACL replication token"
+  policies = [consul_acl_policy.acl-replication.name]
+  local = false
+}
+
+data consul_acl_token_secret_id acl-replication {
+  accessor_id = consul_acl_token.acl-replication.id
+}
+
+output "replication-token" {
+  value = data.consul_acl_token_secret_id.acl-replication.secret_id
+  sensitive = true
+}
+
+# Vault
 resource consul_acl_policy vault {
   name        = "server-vault-policy"
-  description = "vault server policy"
-  datacenters = ["brooklyn"]
+  description = "vault server policy. https://www.vaultproject.io/docs/configuration/storage/consul#acls"
   rules       = <<-RULE
     key_prefix "vault/" {
       policy = "write"
@@ -70,23 +71,82 @@ resource consul_acl_policy vault {
   RULE
 }
 
+resource consul_acl_token vault {
+  description = "vault server token"
+  policies = [consul_acl_policy.vault.name]
+  local = false
+}
+
+data consul_acl_token_secret_id vault {
+  accessor_id = consul_acl_token.vault.id
+}
+
+output "vault-token" {
+  value = data.consul_acl_token_secret_id.vault.secret_id
+  sensitive = true
+}
+
+# Consul Server
+resource consul_acl_policy dns {
+  name = "server-consul-dns"
+  rules = <<-RULES
+  node_prefix "" {
+    policy = "read"
+  }
+
+  service_prefix "" {
+    policy = "read"
+  }
+
+  query_prefix "" {
+    policy = "read"
+  }
+RULES
+}
+
+resource consul_acl_policy consul-server {
+  for_each = local.all_node_names
+  name        = "server-consul-${each.value}"
+  description = "${each.value} server policy"
+  rules       = <<-RULES
+    node "${each.value}" {
+      policy = "write"
+    }
+
+    node_prefix "" {
+      policy = "read"
+    }
+  RULES
+
+  #   agent_prefix "" {
+  #     policy = "write"
+  #   }
+
+  #   event_prefix "" {
+  #     policy = "read"
+  #   }
+
+  #   service_prefix "" {
+  #     policy = "write"
+  #   }
+  # RULE
+}
 
 resource consul_acl_token server {
-  for_each = toset(local.servers.all)
+  for_each = local.all_node_names
   description = "server policy for ${each.value}"
-  policies = concat(
-    (
-      contains(local.servers.consul, each.value) ? [consul_acl_policy.consul-server[each.value].name] : []
-    ),
-    (
-      contains(local.servers.vault, each.value) ? [consul_acl_policy.vault.name] : []
-    ),
-  )
-  local = true
+  policies = [
+    consul_acl_policy.consul-server[each.value].name,
+    consul_acl_policy.dns.name
+  ]
 }
 
 data consul_acl_token_secret_id server {
-  for_each = toset(local.servers.all)
+  for_each = toset(local.all_node_names)
   accessor_id = consul_acl_token.server[each.value].id
 }
 
+output "server-tokens" {
+  value = {for name, token in data.consul_acl_token_secret_id.server : name => token.secret_id }
+  sensitive = true
+}

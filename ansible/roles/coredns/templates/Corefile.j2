@@ -1,34 +1,43 @@
 . {
-    forward . {{ nidito.dns.external.forwarders | join(" ") }}
+    forward . {{ config.services.dns.external.forwarders | join(" ") }}
     cache
 }
 
 
 # Main zone
-{{ nidito.dns.zone }} {
+{{ config.services.dns.zone }} {
     hosts {
-        {% for host in dns.hosts -%}
-        {{ host.address }} {{ host.name }}.{{ nidito.dns.zone }}
+        {% for name, n in config.nodes.items() if n.dc == node.dc -%}
+        {{ n.address }} {{ name }}.{{ config.services.dns.zone }}
         {% endfor %}
 
         fallthrough
     }
 
     consul_catalog nidito.dns.enabled {
-        endpoint consul.service.consul:{{ nidito.consul.ports.http }}
-        token {{ nidito.dns.consul_token }}
+        # query for services here
+        endpoint consul.service.consul:{{ config.services.consul.ports.http }}
+        # using this consul token
+        token {{ config.services.dns.consul_token }}
+        # cache for a minute
         ttl 1m
 
+        # acls will be read off the nidito-acl nomad meta tag
         acl_metadata_tag nidito-acl
-        {% for network, range in nidito.networks.items() -%}
-        acl_zone {{ network }} {{ range }}
+        # acl zones are defined here
+        acl_zone external 0.0.0.0/0
+        {% for name, net in config.networks.items() if "dc" in net and net.dc == node.dc -%}
+        acl_zone {{ name }} {{ net.range }}
         {% endfor %}
 
+        # when services have the nidito.http.enabled tag
+        # answer with the nginx service addresses
         service_proxy nidito.http.enabled nginx
+        # look for additional static entries in this kv path
         config_kv_path dns/static-entries
     }
 
-    file {{ node.dns.config }}/zones/main
+    file {{ coredns_config_path }}/zones/main
 
     log {
       class denial error
@@ -37,24 +46,37 @@
     errors
 }
 
+{% for dc_name, dc in config.datacenters.items() if dc_name != node.dc -%}
+# forwarded zone for {{ dc_name }}
+{{ dc.dns.zone }} {
+    hosts {
+      {% for name, n in config.nodes.items() if n.dc == dc_name -%}
+      {{ n.address }} {{ name }}.{{ dc.dns.zone }}
+      {% endfor %}
+
+      fallthrough
+    }
+
+    forward . {{ config.services.dns.external.forwarders | join(" ") }}
+    cache
+}
+{% endfor %}
+
 consul {
     # allow only specific networks to query this zone
     # either way, both consul and the node's firewall should deny
     # but just in case of computers, and to make my life easier
-    # since now i don't need a custom domain for consul
     acl {
         allow net 127.0.0.1/32
-        {% for network in nidito.consul.allowed_networks -%}
-        allow net {{ nidito.networks[network] }}
+        {% for _, network in config.networks.items() if "core" in network -%}
+        allow net {{ network.range }}
         {% endfor %}
 
         block
     }
 
-    # Forward all requests to consul
-    # first to ourselves if this server runs consul server too
-    # then to every other consul server
-    forward . {% for addr in dns.consul_servers %} {{addr}}:{{ nidito.consul.ports.dns }}{% endfor %} {
+    # Forward all requests to all leader nodes of this DC
+    forward . {% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %} {{n.address}}:{{ config.services.consul.ports.dns }}{% endfor %} {
         policy random
     }
 

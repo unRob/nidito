@@ -1,0 +1,178 @@
+altepetl:
+  core: true
+  dc: casa
+  description: A network for trusted devices
+  dhcp:
+  - name: tepetl
+    range: 10.42.20.0/24
+    size: 5
+    reservations: []
+  - name: atl
+    range: 10.42.30.0/28
+    size: 5
+    ssid: "␖/␆"
+    reservations:
+      tláloc:
+        ip: 10.42.30.3
+        mac:
+          ciphertext: Hh3BC+EQSWBGlQeUm7Uk4z0V0mTaz96XSeVBxxjLXIZpOmV+YuT3nFdJCRPwTDKfGv6XbLp0iEHBEozNRAND0GY=
+          encrypted: true
+          hash: 81e0033034e9646c61fce3f4b6ed9a943f563bee5d629a770eb9466368e51101
+        groups: [homekit-user]
+      chiquihuite:
+        ip: 10.42.30.4
+        mac:
+          ciphertext: 9leXjNVqJKVcHe15XtQxQrQNkHd7R7XS3MFJPzEL81lw9Bib5z0UJk/FRYR0BXXXdA9rNSvl98oze7Cdr4DD8II=
+          encrypted: true
+          hash: 3fae35c0adcb53afbf52ecd3bcbbc413f00edfac3ac6b8b92f826edc2d2d3c15
+        groups: [homekit-user]
+      chautengo:
+        ip: 10.42.30.5
+        mac: 00:00:00:00:00:00
+        groups: [homekit-user]
+      zempoala:
+        ip: 10.42.30.6
+        mac: 00:00:00:00:00:00
+        groups: [homekit-user]
+      citlaltépetl:
+        ip: 10.42.30.6
+        mac:
+          ciphertext: DpSL5k25HdKB7IKIT4+M38KJbEgriK8Xm2EFGxmFkYrlPJPWoUmaVfUF8vjEm85OaAJ2pi4ZVobJFP4OowV4xqk=
+          encrypted: true
+          hash: 3460a45cbdd95e71fe2637afebc29db7a0292ff95f958c2c644c6d67458442d8
+        groups: [homekit-user]
+  range: 10.42.20.0/20
+  services:
+    http:
+      ports: 80,443
+  vpn: 10.42.31.0/29
+crypto:
+  key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
+  provider: password
+familia:
+  dc: casa
+  description: Friends and family get access to some network services
+  dhcp:
+  - name: familia
+    range: 10.42.40.0/24
+    size: 50
+    reservations: []
+  firewall:
+    altepetl:
+      allow: [http, established, related]
+      default: drop
+    local:
+      default: [dns, dhcp]
+    robotitos:
+      default: accept
+  range: 10.42.40.0/20
+huespedes:
+  dc: casa
+  description: Guests of the network
+  dhcp:
+  - name: huespedes
+    range: 10.42.0.0/24
+    size: 250
+    reservations: []
+  firewall:
+    altepetl:
+      allow: [http, established, related]
+      default: drop
+    local:
+      default: [dns, dhcp]
+    robotitos:
+      allow: [http, sonos, established, related]
+      default: drop
+  range: 10.42.200.0/20
+local:
+  dc: casa
+  description: The router's network
+  dhcp:
+  - name: local
+    range: 10.42.0.0/24
+    size: 5
+    reservations:
+      ap0:
+        ip: 10.42.0.100
+        mac:
+          ciphertext: J5juSmG3gGX3xjY4KGiak76osqVu4w9WpVa+3BboIpswOEmHHJEfz1ui/kmGw3IlIutLPNLDvt/+fNCgcitRurg=
+          encrypted: true
+          hash: d590849c1ff2fb4f3dd4064496de5365fa924c6187baf9197206cde01abb5365
+      ap1:
+        ip: 10.42.0.101
+        mac:
+          encrypted: true
+          hash: 647f46fb5e649d67e959a921e83d1ba9a5996b2a2f75920df677cd4891ee49b9
+          ciphertext: 0rtOhEnbRXu7dpoIoUVQaZkReLmWXpi+NFAmcqKuGvryobs6fqCiEcxxdeQfd9ZIx2/CPLPxV9tGj+oFN4eeXXw=
+      ap2:
+        ip: 10.42.0.102
+        mac:
+          ciphertext: v2LqdoYIxGebdYvuxXjPOET1whOSqlbNGDJiz2suM4Pa5EHHC5HYxxgpQxA17+gNoRhAdh6A1dEd/74p6AseoYg=
+          encrypted: true
+          hash: 5f2cba6b397258cff0c4deb48bc476a8bc92639be502859e70dcba81422a8ca0
+      cloudkey:
+        ip: 10.42.0.10
+        mac:
+          ciphertext: RUvw6tcHHwRINz4XszgcGJib6bOLtLNnGQIR2/5U8shS99GI/UTFw2C+Fyk42IxCmuREUcBUrET/dcHLvmXycSo=
+          encrypted: true
+          hash: 7217ae7e68f529c85f3d2779d470c04d3bbff23fef825fd7c41e7e5061fe3d4f
+      edgeswitch:
+        ip: 10.42.0.2
+        mac:
+          ciphertext: RuvLFmXkNRQvYM51xmPmVQNmzWtHp7KjSbmNKGOEzYR2EWREYJCMqeFwwv0orPz6+dju5Pu7tr7IzT2v4TEBe5M=
+          encrypted: true
+          hash: 9628b1dd75a0b707614135e33e748a466b41f98d15697bccc3e0411d075b18cc
+  range: 10.42.0.0/24
+  services:
+    dns:
+      ports: 53,5353
+nyc1:
+  dc: nyc1
+  description: Cloud hosted network
+  dhcp: []
+  range: 10.100.0.0/20
+peering:
+  description: The peering network between datacenters, not really part of any one
+    dc
+  dhcp: []
+  range: 10.42.31.0/24
+robotitos:
+  dc: casa
+  description: Internet of shit runs my home
+  dhcp:
+  - name: robotitos
+    range: 10.42.100.0/24
+    size: 50
+    reservations:
+      Apoltivi:
+        ip: 10.42.100.3
+        mac:
+          ciphertext: 60eDg5zJquXaDE2niQTBChOJZeQaunOybUPlLpdyJSL0e7SD0Me7Bh783ThP4eVDJABElH2PoDzWqy+u5WaAWy8=
+          encrypted: true
+          hash: 346b0d0da2e29bc6dd96aff1269e0ed9bebd3153d14bcb2acdafc6becc350b26
+        groups: [homekit-servers]
+      Hueberto:
+        ip: 10.42.100.4
+        mac:
+          ciphertext: EhUgX1ogK4ysoFSrxnfSaTf0gvqA0wuZ5OqfnjTHiuLyM+DHJjzMbotUg/LtBBFOMgFeeBNgtGsxLyraXQVMxwM=
+          encrypted: true
+          hash: 68d4e7360408c2bbba69a1dd4a5b85dd80c99022596d515cd558d994a2c81172
+        groups: [homekit-servers]
+      Sonos:
+        ip: 10.42.100.5
+        mac:
+          ciphertext: KDJJOUKcKtIdcDCNMCHpQ/jSwRMvB23gdTttAMMiR8wtmBAOFkh6YFjMJbAkEYfxLR7arfgR50g0HJ3LgWNL5Vk=
+          encrypted: true
+          hash: b6fdbf084a910ce1338420865ce4b15e97a5a839cea1c4f617216dd51561bb17
+        groups: [homekit-servers, sonos]
+  firewall:
+    altepetl:
+      allow: [http, established, related]
+      default: drop
+    familia: [established, related]
+    local:
+      default: [dns, dhcp]
+  range: 10.42.100.0/20
+  services:
+    sonos:
+      ports: 3400-3401,3500,136-139,1900-1901,6969

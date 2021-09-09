@@ -6,11 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-ansible = "*"
 netaddr = "*"
 dnspython = "*"
 paramiko = "*"
 config-yourself = {extras = ["password"],version = "*"}
+ansible = "*"
 
 [requires]
 python_version = "3.7"

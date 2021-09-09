@@ -1,7 +1,7 @@
 resource consul_acl_policy gateway {
   name        = "server-consul-gateway"
   description = "gateway policy"
-  datacenters = ["brooklyn"]
+  datacenters = ["casa"]
   rules       = <<-RULE
     event_prefix "" {
       policy = "read"
@@ -31,3 +31,7 @@ data consul_acl_token_secret_id gateway {
   accessor_id = consul_acl_token.gateway.id
 }
 
+output "gateway-token" {
+  value = data.consul_acl_token_secret_id.gateway.secret_id
+  sensitive = true
+}

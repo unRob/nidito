@@ -1,0 +1,2 @@
+vault_config_dir: /etc/vault.d
+vault_user: vault

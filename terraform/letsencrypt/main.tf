@@ -6,15 +6,15 @@ terraform {
   required_providers {
     acme = {
       source = "vancluever/acme"
-       version = "~> 2.5.2"
+      version = "~> 2.5.3"
     }
     vault = {
       source = "hashicorp/vault"
-      version = "~> 2.20.0"
+      version = "~> 2.23.0"
     }
   }
 
-  required_version = ">= 0.13.0"
+  required_version = ">= 1.0.0"
 }
 
 provider acme {
@@ -22,46 +22,38 @@ provider acme {
 }
 
 data vault_generic_secret le {
-  path = "kv/nidito/config/services/letsencrypt"
+  path = "nidito/config/services/letsencrypt"
 }
 
-data vault_generic_secret dns {
-  path = "kv/nidito/config/dns"
+data vault_generic_secret casa_dns {
+  path = "nidito/config/datacenters/casa/dns"
 }
 
 data vault_generic_secret dns_provider {
-  path = "kv/nidito/config/dns/external/provider"
+  path = "nidito/config/services/dns/external/provider"
 }
 
 resource acme_registration account {
-  account_key_pem = data.vault_generic_secret.le.data.private_key
+  account_key_pem = trim(data.vault_generic_secret.le.data.private_key, "\n")
   email_address   = data.vault_generic_secret.le.data.email
 }
 
-resource acme_certificate cert {
-  account_key_pem           = acme_registration.account.account_key_pem
-  common_name               = data.vault_generic_secret.dns.data.zone
-  subject_alternative_names = ["*.${data.vault_generic_secret.dns.data.zone}"]
-
-  recursive_nameservers = ["1.1.1.1:53", "8.8.8.8:53"]
-
-  dns_challenge {
-    provider = "digitalocean"
-    config = {
-      DO_AUTH_TOKEN = data.vault_generic_secret.dns_provider.data.token
-      DO_PROPAGATION_TIMEOUT = 60
-      DO_TTL = 30
-    }
-  }
+module "casa" {
+  source = "./ssl-cert"
+  acme_account_key_pem = acme_registration.account.account_key_pem
+  datacenter = "casa"
+  dns_zone = data.vault_generic_secret.casa_dns.data.zone
+  do_token = data.vault_generic_secret.dns_provider.data.token
 }
 
-resource vault_generic_secret certificate {
-  path = "kv/nidito/letsencrypt/cert/${data.vault_generic_secret.dns.data.zone}"
-  data_json = jsonencode({
-    private_key = acme_certificate.cert.private_key_pem,
-    cert = join("\n", [
-      acme_certificate.cert.certificate_pem,
-      acme_certificate.cert.issuer_pem,
-    ])
-  })
+data vault_generic_secret nyc1_dns {
+  path = "kv/nidito/config/datacenters/nyc1/dns"
+}
+
+module "nyc1" {
+  source = "./ssl-cert"
+  acme_account_key_pem = acme_registration.account.account_key_pem
+  datacenter = "nyc1"
+  dns_zone = data.vault_generic_secret.nyc1_dns.data.zone
+  do_token = data.vault_generic_secret.dns_provider.data.token
 }

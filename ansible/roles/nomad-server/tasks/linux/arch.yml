@@ -1,8 +1,16 @@
 - name: Get installed version
-  shell: nomad --version | head -n 1 | cut -dv -f2
+  shell: nomad --version | head -n 1 | sed -E 's/.*v(.*) .*/\1/'
   register: installed_nomad_version
   ignore_errors: yes
   check_mode: no
+
+- set_fact:
+    golang_artifact_arch: "arm"
+  when: "{{ node.hardware.arch == "arm32" }}"
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: "{{ node.hardware.arch == "x86_64" }}"
 
 - name: Install nomad
   when: installed_nomad_version.stdout != nidito.nomad.version
@@ -10,7 +18,7 @@
   notify: really restart nomad
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/nomad_{{ nidito.nomad.version }}_linux_arm.zip"
+    src: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/nomad_{{ nidito.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: /usr/bin
 
 - name: Install systemd service

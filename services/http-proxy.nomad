@@ -100,7 +100,7 @@ job "http-proxy" {
           {{ range services }}
           {{- if in .Tags "nidito.http.enabled" }}
           {{- range service .Name }}
-          {{- $zoneNames := or (index .ServiceMeta "nidito-allow-zones") "trusted" | split "," }}
+          {{- $zoneNames := or (index .ServiceMeta "nidito-allowed-networks") "altepetl" | split "," }}
 
           server {
             listen *:80;
@@ -125,6 +125,7 @@ job "http-proxy" {
             {{- scratch.MapSet "services" .Name "local" }}
             deny all;
             {{- else }}
+            allow all;
             {{- scratch.MapSet "services" .Name "public" }}
             {{ end }}
 
@@ -150,7 +151,7 @@ job "http-proxy" {
               tcp_nopush on;
               tcp_nodelay on;
               {{- end }}
-              resolver 10.10.0.1 valid=30s;
+              resolver 10.42.20.1 valid=30s;
               proxy_pass http://{{ .Address }}:{{ .Port }};
             }
           }
@@ -191,7 +192,7 @@ job "http-proxy" {
               proxy_set_header X-Real-IP $remote_addr;
               proxy_set_header X-Forwarded-Proto $scheme;
               proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-              resolver 10.10.0.1 valid=30s;
+              resolver 10.42.20.1 valid=30s;
               proxy_buffering "off";
               sendfile on;
               tcp_nopush on;

@@ -1,52 +1,94 @@
-datacenter = "brooklyn"
-node_name = "{{ ansible_hostname }}"
+datacenter = "{{ node.dc }}"
+primary_datacenter = "{% for name, dc in config.datacenters.items() if 'primary' in dc and dc.primary %}{{ name }}{% endfor %}"
+node_name = "{{ node.name }}"
 log_level = "warn"
 enable_syslog = true
-data_dir = "/var/lib/consul"
-
-# from https://blog.tjll.net/distributed-homelab-cluster/
-# let only localhost and the docker network talk to the consul client
-bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.trusted }}{% raw %}\" | attr \"address\" }}"{% endraw %}
-
-client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ nidito.networks.trusted }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
-
+data_dir = "{{ consul_data_dir }}"
 server = true
-ui = true
+ui_config {
+  enabled = true
+}
+{% set dc = config.datacenters[node.dc] %}
 
-retry_join = [
-  {% for host in node.consul.peers %}
-  "{{ host }}.{{ nidito.dns.zone }}"{{ "," if not loop.last else "" }}
+# -----------------------------
+# Networking
+# -----------------------------
+# expose the server on this DC's main network
+bind_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ dc.subnet }}{% raw %}\" | attr \"address\" }}"{% endraw %}
+
+# let only localhost and the docker network talk to the consul client
+client_addr = {% raw %}"{{ GetPrivateInterfaces | include \"network\" \"{% endraw %}{{ dc.subnet }}{% raw %}\" | attr \"address\" }} {{ GetInterfaceIP \"docker0\"}}"{% endraw %}
+
+{% if dc.primary %}
+# Primary DC has multiple servers
+retry_join = [ "{{ dc.dns.leaders }}.{{ dc.dns.zone }}" ]
+{% else %}
+# Secondary DCs have a single server
+bootstrap_expect = 1
+# reply with our "wan" address when servicing dns/http requests from other DCs
+translate_wan_addrs = true
+{% endif %}
+
+# Bind all servers together
+retry_join_wan = [
+  {% for name, rdc in config.datacenters.items() if name in dc.peering.peers %}
+  "{{ rdc.dns.leaders }}.{{ rdc.dns.zone }}",
   {% endfor %}
 ]
 
+# -----------------------------
+# Encryption
+# -----------------------------
 # https://learn.hashicorp.com/consul/security-networking/agent-encryption
-encrypt = "{{ nidito.consul.encryption_key }}"
+encrypt = "{{ config.services.consul.encryption_key }}"
 encrypt_verify_incoming = true
 encrypt_verify_outgoing = true
+
+# https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure
+# inbound http requests from the upstream proxy won't use mTLS
+verify_incoming = false
+verify_incoming_rpc = true
+verify_outgoing = true
+verify_server_hostname = true
+ca_file = "{{ consul_config_dir }}/tls/ca.pem"
+cert_file = "{{ consul_config_dir }}/tls/server.crt"
+key_file = "{{ consul_config_dir }}/tls/server.key"
+auto_encrypt {
+  allow_tls = true
+}
 
 acl {
   enabled = true
   default_policy = "deny"
+  # https://www.consul.io/docs/agent/options#acl_enable_token_persistence
   enable_token_persistence = true
+  # https://learn.hashicorp.com/tutorials/consul/access-control-replication-multiple-datacenters?in=consul/security-operations#configure-the-servers
+  enable_token_replication = true
+  down_policy = "extend-cache"
   tokens {
-    default = "{{ node.consul.token }}"
+    default = "{{ node.token.consul.node }}"
+    {% if "replication" in node.token.consul %}
+    replication = "{{ node.token.consul.replication }}"
+    {% endif %}
+
   }
 }
 
 ports {
-  server = {{ nidito.consul.ports.server }}
-  serf_lan = {{ nidito.consul.ports.serf_lan }}
-  serf_wan = {{ nidito.consul.ports.serf_wan }}
-  dns = {{ nidito.consul.ports.dns }}
-  http = {{ nidito.consul.ports.http }}
+  server = {{ config.services.consul.ports.server }}
+  serf_lan = {{ config.services.consul.ports.serf_lan }}
+  serf_wan = {{ config.services.consul.ports.serf_wan }}
+  dns = {{ config.services.consul.ports.dns }}
+  http = {{ config.services.consul.ports.http }}
+  https = {{ config.services.consul.ports.https }}
 }
 
 telemetry {
   prometheus_retention_time = "744h"
 }
 
-{% if "http_services" in node.consul %}
-{% for svc_name, service in node.consul.http_services.items() %}
+{% if "builtin_services" in node %}
+{% for svc_name, service in node.builtin_services.items() %}
 services {
   id = "{{ svc_name }}"
   name = "{{ svc_name }}"
@@ -77,3 +119,4 @@ services {
 }
 {% endfor %}
 {% endif %}
+# -----------------------------

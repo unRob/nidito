@@ -1,0 +1,39 @@
+casa:
+  dns:
+    leaders: tepetl
+    zone: nidi.to
+  peering:
+    address: 10.42.31.1
+    peers: [nyc1]
+    public_key:
+      ciphertext: YlZdfbNKRU05uKi/Ojny5wjJGHI89YSNYFke6zAe6iJDwohTIwQ9OaSHMOz+i5zVm2EmXirriMSra90O8cWgZ1sHcMC/zs6QUpQTxefHER9r7nk3hMCW/yJn04w=
+      encrypted: true
+      hash: 8e01179f75aceac607275d31efd844813771b4725c8655dec9345803ba73e652
+  primary: true
+  subnet: 10.42.0.0/16
+  vault:
+    unseal_key:
+      ciphertext: xKAADGPFRFF+YiDtZ/Dt0uT/+eBE3DEOxvXU4Uc9qPjnsnRRNz41m/ZJTvwMT58+suX8z5lsKBXQ4sNeF4RMnOtwGtiO3rgSBrVtwEPgQ+pey13B3blrm6NFqQ/2FdySZecXXhzkvdwYTAEVNy0gFg==
+      encrypted: true
+      hash: cddc2a49d5ba76d8ad7300b9016c2644d03574929ebe1bac0f23863fa01c3166
+crypto:
+  key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
+  provider: password
+nyc1:
+  dns:
+    leaders: bedstuy
+    zone: rob.mx
+  peering:
+    address: 10.42.31.3
+    peers: [casa]
+    private_key:
+      ciphertext: l1mSsz3daQoIWXjwmUqqwaNWGuWHiE7Y9YI9lZx6U7vuCfnAAe5NBmtmatUegEXpkMWHsVnzX5nDKVVFhN+DjqY5SfqR1NIUfvSsJNvyYtgU1zWTGZvy/H8Z2Z4=
+      encrypted: true
+      hash: d7fcd653186e47c3bce1600b45459fa208328fa239a5bc4154ac6745b403c01a
+  primary: false
+  subnet: 10.100.0.0/20
+  vault:
+    unseal_key:
+      ciphertext: iXclTbqgQ4jzUYxo5c40FIp/n31cZJzaRm+ghN/sZYkLdLgznYQgTKW3aSA/vbpVBQd8bgwGyDgrDCeq1897JLxup+qGVLBZkv9xDG/VYdwo7ymBaXFMqnIJvWY=
+      encrypted: true
+      hash: 2aaa4ca5958695a34b11a79233ff952a14a245bc57bd1965becf8cd47a13b745

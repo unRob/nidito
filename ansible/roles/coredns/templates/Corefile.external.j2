@@ -1,0 +1,35 @@
+. {
+  forward . {{ config.services.dns.external.forwarders | join(" ")}}
+  cache
+
+  bind {{ config.datacenters[node.datacenter].address }}
+  bind lo
+  acl {
+    allow net 127.0.0.1/32
+    allow net {{ config.datacenters[node.datacenter].subnet }}
+  }
+}
+
+# main zone forwarded over the tunnnel
+{{ config.services.dns.zone }} {
+  forward . {{ config.datacenters._peering.wireguard.dns }}
+
+  bind {{ config.datacenters[node.datacenter].address }}
+  bind lo
+  acl {
+    allow net 127.0.0.1/32
+    allow net {{ config.datacenters[node.datacenter].subnet }}
+  }
+}
+
+# consul dns sent locally
+consul {
+  forward . 127.0.0.1:{{ config.services.consul.ports.dns }}
+
+  bind {{ config.datacenters[node.datacenter].address }}
+  bind lo
+  acl {
+    allow net 127.0.0.1/32
+    allow net {{ config.datacenters[node.datacenter].subnet }}
+  }
+}

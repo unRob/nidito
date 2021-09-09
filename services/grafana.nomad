@@ -60,7 +60,7 @@ job "grafana" {
         ]
 
         meta {
-          nidito-acl = "allow trusted"
+          nidito-acl = "allow altepetl"
         }
 
         check {

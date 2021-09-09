@@ -184,7 +184,6 @@ export MC_CONFIG_DIR="/home/icecast/.mc"
         ]
 
         meta {
-          nidito-allowed-networks = "external"
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
         }

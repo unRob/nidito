@@ -1,34 +1,29 @@
 
 ---
-# - hosts: reachability_gateway
-#   gather_facts: no
-#   tasks:
-#     - debug:
-#         var: rendered_template
-#       vars:
-#         rendered_template: "{{ lookup('template', './roles/coredns/templates/Corefile.j2') }}"
-
-- hosts: reachability_gateway
+- hosts: role_router
   tags: coredns
   gather_facts: no
   roles:
-    - gateway
+    # - gateway
     - coredns
     - wireguard
 
-- hosts: consul_server
-  tags: consul
+- name: Consul
+  hosts: role_leader
+  tags: [base, consul]
   serial: 1
   roles:
-    - consul-server
+    - role: consul-server
 
-- hosts: vault_server
-  tags: vault
+- name: Vault
+  hosts: role_leader:!storage_none
+  tags: [base, vault]
   roles:
     - vault-server
 
-- hosts: nomad_server
-  tags: nomad
+- name: Nomad
+  hosts: role_leader
+  tags: [base, nomad]
+  serial: 1
   roles:
     - nomad-server
-

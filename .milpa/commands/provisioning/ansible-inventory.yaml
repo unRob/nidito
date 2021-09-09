@@ -1,0 +1,10 @@
+summary: Produces inventory for ansible
+description: |
+  Longer description of how it does the thing
+options:
+  list:
+    description: print out inventory for all hosts
+    type: bool
+  host:
+    description: print out inventory for one host
+    type: bool

@@ -15,6 +15,14 @@ resource vault_mount kv {
   }
 }
 
+resource vault_mount nidito {
+  path        = "nidito"
+  type        = "kv"
+  options = {
+    version = 1
+  }
+}
+
 # consul provider
 resource vault_mount consul {
   path        = "consul"

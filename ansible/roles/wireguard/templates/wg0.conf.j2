@@ -1,14 +1,11 @@
 [Interface]
-Address = {{ network.range | ipaddr('next_usable') }}
-PrivateKey = {{ network.key }}
-ListenPort = {{ network.port }}
-DNS = {{ dns_servers | join(",") }}
+PrivateKey = {{ config.datacenters[node.dc].peering.private_key }}
+ListenPort = {{ config.services.wireguard.port }}
 
-PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o {{ network.interface }} -j MASQUERADE; iptables -A FORWARD -i %i -o {{ network.interface }} -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT; iptables -A FORWARD -i {{ network.interface }} -o %i -j ACCEPT
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o {{ network.interface }} -j MASQUERADE
-
-{% for client in network.clients %}
+{% for peer_name in config.datacenters[node.dc].peering.peers %}
+{% set peer = config.datacenters[peer_name] %}
 [Peer]
-PublicKey = {{ client.public }}
-AllowedIPs = {{ network.range | ipmath(2+loop.index) }}/32
+PublicKey = {{ peer.peering.public_key }}
+AllowedIPs = {{ peer.peering.address }}/32, {{ peer.subnet }};
+Endpoint = {{ peer.dns.zone }}:{{ config.services.wireguard.port }}
 {% endfor %}

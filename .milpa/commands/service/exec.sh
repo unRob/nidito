@@ -11,13 +11,13 @@ alloc=$(curl -s "${NOMAD_ADDR}/v1/job/${service}/allocations" | jq -r '.[0].ID')
 if [[ "$MILPA_ARG_INTERACTIVE" == "autodetect" ]]; then
   [ -t 1 ] && interactive="true" || interactive="false"
 else
-  interactive="$MILPA_ARG_INTERACTIVE"
+  interactive="${MILPA_ARG_INTERACTIVE:-false}"
 fi
 
 if [[ "$MILPA_ARG_TTY" == "autodetect" ]]; then
   [ -t 2 ] && passtty="true" || passtty="false"
 else
-  passtty="$MILPA_ARG_TTY"
+  passtty="${MILPA_ARG_TTY:-false}"
 fi
 
 args=(/bin/sh)

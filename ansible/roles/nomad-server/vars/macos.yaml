@@ -1,0 +1,2 @@
+nomad_config_dir: /nidito/nomad
+nomad_data_dir: /private/var/lib/nomad

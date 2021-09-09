@@ -1,0 +1,3 @@
+summary: generates a CA and a certificate authority
+description: |
+  generates a CA and certificates for consul, vault and nomad. Generated certicates and keys will be stored in config.

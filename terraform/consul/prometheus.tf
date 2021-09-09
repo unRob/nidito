@@ -5,7 +5,6 @@ data consul_key_prefix cfg {
 resource consul_acl_policy service-prometheus {
   name        = "service-prometheus"
   description = "prometheus policy"
-  datacenters = ["brooklyn"]
   rules       = <<-RULE
     service "prometheus" {
       policy = "write"

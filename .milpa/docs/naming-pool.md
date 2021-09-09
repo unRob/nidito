@@ -1,7 +1,3 @@
----
-title: hostname pool
----
-
 My hosts are named after mountains, volcanos and hills around México City, mostly. Bold means taken. I don't think I'll need
 
 - **`ajusco`**: volcán

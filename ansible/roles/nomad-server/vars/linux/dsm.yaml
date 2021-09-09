@@ -1,0 +1,3 @@
+# sigh, sinology
+nomad_config_dir: /etc/nomad
+nomad_data_dir: /volume1/nomad

@@ -1,0 +1,90 @@
+ca:
+  key:
+    ciphertext: MP4+pkb+I6N1xpsnUOsEUvfyzrrus1BYttryocf9LLTkqXbxPFn8lEM5MYekmdl+aWogmY7RadYTWqdBJApWr4D6P+VqWvh+zzBoKKAvseknc2Iv6stY///LU/iNz8M/19V8a5W3WHhlE1+sl7PyRZ0o40XTXD5s0msYRpNy8KTY1cSa9SnTNLHTntstcRxpg2DmumZpLaab/WpvyIu0Xx6YZPwlWVgZJSo2/YoyTMQVijQFht+ApMI3vYZLniLpb6URau1qOYd2OQyunlIvFweFsn3Buthku4N2JLVHj2L700hVY/pkPoNlqvQM/bZiENvLRUwx2Kr1DO3QUWt189NBdzNB0h0k4K1XCLmmYELm6F0=
+    encrypted: true
+    hash: 149a2682ef3a33cc0306f08f6893a3e0f6bd079dae93cee864bffc9bc9a81f0c
+  cert:
+    ciphertext: RntQM9y07qK/MCdoAAcYW+99uKpK/f2nLjvgrhJdglCRRuHepUcMOE3bsaeSHuvZWXHNJ0HmAjz5SQngOAhLQoNXmA8rD6G0Ker2LRKwrre6OoE58j7i6Ctms+XCdBhiwea9+f/eWO/bX8mE4dy1E08YTXOa9/gXXDX0DKh/3UaYQ6vdq0yUr57ty83X/JIjhtEco+wzM7ieEzhXpkbQJYE+iCBAKo30SCDI2OD/x0dYDjVz05m8c1sXWFC90NzlF8GF+mmtR+gIoWzmGOQUS9Z7v/FTD3c5S6wm4+Yxv7OzYn0Bwn1eVZ+WzYU7pu7VijWcmVotmRtS4OaEckieaoHLsYgABiXBCr05lx3+9/dbjJqgzbJUilruXQ3MWrqEVhqO4UBqzQNDDk0p7y7NG8+1xot+CaV8/Bn1vHtUtySBjm4UoEAV5WzCdxMw3qKEnhw6OSLgVHq9icwshMde3RHcS6xPvwDwQ57nfcDiWCvnKE03plleHqs8QN6ZjW0ekDO3uEgZDJVLEIXBuiYC41A9MuV+C6p98d3LwTk/S1eWwQJ/mLyikJppfUkL39gPpqldmrP0NnKPy0SZbSteLmdG1NidKUV25dkqX9dM7Kw/TI4h342MRU742e58H37U/BdLmAlzsG1xqGN1+I7YMODlkDpK6EWgY4bi/LCl5z1oaki94Orug+qsmuaf0XLp/rS4VaGJEGPIlu3Otbc4N4VF1iQKAKUeaHtLN90ct+/6kvudJbrNiugz1QxmHpcrSC67l+qKYo/BGynpyRHgeif9uH62w4YnoQCIXBFyZ3RBRW5hEGxqj6sv8t5i4FYoxAB5A9MGj2zeGXbsPG7fYVjLxLcfPBUMhk1RxSNGcXToZlyXQykgktdkrlKd1SRrXXxLkfoBh01ly2j8H8HbKO6U7Cd80wOW8cuMOzSTk51H8H9MKtz33OWUWcGaxR33RZeIJ6J2gTlRxj8RKeZhBZAxiwPV08avKwFWqw3yasOHIhay/WI6a0GojsZOdOPZly3pv1ghoKUVSWvlVkH5n7gWqtEz+t5iwgNuHrWIFc2anX3/EKGN34biYLB6E6Y+hq3HjvK3dwyB56TjIrJa7FQNSRy4MzkgVCF0bMDwKSmam2SSYFb6bWSQrCtmRxz8j4kEe9ncmOsJKZden1QTfDw9wiEKC2ZH/5bzswrnscTpa1QBTUCP+0kx7CvSFJUWSTejufdMc1UZRQ1Pw9bmv5aI1tZH1UUp+4Khya0yTV4NjW7aeV6Em/mERXNABv5yzDYCb6iRT+ew1fYGzMA2+aHnKKYEL9g9oNi6ESVIAGteRk+32XRqq+9J9SXnEP+WKlv7h6pQzBZONw7MInUe+v2Xa+T47ZnvHeXBySLGc/v9dHX8c83juQ2VMh5N2+j3h3Gbfdvde/LFMAyoeUG5Cq/sTNrg8Y0LLh0t9/fpUTQ4g+0UDCc8srB4y03FAhgGQjHUgeSqPilFgArxsuLji+GQ
+    encrypted: true
+    hash: d676fb0b812893a3ed86fb1e228c13d10cfc7b7a6cd3f2997b1d74799ae53ec7
+consul:
+  encryption_key:
+    ciphertext: utp3DmeQIpL6nB/6MBBekfDFvzd2tEFO/h002fSwzv5gkY8NVzCs2ANRoUBgLSnUMxaRuRcde/7Qj0uWCozMabcuooNMNE0KRIo4NZg/0LLTNIVad71vJ0dFyNs=
+    encrypted: true
+    hash: ab19fdadeee3cc7e14aff31d312643125003c7cecddd907d4cd716261cd14042
+  ports:
+    dns: 5553
+    http: 5555
+    https: 5554
+    serf_lan: 5551
+    serf_wan: 5552
+    server: 5550
+  version: 1.10.2
+crypto:
+  key: nX447KScZXogkbfsFb755uhcwJULlGWwMFyO2Kikaztt2pzXawUCTgf5QHafd0HQ2s1Jh0hVKZgy13X33E95zwswVEc8mqpsrGPnCoh69V9+WlZRebonGR3fEds=
+  provider: password
+dns:
+  consul_token:
+    ciphertext: aKf6UAJ5w3fsLq99cqvIb7TaAnZ1+MdyQ2GpkTyf/zUQHkLJdtI27BZnAliqT4ndnuYtoHG1+7KOWhmpcelxGgyKyJ/iXiqFdLNwmALO5PB4qdrb
+    encrypted: true
+    hash: 77dd385bcbfe1964118b51951124c2fe66ee3dbceba0da40a712ce423b259b87
+  external:
+    # when resolving non ${dns.zone} queries, forward to
+    forwarders:
+    - 1.1.1.1
+    - 8.8.8.8
+    # our domain is a registered TLD whose NS point to:
+    nameserver: ns1.digitalocean.com
+    provider:
+      name: digitalocean
+      token:
+        ciphertext: zOmnwZv3HYGhn7kVhFD6IBy0tmE8xdb+bN/6Xria+HHqD3fnQ8L+GIfv6lsV+MYV9kKaCfCRTRUUC6x4BzOB+tDPg1BtG/lFMTSHpm/Q46IX8fhQ8jhcZSbq3UxXfMLDxePJev3sOEp0LjwlUKSdEA==
+        encrypted: true
+        hash: afe6d35ae8fbc96087e14c6c4afd1dede78c68013a158a87186a2b466a71cd62
+  # the fully qualified domain name for my nidito
+  # all services will be a subdomain of this domain
+  zone: nidi.to
+letsencrypt:
+  email: nidito@un.rob.mx
+  private_key:
+    ciphertext: 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
+    encrypted: true
+    hash: 3936a233e868177f940b7d9d6718a60b8d90977e8919cf43c61064217a89abdf
+mailgun:
+  domainkey:
+    ciphertext: IcvgQ2+2uhvaQ5vTmHXkgyYWtrNbMdKziOz2FQlgfuzDYBsGumu92vmpgGnWKnq+lHLdv4eIR6Az4Hxgb2/wgPGCwEeaUmDuoLype2wCHsDlbBdgW3j1w/pgXj+mUtUYpIKv2rMUBuVaq7F81GaxwpNZf3UD18oTvrkpAnYqo9YNz5eZcmg9e9mCQAVqOn9MY1kcCgwPuR6S4n+NmzVvbbMKN51tqDLycXbZI/mTc4EwAOTnYXlsYVjfx4TgOT4p22W/lEKCuPEJHfJlw1KRpHMqWPzyXM9XNRExrRAughPClP8NqPT8HPDgmgIYa6EWmEDdqG5HiaOJmDxSUzjg1Nv29Yv8HPA953ueLBK+c/bsi7OzO0YWoxOVbYDob9wFzpLsuNZNGOoxT7BYrjSYiRJ0Wfcl84eXSMepR0yoVsnVKq4eBKVKmFgh7xJEzfAM8Czi6aaxkRMgks5lEjsdnu2VHS/9PXcuFe1CSlPElXy/F/OZXwmppv4U6DYF8UX0QW5hv5Yk70OiFuZlrQluOm4yRebGQckwOWRH7UH2LnOZRfLlCJE8b9zqm+Y9PwHo0qCI5/Up9OxcmncV/CeeUiU=
+    encrypted: true
+    hash: db2bf63c2d1f89fd207de36b55d428114dab66d5e784137798ddc002b28f4c18
+  dsm:
+    ciphertext: RD5i7jUoREEXjmZ/R/IZpagjQuxN7ZRYRGqr9r+CXgqZ1hBeCeRNU8NqFpydSUbWa7/jkXXnZTZuV4Gk3bKdeHPxI6dULd/wmBmu9wdMF+j75rUaVR9x1Z5TTuSkW792F7E=
+    encrypted: true
+    hash: 3d856eb9a77ce054f2fa9ea632a6d515e57b2ffeb6767c7861fb8c1b253c1bf5
+minio:
+  key:
+    ciphertext: iJ9j7LmqYDJypNCOgeCZlnO+dK1/aq45bLosayCbtCmTxsgmn/w4HF2SPAM93FRRS1kiYGg=
+    encrypted: true
+    hash: 5ae0a39b9dc084b59aa32256335bd60eac3107bac9ecc6eb1688d2ff2ec67c87
+  secret:
+    ciphertext: kuuyuE5wE7loigXTOyUiG+473/HiVQ9oF6SwZ0sepPyTe0a29ZqdFyhdQY8v4fQhRqdJ4olfvlP7R1R/0xyPXc59aPPTtvbRCk2nooYRlzk=
+    encrypted: true
+    hash: 80a8bd31044087e0fb91b09352caec645fbe877a413952b929be5e7bb6fbb2a7
+nomad:
+  ports:
+    http: 5560
+    rpc: 5561
+    serf: 5562
+  recover_cluster: false
+  token:
+    ciphertext: nuN46GN5LVclEgnZ2kgbtSODIQPXofJzZj7Ld1MNXlZT2BBtieqBG9nZcmog14qgNE5uIx30UX9iW1hLtPDtDSMw5aMR3pL3HCk=
+    encrypted: true
+    hash: 2881b185e83eff77ee409bc08a46845f10c5aae703ef994a6b669b25be5e98ef
+  version: 1.1.4
+vault:
+  consul_token:
+    ciphertext: QluEG1esvPsyip6KbZNIoLhfMIEmfEJUkBUZZk3LN1u7WvTIJ+oxZs/KtaWtBeqDGAabh253OpEpN+sCXkkGMdi6jJVmI5BX9D2Bk/vjbM8SOuZu
+    encrypted: true
+    hash: 6813750aa750e6f0ae6a5c0cde1fa1cb118ef1847c392f764f8bf27f25334886
+  port: 5570
+  version: 1.6.3
+wireguard:
+  port: 1194

@@ -3,5 +3,4 @@
   listen: restart wireguard
   become: yes
   shell: |
-    wg-quick down {{ nidito.wireguard.interface }}
-    wg-quick up {{ nidito.wireguard.interface }}
+    systemctl restart wg-quick@wg0.service

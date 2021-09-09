@@ -10,15 +10,23 @@
   check_mode: no
 
 - set_fact:
-    needs_install: "{{ installed_consul_version.stdout != nidito.consul.version}}"
+    needs_install: "{{ installed_consul_version.stdout != config.services.consul.version}}"
   check_mode: no
+
+- set_fact:
+    golang_artifact_arch: "armhfv6"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
 
 - name: Download a more recent consul version
   when: needs_install
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/consul/{{ nidito.consul.version }}/consul_{{ nidito.consul.version }}_linux_armhfv6.zip"
+    src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: /usr/bin
 
 - name: Enable consul daemon

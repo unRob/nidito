@@ -8,9 +8,12 @@ StartLimitBurst=3
 [Service]
 EnvironmentFile=-/etc/default/vault
 Restart=on-failure
-ExecStart=/usr/bin/vault agent -config=/etc/vault.d
+ExecStart=/usr/bin/vault server -config=/etc/vault.d/config.hcl
 ExecReload=/usr/bin/kill -HUP $MAINPID
+User=vault
 KillSignal=SIGINT
+# https://www.vaultproject.io/docs/configuration#disable_mlock
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target

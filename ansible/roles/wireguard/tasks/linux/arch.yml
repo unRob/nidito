@@ -1,6 +1,6 @@
 - name: "Install wireguard"
   pacman:
-    name: wireguard
+    name: wireguard-tools
     state: present
   notify: restart wireguard
 
@@ -10,3 +10,11 @@
     dest: "/etc/wireguard/wg0.conf"
     mode: u=rw,g=r,o=
   notify: restart wireguard
+
+# https://wiki.archlinux.org/title/WireGuard#systemd-networkd
+- name: Route main dns zone over vpn
+  become: true
+  shell: |
+    resolvectl domain wg0 '~{{ config.services.dns.zone }}' '~42.10.in-addr.arpa'
+    resolvectl default-route wg0 false
+    resolvectl dns {{ config.datacenters._peering.wireguard.dns }}

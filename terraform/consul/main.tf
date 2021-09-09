@@ -6,15 +6,15 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.11.0"
+      version = "~> 2.13.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.19.0"
+      version = "~> 2.23.0"
     }
   }
 
-  required_version = ">= 0.13"
+  required_version = ">= 1.0.0"
 }
 
 resource "consul_prepared_query" "dns-services" {
@@ -41,6 +41,7 @@ locals {
 }
 
 resource "consul_keys" "static-services" {
+  datacenter = "casa"
   key {
     delete = false
     path = "dns/static-entries"
@@ -48,7 +49,7 @@ resource "consul_keys" "static-services" {
       keys(local.static_entries),
       [for name, port in local.static_entries : {
         target = "@service_proxy"
-        acl    = ["allow trusted"]
+        acl    = ["allow altepetl"]
         port = port
       }]
     ))

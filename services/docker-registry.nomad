@@ -118,8 +118,8 @@ EOF
         ]
 
         meta {
-          nidito-http-zone = "trusted"
-          nidito-acl = "allow trusted"
+          nidito-http-zone = "altepetl"
+          nidito-acl = "allow altepetl"
         }
 
         check {

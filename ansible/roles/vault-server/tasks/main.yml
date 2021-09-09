@@ -1,10 +1,37 @@
-- include: "{{ node.platform }}.yml"
+- include_vars: "{{ node.hardware.os }}.yml"
+
+- include: "{{ node.hardware.os }}.yml"
+
+- name: Create config directory
+  become: true
+  file:
+    owner: "{{ vault_user }}"
+    path: "{{ vault_config_dir }}/tls"
+    state: directory
+    recurse: yes
+
+- name: Install TLS certs
+  become: true
+  no_log: true
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ vault_config_dir }}/tls/{{ item.name }}"
+    owner: "{{ vault_user }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - name: ca.pem
+      content: "{{ config.services.consul.ca.public_key }}"
+    - name: key.pem
+      content: "{{ node.tls.vault.key }}"
+    - name: cert.pem
+      content: "{{ node.tls.vault.cert }}"
+  notify: restart vault
 
 - name: Configure vault
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ node.vault.config }}/config.hcl"
-    owner: "{{ node.vault.user }}"
+    dest: "{{ vault_config_dir }}/config.hcl"
+    owner: "{{ vault_user }}"
     mode: u=rw,g=r,o=
   notify: restart vault

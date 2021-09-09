@@ -139,7 +139,7 @@ job "prometheus" {
         ]
 
         meta {
-          nidito-acl = "allow trusted"
+          nidito-acl = "allow altepetl"
         }
 
         check {

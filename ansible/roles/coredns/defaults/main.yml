@@ -1,1 +1,2 @@
-coredns_version: 1.8.3
+coredns_version: 1.8.4
+coredns_config_path: /etc/coredns

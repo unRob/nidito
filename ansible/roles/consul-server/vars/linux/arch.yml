@@ -1,0 +1,2 @@
+consul_config_dir: /etc/consul.d
+consul_user: consul

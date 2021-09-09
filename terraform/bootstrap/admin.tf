@@ -1,7 +1,6 @@
 resource consul_acl_policy admin {
   name        = "admin-policy"
   description = "admin policy"
-  datacenters = ["brooklyn"]
   rules       = <<-RULE
     acl = "write"
     keyring = "write"
@@ -39,4 +38,9 @@ resource consul_acl_token admin {
 
 data consul_acl_token_secret_id admin {
   accessor_id = consul_acl_token.admin.id
+}
+
+output "admin-token" {
+  value = data.consul_acl_token_secret_id.admin.secret_id
+  sensitive = true
 }

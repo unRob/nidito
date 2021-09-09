@@ -1,10 +1,37 @@
-- include: "{{ node.platform }}.yml"
+- include_vars: "{{ node.hardware.os }}.yml"
+
+- include: "{{ node.hardware.os }}.yml"
+
+- name: Create config directory
+  become: true
+  file:
+    owner: "{{ consul_user }}"
+    path: "{{ consul_config_dir }}/tls"
+    state: directory
+    recurse: yes
+
+- name: Install TLS certs
+  no_log: true
+  become: true
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ consul_config_dir }}/tls/{{ item.name }}"
+    owner: "{{ consul_user }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - name: ca.pem
+      content: "{{ config.services.consul.ca.public_key }}"
+    - name: server.crt
+      content: "{{ node.tls.consul.cert }}"
+    - name: server.key
+      content: "{{ node.tls.consul.key }}"
+  notify: restart consul
 
 - name: Configure consul
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ node.consul.config }}/config.hcl"
-    owner: "{{ node.consul.user }}"
+    dest: "{{ consul_config_dir }}/config.hcl"
+    owner: "{{ consul_user }}"
     mode: u=rw,g=r,o=
   notify: restart consul

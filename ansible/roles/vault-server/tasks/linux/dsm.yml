@@ -5,8 +5,8 @@
   ignore_errors: yes
 
 - set_fact:
-    needs_install: "{{ installed_version.stdout != nidito.vault.version }}"
-    vault_zip: "vault_{{ nidito.vault.version }}_linux_amd64.zip"
+    needs_install: "{{ installed_version.stdout != config.services.vault.version }}"
+    vault_zip: "vault_{{ config.services.vault.version }}_linux_amd64.zip"
 
 - name: Get vault SPK
   when: needs_install
@@ -15,25 +15,31 @@
     dest: /tmp/vault-spk
     update: no
 
-- name: Copy vault patch
-  when: needs_install
-  template:
-    src: "templates/vault-spk.patch"
-    dest: /tmp/vault.patch
-    mode: u=rw,g=r,o=
-
-- name: Apply vault patch
-  when: needs_install
-  shell: |
-    cd /tmp/vault-spk
-    git reset --hard
-    git apply ../vault.patch
-    rm -rf ../vault.patch
+- name: patch spk
+  lineinfile:
+    path: "/tmp/vault-spk/{{ item.path }}"
+    state: present
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    backrefs: yes
+  with_items:
+    - path: 1_create_package/ui/config
+      regex: '^(\s+)"port":"[\d+]"(,?)'
+      line: '\g<1>"port": "{{ config.services.vault.port }}"\g<2>'
+    - path: 2_create_project/INFO
+      regex: '^version="[\d.]+"'
+      line: 'version="{{ config.services.vault.version }}"'
+    - path: 2_create_project/INFO
+      regex: '^adminport="?[\d.]+"?'
+      line: 'adminport={{ config.services.vault.port }}'
+    - path: 2_create_project/scripts/consul.sc
+      regex: '^dst.ports=.+'
+      line: 'dst.ports="{{ config.services.vault.port }}/tcp {{ config.services.vault.port + 1 }}/tcp"'
 
 - name: Get vault binary
   when: needs_install
   get_url:
-    url: "https://releases.hashicorp.com/vault/{{ nidito.vault.version }}/{{ vault_zip }}"
+    url: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/{{ vault_zip }}"
     dest: /tmp/
 
 - name: Unzip binary
@@ -58,7 +64,7 @@
   when: needs_install
   become: true
   file:
-    path: "{{ node.vault.config }}"
-    owner: "{{ node.vault.user }}"
+    path: "{{ vault_config_dir }}"
+    owner: "{{ vault_user }}"
     state: directory
     mode: u=rwx,g=rwx,o=

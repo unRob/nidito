@@ -1,0 +1,4 @@
+# since we wanna do nasty stuff with nomad, we'll run as root
+nomad_user: root
+nomad_config_dir: /etc/nomad.d
+nomad_data_dir: /var/lib/nomad

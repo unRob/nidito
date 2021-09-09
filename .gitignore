@@ -5,3 +5,4 @@ ansible/.cache
 .terraform
 .vscode
 .terraform.lock.hcl
+terraform.tfstate*

@@ -1,23 +1,22 @@
-data_dir = "{{ node.nomad.data }}"
-datacenter = "casa"
+data_dir = "{{ nomad_data_dir }}"
+datacenter = "{{ node.dc }}"
 name = "{{ ansible_hostname }}"
 log_level = "warn"
-{# enable_syslog = true #}
 
-bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ nidito.networks.trusted }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"
 
 server {
   enabled          = true
   heartbeat_grace  = "30s"
   min_heartbeat_ttl = "20s"
   # needs to be incremented gradually as servers boot
-  bootstrap_expect = 3
+  bootstrap_expect = {% if dc.primary %}3{% else %}1{% endif %}
 }
 
 ports {
-  http = "{{ nidito.nomad.ports.http }}"
-  rpc = "{{ nidito.nomad.ports.rpc }}"
-  serf = "{{ nidito.nomad.ports.serf }}"
+  http = "{{ config.services.nomad.ports.http }}"
+  rpc = "{{ config.services.nomad.ports.rpc }}"
+  serf = "{{ config.services.nomad.ports.serf }}"
 }
 
 # https://github.com/perrymanuk/hashi-homelab/blob/master/configs/nomad-server.hcl
@@ -31,8 +30,8 @@ telemetry {
 
 client {
   enabled       = true
-  node_class = "{{ ansible_system }}-{{ ansible_architecture }}"
-  memory_total_mb = {{ node.nomad.memory | default("1000") }}
+  node_class = "{{ node.dc.os }}-{{ node.dc.arch }}"
+  memory_total_mb = {% if ansible_memtotal_mb <= 4000 %}1000{% else %}{{ ansible_memtotal_mb * 0.9 | round }}{% endif %}
 
   cni_path = "/opt/cni/bin"
   cni_config_dir = "/opt/cni/config"
@@ -42,15 +41,13 @@ client {
   }
 
   meta {
-    arch = "{{ ansible_system }}"
-    machine = "{{ ansible_architecture }}"
-    reachability = "{{ node.reachability }}"
-    hardware = "{{ node.hardware }}"
-{% if "meta" in node.nomad %}
-{% for key, value in node.nomad.meta.items() %}
+    arch = "{{ node.hardware.arch }}"
+    model = "{{ node.hardware.model }}"
+    os_family = "{{ node.hardware.os | split('/') | first }}"
+    os_version = "{{ node.hardware.os | split('/') | last }}"
+{% for key, value in node.tags.items() %}
     {{ key }} = "{{ value }}"
 {% endfor %}
-{% endif %}
   }
 }
 
@@ -66,8 +63,6 @@ plugin "docker" {
       image_delay = "24h"
     }
 
-    {# Not ready to do iSCSI or proper storage management #}
-
     volumes {
       enabled = true
     }
@@ -75,8 +70,10 @@ plugin "docker" {
 }
 
 consul {
-  address = "{{ ansible_hostname }}.{{ nidito.dns.zone }}:{{ nidito.consul.ports.http }}"
-  token = "{{ node.consul.token }}"
+  address = "https://{{ ansible_hostname }}.node.consul:{{ config.services.consul.ports.https }}"
+
+  token = "{{ node.token.nomad.consul }}"
+  tls_ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
 
   auto_advertise = true
   server_auto_join = true
@@ -85,16 +82,16 @@ consul {
   tags = [
     "infra",
     "nidito.http.enabled",
-    "nidito.http.tag-filter=http"
+    "nidito.http.tag-filter=http",
     "nidito.metrics.enabled",
     "nidito.metrics.path=/v1/metrics",
-    "nidito.metrics.hc-prometheus-hack",
+    "nidito.metrics.hc-prometheus-hack"
   ]
 }
 
 vault {
   enabled = true
-  address = "http://vault.service.consul:{{ nidito.vault.port }}"
-  token = "{{ nidito.nomad.token }}"
+  address = "https://vault.service.consul:{{ config.services.vault.port }}"
+  token = "{{ node.token.nomad.vault }}"
   create_from_role = "nomad-cluster"
 }

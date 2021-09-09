@@ -1,21 +1,24 @@
-$ORIGIN {{ nidito.dns.zone }}.
+$ORIGIN {{ config.services.dns.zone }}.
 $TTL 1h
 
-@	IN	SOA	{{ dns.servers[0].name }}.{{ nidito.dns.zone }}.	admin	(
-	39	; serial
+@	IN	SOA	{{ node.name }}.{{ config.services.dns.zone }}.	admin	(
+	41	; serial
 	12h	; refresh
 	3m	; retry
 	2w	; expire
 	3h	; minimum
 	)
-	{% for host in dns.servers %}
-	IN NS		{{ host.name }}
-	{% endfor %}
+	IN NS		{{ node.name }}
 
 ; Nameservers
-{% for host in dns.servers %}
-{{ host.name.ljust(20) }}		5m		IN	A		{{ host.address }}
+{% for name, n in config.nodes.items() if n.tags.role == "router" and n.dc == node.dc %}
+{{ name.ljust(20) }}		5m		IN	A		{{ n.address }}
+{% endfor %}
+
+; Cluster leaders
+{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %}
+{{ config.datacenters[node.dc].dns.leaders }}		5m		IN	A		{{ n.address }}
 {% endfor %}
 
 ; Let clients pass letsencrypt's dns challenge
-_acme-challenge		5m		IN	NS		{{ nidito.dns.external.nameserver }}
+_acme-challenge		5m		IN	NS		{{ config.services.dns.external.nameserver }}
