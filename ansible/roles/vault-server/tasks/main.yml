@@ -20,11 +20,11 @@
     mode: u=rw,g=,o=
   with_items:
     - name: ca.pem
-      content: "{{ config.services.consul.ca.public_key }}"
+      content: "{{ config.services.ca.cert }}"
     - name: key.pem
-      content: "{{ node.tls.vault.key }}"
+      content: "{{ node.tls.key }}"
     - name: cert.pem
-      content: "{{ node.tls.vault.cert }}"
+      content: "{{ node.tls.vault }}"
   notify: restart vault
 
 - name: Configure vault

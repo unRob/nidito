@@ -16,6 +16,7 @@
     update: no
 
 - name: patch spk
+  when: needs_install
   lineinfile:
     path: "/tmp/vault-spk/{{ item.path }}"
     state: present

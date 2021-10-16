@@ -34,9 +34,9 @@ resource "consul_prepared_query" "dns-services" {
 
 locals {
   static_entries = {
-    consul = 5555
-    nomad = 5560
-    vault = 5570
+    consul = 5554
+    nomad  = 5560
+    vault  = 5570
   }
 }
 
@@ -44,13 +44,13 @@ resource "consul_keys" "static-services" {
   datacenter = "casa"
   key {
     delete = false
-    path = "dns/static-entries"
+    path   = "dns/static-entries"
     value = jsonencode(zipmap(
       keys(local.static_entries),
       [for name, port in local.static_entries : {
         target = "@service_proxy"
         acl    = ["allow altepetl"]
-        port = port
+        port   = port
       }]
     ))
   }

@@ -9,7 +9,7 @@ RUN addgroup icecast && \
 
 RUN wget "https://github.com/karlheyes/icecast-kh/archive/icecast-$UPSTREAM_VERSION.tar.gz" -O- | tar zxvf - && \
 	cd "icecast-kh-icecast-$UPSTREAM_VERSION" && \
-	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var && \
+	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-dependency-tracking && \
 	make && make install
 
 RUN apk del --no-cache .build-deps

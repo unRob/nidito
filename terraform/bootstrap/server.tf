@@ -116,20 +116,11 @@ resource consul_acl_policy consul-server {
     node_prefix "" {
       policy = "read"
     }
+
+    service_prefix "" {
+      policy = "write"
+    }
   RULES
-
-  #   agent_prefix "" {
-  #     policy = "write"
-  #   }
-
-  #   event_prefix "" {
-  #     policy = "read"
-  #   }
-
-  #   service_prefix "" {
-  #     policy = "write"
-  #   }
-  # RULE
 }
 
 resource consul_acl_token server {
@@ -148,5 +139,51 @@ data consul_acl_token_secret_id server {
 
 output "server-tokens" {
   value = {for name, token in data.consul_acl_token_secret_id.server : name => token.secret_id }
+  sensitive = true
+}
+
+
+resource consul_acl_policy nomad {
+  name        = "nomad-server"
+  description = "nomad server policy"
+  rules       = <<-RULES
+    node_prefix "" {
+      policy = "read"
+    }
+
+    agent_prefix "" {
+      policy = "read"
+    }
+
+    event_prefix "" {
+      policy = "read"
+    }
+
+    service_prefix "" {
+      policy = "write"
+    }
+
+    key_prefix "dns" {
+      policy = "read"
+    }
+
+    acl = "write"
+  RULES
+}
+
+# Nomad
+resource consul_acl_token nomad {
+  description = "nomad server token"
+  policies = [
+    consul_acl_policy.nomad.name,
+  ]
+}
+
+data consul_acl_token_secret_id nomad {
+  accessor_id = consul_acl_token.nomad.id
+}
+
+output "nomad-token" {
+  value = data.consul_acl_token_secret_id.nomad.secret_id
   sensitive = true
 }

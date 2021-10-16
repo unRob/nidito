@@ -5,8 +5,8 @@
   ignore_errors: yes
 
 - set_fact:
-    needs_install: "{{ installed_version.stdout != nidito.nomad.version }}"
-    nomad_zip: "nomad_{{ nidito.nomad.version }}_linux_amd64.zip"
+    needs_install: "{{ installed_version.stdout != config.services.nomad.version }}"
+    nomad_zip: "nomad_{{ config.services.nomad.version }}_linux_amd64.zip"
 
 - name: Get nomad SPK
   when: needs_install
@@ -15,24 +15,29 @@
     dest: /tmp/nomad-spk
     update: yes
 
-- name: Copy nomad patch
+- name: patch spk
   when: needs_install
-  template:
-    src: "templates/nomad-spk.patch"
-    dest: /tmp/nomad.patch
-    mode: u=rw,g=r,o=
-
-- name: Apply nomad patch
-  when: needs_install
-  shell: |
-    cd /tmp/nomad-spk
-    git reset --hard
-    git apply ../nomad.patch
+  lineinfile:
+    path: "/tmp/nomad-spk/{{ item.path }}"
+    state: present
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    backrefs: yes
+  with_items:
+    - path: 1_create_package/ui/config
+      regex: '^(\s+)"port":"[\d+]"(,?)'
+      line: '\g<1>"port": "{{ config.services.nomad.ports.http }}"\g<2>'
+    - path: 2_create_project/INFO
+      regex: '^version="[\d.]+"'
+      line: 'version="{{ config.services.nomad.version }}"'
+    - path: 2_create_project/scripts/nomad.sc
+      regex: '^dst.ports=.+'
+      line: 'dst.ports="{{ config.services.nomad.ports.http }}/tcp {{ config.services.nomad.ports.rpc }}/tcp {{ config.services.nomad.ports.serf }}/tcp {{ config.services.nomad.ports.serf }}/udp"'
 
 - name: Get nomad binary
   when: needs_install
   get_url:
-    url: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/{{ nomad_zip }}"
+    url: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/{{ nomad_zip }}"
     dest: /tmp/
 
 - name: Unzip binary
@@ -57,7 +62,7 @@
   when: needs_install
   become: true
   file:
-    path: "{{ node.nomad.config }}"
-    owner: "{{ node.nomad.user }}"
+    path: "{{ nomad_config_dir }}"
+    owner: "{{ nomad_user }}"
     state: directory
     mode: u=rwx,g=rwx,o=

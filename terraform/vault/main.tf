@@ -1,104 +1,44 @@
 terraform {
   backend "consul" {
-    path    = "nidito/state/vault"
+    path = "nidito/state/vault"
   }
 
-  required_version = ">= 0.12.0"
+  required_version = ">= 1.0.0"
 }
 
 # generic secret provider
-resource vault_mount kv {
-  path        = "kv"
-  type        = "kv"
+resource "vault_mount" "kv" {
+  path = "kv"
+  type = "kv"
   options = {
     version = 1
   }
 }
 
-resource vault_mount nidito {
-  path        = "nidito"
-  type        = "kv"
+resource "vault_mount" "nidito" {
+  path = "nidito"
+  type = "kv"
   options = {
     version = 1
   }
 }
 
 # consul provider
-resource vault_mount consul {
-  path        = "consul"
-  type        = "consul"
+resource "vault_mount" "consul" {
+  path = "consul"
+  type = "consul"
 }
 
-# RootCA
-resource vault_mount root {
-  path        = "pki"
-  type        = "pki"
-
-  max_lease_ttl_seconds = 315360000
+module "dc-policies-casa" {
+  count = terraform.workspace == "default" ? 1 : 0
+  source = "./policies/casa"
 }
 
-resource vault_pki_secret_backend_root_cert root_ca {
-  backend = vault_mount.root.path
-
-  type = "internal"
-  common_name = "nidi.to"
-  ttl = "315360000"
+module "dc-policies-nyc1" {
+  count = terraform.workspace == "nyc1" ? 1 : 0
+  source = "./policies/nyc1"
 }
 
-resource vault_pki_secret_backend_config_urls config_urls {
-  backend              = vault_mount.root.path
-  issuing_certificates = ["http://vault.consul.service:5570/v1/pki/ca"]
-  crl_distribution_points = ["http://vault.consul.service:5570/v1/pki/crl"]
+module "policies" {
+  source = "./policies/shared"
 }
-
-# IntermediateCA
-resource vault_mount intermediate {
-  depends_on = [vault_mount.root]
-  path        = "pki_int"
-  type        = "pki"
-
-  max_lease_ttl_seconds = 157680000
-}
-
-resource vault_pki_secret_backend_intermediate_cert_request intermediate {
-  depends_on = [vault_mount.intermediate]
-
-  backend = vault_mount.intermediate.path
-  type = "internal"
-  common_name = "nidi.to Intermediate Authority"
-}
-
-resource vault_pki_secret_backend_root_sign_intermediate cert {
-  depends_on = [vault_mount.intermediate]
-
-  backend = vault_mount.root.path
-  common_name =vault_pki_secret_backend_intermediate_cert_request.intermediate.common_name
-
-  csr = vault_pki_secret_backend_intermediate_cert_request.intermediate.csr
-  ttl = 157680000
-}
-
-resource vault_pki_secret_backend_intermediate_set_signed intermediate {
-  depends_on = [vault_mount.intermediate]
-
-  backend = vault_mount.intermediate.path
-  certificate = vault_pki_secret_backend_root_sign_intermediate.cert.certificate
-}
-
-resource vault_pki_secret_backend_role star_nidito {
-  depends_on = [vault_mount.intermediate]
-
-  backend = vault_mount.intermediate.path
-  name = "nidi-to"
-  allowed_domains = ["nidi.to", "service.consul"]
-  allow_subdomains = true
-  allow_bare_domains = false
-
-  key_usage = [
-    "DigitalSignature",
-    "KeyAgreement",
-    "KeyEncipherment",
-  ]
-}
-
-

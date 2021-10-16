@@ -1,12 +1,12 @@
 ca:
-  key:
-    ciphertext: MP4+pkb+I6N1xpsnUOsEUvfyzrrus1BYttryocf9LLTkqXbxPFn8lEM5MYekmdl+aWogmY7RadYTWqdBJApWr4D6P+VqWvh+zzBoKKAvseknc2Iv6stY///LU/iNz8M/19V8a5W3WHhlE1+sl7PyRZ0o40XTXD5s0msYRpNy8KTY1cSa9SnTNLHTntstcRxpg2DmumZpLaab/WpvyIu0Xx6YZPwlWVgZJSo2/YoyTMQVijQFht+ApMI3vYZLniLpb6URau1qOYd2OQyunlIvFweFsn3Buthku4N2JLVHj2L700hVY/pkPoNlqvQM/bZiENvLRUwx2Kr1DO3QUWt189NBdzNB0h0k4K1XCLmmYELm6F0=
-    encrypted: true
-    hash: 149a2682ef3a33cc0306f08f6893a3e0f6bd079dae93cee864bffc9bc9a81f0c
   cert:
-    ciphertext: RntQM9y07qK/MCdoAAcYW+99uKpK/f2nLjvgrhJdglCRRuHepUcMOE3bsaeSHuvZWXHNJ0HmAjz5SQngOAhLQoNXmA8rD6G0Ker2LRKwrre6OoE58j7i6Ctms+XCdBhiwea9+f/eWO/bX8mE4dy1E08YTXOa9/gXXDX0DKh/3UaYQ6vdq0yUr57ty83X/JIjhtEco+wzM7ieEzhXpkbQJYE+iCBAKo30SCDI2OD/x0dYDjVz05m8c1sXWFC90NzlF8GF+mmtR+gIoWzmGOQUS9Z7v/FTD3c5S6wm4+Yxv7OzYn0Bwn1eVZ+WzYU7pu7VijWcmVotmRtS4OaEckieaoHLsYgABiXBCr05lx3+9/dbjJqgzbJUilruXQ3MWrqEVhqO4UBqzQNDDk0p7y7NG8+1xot+CaV8/Bn1vHtUtySBjm4UoEAV5WzCdxMw3qKEnhw6OSLgVHq9icwshMde3RHcS6xPvwDwQ57nfcDiWCvnKE03plleHqs8QN6ZjW0ekDO3uEgZDJVLEIXBuiYC41A9MuV+C6p98d3LwTk/S1eWwQJ/mLyikJppfUkL39gPpqldmrP0NnKPy0SZbSteLmdG1NidKUV25dkqX9dM7Kw/TI4h342MRU742e58H37U/BdLmAlzsG1xqGN1+I7YMODlkDpK6EWgY4bi/LCl5z1oaki94Orug+qsmuaf0XLp/rS4VaGJEGPIlu3Otbc4N4VF1iQKAKUeaHtLN90ct+/6kvudJbrNiugz1QxmHpcrSC67l+qKYo/BGynpyRHgeif9uH62w4YnoQCIXBFyZ3RBRW5hEGxqj6sv8t5i4FYoxAB5A9MGj2zeGXbsPG7fYVjLxLcfPBUMhk1RxSNGcXToZlyXQykgktdkrlKd1SRrXXxLkfoBh01ly2j8H8HbKO6U7Cd80wOW8cuMOzSTk51H8H9MKtz33OWUWcGaxR33RZeIJ6J2gTlRxj8RKeZhBZAxiwPV08avKwFWqw3yasOHIhay/WI6a0GojsZOdOPZly3pv1ghoKUVSWvlVkH5n7gWqtEz+t5iwgNuHrWIFc2anX3/EKGN34biYLB6E6Y+hq3HjvK3dwyB56TjIrJa7FQNSRy4MzkgVCF0bMDwKSmam2SSYFb6bWSQrCtmRxz8j4kEe9ncmOsJKZden1QTfDw9wiEKC2ZH/5bzswrnscTpa1QBTUCP+0kx7CvSFJUWSTejufdMc1UZRQ1Pw9bmv5aI1tZH1UUp+4Khya0yTV4NjW7aeV6Em/mERXNABv5yzDYCb6iRT+ew1fYGzMA2+aHnKKYEL9g9oNi6ESVIAGteRk+32XRqq+9J9SXnEP+WKlv7h6pQzBZONw7MInUe+v2Xa+T47ZnvHeXBySLGc/v9dHX8c83juQ2VMh5N2+j3h3Gbfdvde/LFMAyoeUG5Cq/sTNrg8Y0LLh0t9/fpUTQ4g+0UDCc8srB4y03FAhgGQjHUgeSqPilFgArxsuLji+GQ
+    ciphertext: tvnQriPc5r7uJZPXae++Jt2tWtN+WsDmv3e7Z9jbdjyso5+yc5avBsUGwlRf+nXACRt3aEzkwaqMIfZlD3TMvl2+LsU0eXotVXMaEuNawv1TmI4ruya96EUTHvbQDwALQfmM4xIH5UNKSJ2xecLetmBicsngkn8+gfjCLxyvsTcSODzQeAJ1U1NMMHZnyGqpkH2lXqXx90wqfnXHSGcNk64B2B/mD8QkqJ1ecOceZaTAJMtfau+I+30LJWK3ch1pwgEBS7ISrks8LPF7UXX9XN+9CWN26hRtWHuR2iWLKlIydjauD8ecrShpgYLFuW1Fgcm3/+juiWM0l17RuXTWzpUylYq67my229VMlwS0pwaWWW6+yvBxAYH3HlT33yedvSfTdtVZjOQ+7vDgIXJT7BzcRJHUfmAVEVJMLnUJRkkNoFspPqZtMmJG5jURjGCFl6tbwQkig98OzsCcY2IxqRFqeJZyzjxu3Y0qBtIFOyFmcPydt3iegSFH7z7GulyNSDoASN7ac5wuKYHMZ72Wuz5QgquowQ80bc7br6N0SMrE9y6+AeenHAJc96f6g2+RP3vsECIeDIZFQRlH+slhaiV2d/vva1BL/1T5bC4qTE0caSNlMBl8hvMfTsq3E9Yt77KT0AJ0y+ey93hY6rr2++kLbWxFshINV8VfzHscc+sRI/01GqysYhDKFfV4HOMIuderKUF6ocZMb4+IW/NyOc52/jPoseNErv67yks9DiN1S/GZLfhiSrD/SC73Z6mt41IjL9bZveWVvG/Zqkgn6WgG7wf0Wh2HhOmEkgyxezicVXsfGfBLuFjBLtT7FsScOHOfsKF8erfRjve03SyXhPdj5PL9
     encrypted: true
-    hash: d676fb0b812893a3ed86fb1e228c13d10cfc7b7a6cd3f2997b1d74799ae53ec7
+    hash: 427b41e6d99cedc2ff8d5dd1695b9b834df949e3e2db039e11ab39a5bd0357d3
+  key:
+    ciphertext: 8CizGLf+dsy0rfeblge2BeXZWmvfNbr5rZOd4HeheKPnKGqXhyVKyXJdIYYfCi1ML1Hgm+Xu1tBlVNFFkEnK8wBCjFJeHa/pfJp0DxdzUXdAQkN5FyNYRcbwPSYkxIb73WQHNsdIszkcCbaKyacQ0o5UhusMlxyhnb1aWyzvjyD2F3qndgv0EnmfSSykGnNYfqOKoR3lf9Nx2mM/6wrnthtg6xMpLDwwfvWH6knCg0HcMcrpzM3CnwrJlctgTKEyrnhuyHbXmTw6QnLUu4TE3EgwzOg3RdnXqg+omIZGkBYy5fZ8eNI/YEYy9QCJ6xVxHiwqFj2nz7Pe1CAqhwsX0krMz1DFpfxQTk1o1EEaR0hRYmuXzg==
+    encrypted: true
+    hash: 03760d191bc1dd717bcd0d0419c74a60382a91c485a4e8371a5575e89bdc4f95
 consul:
   encryption_key:
     ciphertext: utp3DmeQIpL6nB/6MBBekfDFvzd2tEFO/h002fSwzv5gkY8NVzCs2ANRoUBgLSnUMxaRuRcde/7Qj0uWCozMabcuooNMNE0KRIo4NZg/0LLTNIVad71vJ0dFyNs=
@@ -44,6 +44,11 @@ dns:
   # the fully qualified domain name for my nidito
   # all services will be a subdomain of this domain
   zone: nidi.to
+honeycomb:
+  api_key:
+    ciphertext: V57D7CLQgcB4KrZvkeSEusPDJpGrvyVZGyN3HIuIKFY0IspEJpzYwtQmv114dOdZE9E7xzhqrfUfhUeiwEqks/WWmZOKVnhtuB37O+L4w1g=
+    encrypted: true
+    hash: 571830c89faed59877fa81da105ee48e1c5817354d3d735bc62fe9eae2028a39
 letsencrypt:
   email: nidito@un.rob.mx
   private_key:
@@ -69,12 +74,17 @@ minio:
     encrypted: true
     hash: 80a8bd31044087e0fb91b09352caec645fbe877a413952b929be5e7bb6fbb2a7
 nomad:
+  consul_token:
+    ciphertext: EXVBiVV7oKjCj4cA86SYXKhMdKY7wmMmdkJCeA3ADaAM7XSK08n4ddo2dQJzLxy1aucKa9I8pvl8vKZIqzOjNn8YxadYj9Cx57ig/jmm+hhxOlH+
+    encrypted: true
+    hash: 4559a891dc9d90a97fce204fd9303a8ee1da65d97c0e5400f7a00bf1c1a0a8d8
+  encryption_key: ""
   ports:
     http: 5560
     rpc: 5561
     serf: 5562
   recover_cluster: false
-  token:
+  tokenwhoknows:
     ciphertext: nuN46GN5LVclEgnZ2kgbtSODIQPXofJzZj7Ld1MNXlZT2BBtieqBG9nZcmog14qgNE5uIx30UX9iW1hLtPDtDSMw5aMR3pL3HCk=
     encrypted: true
     hash: 2881b185e83eff77ee409bc08a46845f10c5aae703ef994a6b669b25be5e98ef

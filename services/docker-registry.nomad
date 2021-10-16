@@ -2,10 +2,6 @@ job "docker-registry" {
   datacenters = ["casa"]
   type = "system"
 
-  meta {
-    nidito-acl = "private"
-  }
-
   group "registry" {
 
     restart {
@@ -37,7 +33,7 @@ job "docker-registry" {
       }
 
       constraint {
-        attribute = "${meta.nidito-storage}"
+        attribute = "${meta.storage}"
         value     = "primary"
       }
 
@@ -63,7 +59,7 @@ storage:
 
 http:
   addr: :{{ env "NOMAD_PORT_http" }}
-  {{ with secret "kv/nidito/config/dns" }}
+  {{ with secret "nidito/config/services/dns" }}
   host: https://registry.{{ .Data.zone }}
   {{ end }}
   secret: averysecuresecret
@@ -118,7 +114,6 @@ EOF
         ]
 
         meta {
-          nidito-http-zone = "altepetl"
           nidito-acl = "allow altepetl"
         }
 

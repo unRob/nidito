@@ -1,1 +1,1 @@
-- include: "{{ node.platform }}.yml"
+- include: "{{ node.hardware.os }}.yml"

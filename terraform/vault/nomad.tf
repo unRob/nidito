@@ -1,11 +1,10 @@
 
-resource vault_policy nomad {
+resource "vault_policy" "nomad" {
   name = "nomad-server"
 
   policy = <<HCL
 # from https://www.nomadproject.io/docs/vault-integration
-# Allow creating tokens under "nomad-cluster" token role. The token role name
-# should be updated if "nomad-cluster" is not used.
+# Allow creating tokens under "nomad-cluster" token role.
 path "auth/token/create/nomad-cluster" {
   capabilities = ["update"]
 }
@@ -16,7 +15,7 @@ path "auth/token/roles/nomad-cluster" {
   capabilities = ["read"]
 }
 
-# Allow looking up the token passed to Nomad to validate # the token has the
+# Allow looking up the token passed to Nomad to validate the token has the
 # proper capabilities. This is provided by the "default" policy.
 path "auth/token/lookup-self" {
   capabilities = ["read"]
@@ -46,29 +45,31 @@ path "auth/token/renew-self" {
   capabilities = ["update"]
 }
 
-path "kv/nidito/config/*" {
-  capabilities = ["read"]
-}
+# path "nidito/config/*" {
+#   capabilities = ["read"]
+# }
 HCL
 }
 
-resource vault_token_auth_backend_role nomad {
-  role_name = "nomad-cluster"
+resource "vault_token_auth_backend_role" "nomad" {
+  role_name           = "nomad-cluster"
   disallowed_policies = [vault_policy.nomad.name]
   orphan              = true
-  token_period              = "259200"
-  renewable           = true
-  token_explicit_max_ttl    = "0"
+  # 180 days
+  token_period           = "259200"
+  renewable              = true
+  token_explicit_max_ttl = "0"
 }
 
-# vault token create -policy nomad-server -period 72h -orphan
-resource vault_token nomad-server {
+resource "vault_token" "nomad-server" {
   display_name = "nomad-server-token"
-  policies = [vault_policy.nomad.name]
-  no_parent = true
-  period = "21900h"
+  policies     = [vault_policy.nomad.name]
+  no_parent    = true
+  # one week
+  period = "168h"
 }
 
 output "nomad-server-token" {
-  value = vault_token.nomad-server
+  value = vault_token.nomad-server.client_token
+  sensitive = true
 }

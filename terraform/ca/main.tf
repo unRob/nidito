@@ -5,7 +5,7 @@ terraform {
 
   required_providers {
     tls = {
-      source = "hashicorp/tls"
+      source  = "hashicorp/tls"
       version = "3.1.0"
     }
   }
@@ -13,52 +13,52 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
-variable hosts {
+variable "hosts" {
   type = list(string)
 }
 
-variable certs {
+variable "certs" {
   type = list(object({
-    key = string
-    host = string
-    cn = string
+    key   = string
+    host  = string
+    cn    = string
     names = list(string)
-    ips = list(string)
+    ips   = list(string)
   }))
 }
 
-variable ca {
+variable "ca" {
   type = object({
-    key = string
+    key  = string
     cert = string
   })
   default = {
-    key = ""
+    key  = ""
     cert = ""
   }
 }
 
-variable create_ca {
-  type = bool
+variable "create_ca" {
+  type    = bool
   default = false
 }
 
 locals {
-  cert_map = { for cert in var.certs: cert.key => cert }
+  cert_map = { for cert in var.certs : cert.key => cert }
   ca = {
-    key = var.create_ca ? tls_private_key.ca[0].private_key_pem : var.ca.key
+    key  = var.create_ca ? tls_private_key.ca[0].private_key_pem : var.ca.key
     cert = var.create_ca ? tls_self_signed_cert.ca[0].cert_pem : var.ca.cert
   }
 }
 
 resource "tls_private_key" "ca" {
-  count = var.create_ca ? 1 : 0
+  count       = var.create_ca ? 1 : 0
   algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
+  ecdsa_curve = "P256"
 }
 
 resource "tls_self_signed_cert" "ca" {
-  count = var.create_ca ? 1 : 0
+  count           = var.create_ca ? 1 : 0
   key_algorithm   = "ECDSA"
   private_key_pem = tls_private_key.ca[0].private_key_pem
 
@@ -68,8 +68,8 @@ resource "tls_self_signed_cert" "ca" {
   }
 
   validity_period_hours = 24 * 365 * 5
-  is_ca_certificate = true
-  set_subject_key_id = true
+  is_ca_certificate     = true
+  set_subject_key_id    = true
 
   allowed_uses = [
     "cert_signing",
@@ -79,13 +79,13 @@ resource "tls_self_signed_cert" "ca" {
 }
 
 resource "tls_private_key" "keys" {
-  for_each = toset(var.hosts)
+  for_each    = toset(var.hosts)
   algorithm   = "ECDSA"
-  ecdsa_curve = "P384"
+  ecdsa_curve = "P256"
 }
 
 resource "tls_cert_request" "csr" {
-  for_each = local.cert_map
+  for_each        = local.cert_map
   key_algorithm   = "ECDSA"
   private_key_pem = tls_private_key.keys[each.value.host].private_key_pem
 
@@ -94,13 +94,13 @@ resource "tls_cert_request" "csr" {
     organization = "nidito"
   }
 
-  dns_names = each.value.names
+  dns_names    = concat([each.value.cn], each.value.names)
   ip_addresses = each.value.ips
 }
 
 resource "tls_locally_signed_cert" "certs" {
-  for_each = local.cert_map
-  cert_request_pem   = tls_cert_request.csr[each.value.key].cert_request_pem
+  for_each         = local.cert_map
+  cert_request_pem = tls_cert_request.csr[each.value.key].cert_request_pem
 
   ca_key_algorithm   = "ECDSA"
   ca_private_key_pem = local.ca.key
@@ -119,16 +119,16 @@ resource "tls_locally_signed_cert" "certs" {
 }
 
 output "ca" {
-  value = local.ca
+  value     = local.ca
   sensitive = true
 }
 
 output "keys" {
-  value = { for host, key in tls_private_key.keys: host => key.private_key_pem }
+  value     = { for host, key in tls_private_key.keys : host => key.private_key_pem }
   sensitive = true
 }
 
 output "certs" {
-  value = { for name, cert in tls_locally_signed_cert.certs: name => cert.cert_pem }
+  value     = { for name, cert in tls_locally_signed_cert.certs : name => cert.cert_pem }
   sensitive = true
 }

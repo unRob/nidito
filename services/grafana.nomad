@@ -27,8 +27,8 @@ job "grafana" {
       driver = "docker"
 
       constraint {
-        attribute = "${meta.hardware}"
-        value     = "mbp"
+        attribute = "${meta.storage}"
+        value     = "secondary"
       }
 
       env {
@@ -36,7 +36,7 @@ job "grafana" {
       }
 
       config {
-        image = "grafana/grafana:7.5.4"
+        image = "grafana/grafana:8.1.3"
         ports = ["http"]
         volumes = [
           "/nidito/grafana/data:/var/lib/grafana"

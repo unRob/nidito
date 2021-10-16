@@ -1,19 +1,47 @@
-- include: "{{ node.platform }}.yml"
+- include_vars: "{{ node.hardware.os }}.yml"
+
+- include: "{{ node.hardware.os }}.yml"
 
 - name: Recover cluster
   become: true
   notify: Restart nomad service
-  when: nidito.nomad.recover_cluster
+  when: config.services.nomad.recover_cluster
   template:
     src: templates/peers.json.j2
     dest: "/var/lib/nomad/server/raft/peers.json"
-    owner: "{{ node.nomad.user }}"
+    owner: "{{ nomad_user }}"
+
+- name: Create config directory
+  become: true
+  file:
+    owner: "{{ nomad_user }}"
+    path: "{{ nomad_config_dir }}/tls"
+    state: directory
+    recurse: yes
+
+- name: Install TLS certs
+  become: true
+  no_log: true
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ nomad_config_dir }}/tls/{{ item.name }}"
+    owner: "{{ nomad_user }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - name: ca.pem
+      content: "{{ config.services.ca.cert }}"
+    - name: key.pem
+      content: "{{ node.tls.key }}"
+    - name: cert.pem
+      content: "{{ node.tls.nomad }}"
+  notify: restart nomad
+
 
 - name: Configure nomad
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ node.nomad.config }}/config.hcl"
-    owner: "{{ node.nomad.user }}"
+    dest: "{{ nomad_config_dir }}/config.hcl"
+    owner: "{{ nomad_user }}"
     mode: u=rw,g=r,o=
   notify: restart nomad

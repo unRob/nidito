@@ -6,19 +6,32 @@
 
 - set_fact:
     golang_artifact_arch: "arm"
-  when: "{{ node.hardware.arch == "arm32" }}"
+  when: node.hardware.arch == 'arm32'
 
 - set_fact:
     golang_artifact_arch: "amd64"
-  when: "{{ node.hardware.arch == "x86_64" }}"
+  when: node.hardware.arch == 'x86_64'
+
+- name: Install docker
+  become: yes
+  pacman:
+    name: docker
+    state: present
+
+- name: Enable docker
+  become: yes
+  notify: restart docker
+  systemd:
+    name: docker
+    enabled: yes
 
 - name: Install nomad
-  when: installed_nomad_version.stdout != nidito.nomad.version
+  when: installed_nomad_version.stdout != config.services.nomad.version
   become: yes
   notify: really restart nomad
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/nomad/{{ nidito.nomad.version }}/nomad_{{ nidito.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: /usr/bin
 
 - name: Install systemd service
@@ -30,8 +43,8 @@
 - name: Create the nomad config directory
   become: true
   file:
-    path: "{{ node.nomad.config }}"
-    owner: "{{ node.nomad.user }}"
+    path: "{{ nomad_config_dir }}"
+    owner: "{{ nomad_user }}"
     state: directory
     mode: u=rwx,g=rwx,o=
 

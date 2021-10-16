@@ -1,0 +1,54 @@
+- name: Get installed version
+  shell: /usr/local/bin/vector --version | cut -d ' ' -f 2
+  register: installed_version
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != vector_version }}"
+
+- set_fact:
+    golang_artifact_arch: "armhfv6"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "x86_64"
+  when: node.hardware.arch == 'x86_64'
+
+- name: Create the vector directories
+  become: true
+  file:
+    path: "{{ item }}"
+    owner: "{{ vector_user }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+  with_items:
+    - "{{ vector_config_dir }}"
+    - "{{ vector_data_dir }}"
+    - /tmp/vector
+
+- name: Download vector
+  when: needs_install
+  become: true
+  unarchive:
+    remote_src: yes
+    src: https://packages.timber.io/vector/{{ vector_version }}/vector-{{ vector_version }}-{{ golang_artifact_arch }}-unknown-linux-gnu.tar.gz
+    dest: /tmp/vector/
+
+- name: Install vector
+  when: needs_install
+  become: true
+  shell: |
+    mv /tmp/vector/vector-{{ golang_artifact_arch }}-unknown-linux-gnu/bin/vector /usr/local/bin/vector
+  notify: restart vector
+
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/vector.service.j2
+    dest: /usr/lib/systemd/system/vector.service
+
+- name: Enable vector daemon
+  become: yes
+  systemd:
+    name: vector
+    enabled: yes

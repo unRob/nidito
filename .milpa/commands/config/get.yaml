@@ -1,0 +1,16 @@
+summary: Retrieves configuration
+description: |
+  From vault or local files
+arguments:
+  - name: file
+    description: the config file to read from
+    required: true
+    values-subcommand: config list
+  - name: path
+    description: the path to the config value to read
+    required: true
+options:
+  source:
+    default: vault
+    description: the source to query config from
+    values: [vault, local]

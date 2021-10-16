@@ -11,7 +11,7 @@ resource consul_acl_policy gateway {
       policy = "read"
     }
 
-    key_prefix "dns/static-entries" {
+    key_prefix "dns" {
       policy = "read"
     }
 

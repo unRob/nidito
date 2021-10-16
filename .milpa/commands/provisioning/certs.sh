@@ -43,8 +43,8 @@ function tf_vars() {
   jq --null-input \
     --argjson certs "$(cert_vars)" \
     --argjson hosts "$(@configq hosts . 'to_entries | map(select(.value.tags.role == "leader") | .key)')" \
-    --argjson ca "$(@configq services ca)" \
-     '{$certs, $hosts, $ca, create_ca: ($ca | length != 0)}'
+    --argjson ca "$(@configq services . '.ca // {key: "", cert: ""}')" \
+     '{$certs, $hosts, $ca, create_ca: ($ca.key | length == 0)}'
 }
 
 
@@ -74,5 +74,14 @@ while read -r host service; do
     "$host.tls.$service" || @milpa.fail "could not save cert for $key"
 done < <(jq -r '.certs | keys | map(sub("-"; " ")) [] ' output.json)
 @milpa.log success "All certs stored"
+
+@milpa.log info "Writing CA to config"
+gcy set --input-file <(jq -r '.ca.key' output.json) \
+  "$config/services.yaml" \
+  "ca.key" || @milpa.fail "could not save CA"
+gcy set --input-file <(jq -r '.ca.cert' output.json) \
+  "$config/services.yaml" \
+  "ca.cert" || @milpa.fail "could not save CA"
+@milpa.log complete "All certs stored"
 
 rm -rf output.json

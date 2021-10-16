@@ -12,6 +12,10 @@ casa:
   primary: true
   subnet: 10.42.0.0/16
   vault:
+    nomad_token:
+      ciphertext: sbxskFB69LKXL+qz0iuLsTriPWpopWmOy6PqoGEk14h+gt58GK7L5lsKBvxXTcdfB40Y2lWElYYCTjYzeOaMzz0tIW92UFRTWDI=
+      encrypted: true
+      hash: 10f8bdc5d77c64cb43a24268fdf1f598a1a0ba64949057a00b1aa4c1f9becc24
     unseal_key:
       ciphertext: xKAADGPFRFF+YiDtZ/Dt0uT/+eBE3DEOxvXU4Uc9qPjnsnRRNz41m/ZJTvwMT58+suX8z5lsKBXQ4sNeF4RMnOtwGtiO3rgSBrVtwEPgQ+pey13B3blrm6NFqQ/2FdySZecXXhzkvdwYTAEVNy0gFg==
       encrypted: true
@@ -33,6 +37,10 @@ nyc1:
   primary: false
   subnet: 10.100.0.0/20
   vault:
+    nomad_token:
+      ciphertext: QlijH3CC3Fve780T3kTB3hFq4ar5K7wV9SMvDK6IjEtEG+iPnfD/NL+d8VIJ1sqn+vhwu2OYaTFpnRwNCHI0Sd0+3n13sSqn1NQ=
+      encrypted: true
+      hash: ba0d18cfcbcfa598a9e4cda8204a920ac463d364f94012a5ff4409bdf10f6f4c
     unseal_key:
       ciphertext: iXclTbqgQ4jzUYxo5c40FIp/n31cZJzaRm+ghN/sZYkLdLgznYQgTKW3aSA/vbpVBQd8bgwGyDgrDCeq1897JLxup+qGVLBZkv9xDG/VYdwo7ymBaXFMqnIJvWY=
       encrypted: true

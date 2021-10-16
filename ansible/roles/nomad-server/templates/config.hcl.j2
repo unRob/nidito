@@ -1,7 +1,9 @@
 data_dir = "{{ nomad_data_dir }}"
+region = "{{ node.dc }}"
 datacenter = "{{ node.dc }}"
 name = "{{ ansible_hostname }}"
 log_level = "warn"
+{% set dc = config.datacenters[node.dc] %}
 
 bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"
 
@@ -11,6 +13,23 @@ server {
   min_heartbeat_ttl = "20s"
   # needs to be incremented gradually as servers boot
   bootstrap_expect = {% if dc.primary %}3{% else %}1{% endif %}
+  encrypt = "{{ config.services.nomad.encryption_key }}"
+}
+
+# Require TLS
+# https://learn.hashicorp.com/tutorials/nomad/security-enable-tls?in=nomad/transport-security#configuring-nomad
+tls {
+  http = true
+  rpc = true
+  # This allows the agent to accept both TLS and plaintext traffic.
+  rpc_upgrade_mode = true
+  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+  cert_file = "{{ nomad_config_dir }}/tls/cert.pem"
+  key_file = "{{ nomad_config_dir }}/tls/key.pem"
+  verify_server_hostname = false
+  # Enabling verify_https_client effectively protects Nomad from unauthorized
+  # network access at the cost of **losing Consul HTTPS health checks**...
+  verify_https_client = false
 }
 
 ports {
@@ -30,8 +49,8 @@ telemetry {
 
 client {
   enabled       = true
-  node_class = "{{ node.dc.os }}-{{ node.dc.arch }}"
-  memory_total_mb = {% if ansible_memtotal_mb <= 4000 %}1000{% else %}{{ ansible_memtotal_mb * 0.9 | round }}{% endif %}
+  node_class = "{{ node.hardware.os }}-{{ node.hardware.arch }}"
+  memory_total_mb = "{% if ansible_memtotal_mb <= 1500 %}1000{% else %}{{ ansible_memtotal_mb * 0.9 | round | int }}{% endif %}"
 
   cni_path = "/opt/cni/bin"
   cni_config_dir = "/opt/cni/config"
@@ -54,6 +73,7 @@ client {
 plugin "raw_exec" {
   config {
     enabled = true
+    extra_labels = ["job_name", "task_group_name", "task_name", "namespace", "node_name", "region", "datacenter"]
   }
 }
 
@@ -70,10 +90,10 @@ plugin "docker" {
 }
 
 consul {
-  address = "https://{{ ansible_hostname }}.node.consul:{{ config.services.consul.ports.https }}"
+  address = "https://{{ node.name }}.node.consul:{{ config.services.consul.ports.https }}"
 
-  token = "{{ node.token.nomad.consul }}"
-  tls_ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+  token = "{{ config.services.nomad.consul_token }}"
+  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
 
   auto_advertise = true
   server_auto_join = true
@@ -81,8 +101,6 @@ consul {
 
   tags = [
     "infra",
-    "nidito.http.enabled",
-    "nidito.http.tag-filter=http",
     "nidito.metrics.enabled",
     "nidito.metrics.path=/v1/metrics",
     "nidito.metrics.hc-prometheus-hack"
@@ -92,6 +110,9 @@ consul {
 vault {
   enabled = true
   address = "https://vault.service.consul:{{ config.services.vault.port }}"
-  token = "{{ node.token.nomad.vault }}"
+
+  token = "{{ dc.vault.nomad_token }}"
+  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+
   create_from_role = "nomad-cluster"
 }

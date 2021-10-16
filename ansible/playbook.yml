@@ -8,6 +8,12 @@
     - coredns
     - wireguard
 
+- name: Telemetry
+  hosts: role_leader
+  tags: [base, telemetry]
+  roles:
+    - telemetry
+
 - name: Consul
   hosts: role_leader
   tags: [base, consul]
@@ -24,6 +30,6 @@
 - name: Nomad
   hosts: role_leader
   tags: [base, nomad]
-  serial: 1
   roles:
     - nomad-server
+

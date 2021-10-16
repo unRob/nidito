@@ -25,7 +25,7 @@ job "cajon" {
       }
 
       constraint {
-        attribute = "${meta.nidito-storage}"
+        attribute = "${meta.storage}"
         value     = "primary"
       }
 
@@ -33,7 +33,7 @@ job "cajon" {
         destination = "secrets/environment"
         env = true
         data = <<ENV
-{{- with secret "kv/nidito/config/services/minio" }}
+{{- with secret "nidito/config/services/minio" }}
 MINIO_ACCESS_KEY={{ .Data.key }}
 MINIO_SECRET_KEY={{ .Data.secret }}
 {{ end }}

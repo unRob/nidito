@@ -1,7 +1,10 @@
 datacenter = "{{ node.dc }}"
 primary_datacenter = "{% for name, dc in config.datacenters.items() if 'primary' in dc and dc.primary %}{{ name }}{% endfor %}"
 node_name = "{{ node.name }}"
+
 log_level = "warn"
+log_json = true
+
 enable_syslog = true
 data_dir = "{{ consul_data_dir }}"
 server = true
@@ -51,8 +54,8 @@ verify_incoming_rpc = true
 verify_outgoing = true
 verify_server_hostname = true
 ca_file = "{{ consul_config_dir }}/tls/ca.pem"
-cert_file = "{{ consul_config_dir }}/tls/server.crt"
-key_file = "{{ consul_config_dir }}/tls/server.key"
+cert_file = "{{ consul_config_dir }}/tls/cert.pem"
+key_file = "{{ consul_config_dir }}/tls/key.pem"
 auto_encrypt {
   allow_tls = true
 }
@@ -85,6 +88,34 @@ ports {
 
 telemetry {
   prometheus_retention_time = "744h"
+  disable_compat_1.9 = true
+}
+
+services {
+  id ="host-telemetry"
+  name = "host-telemetry"
+  port = 5540
+  address = "{{ node.address }}"
+
+  tags = [
+    "ansible",
+    "nidito.dns.enabled",
+    "nidito.metrics.host",
+  ]
+
+  meta = {
+    nidito-acl = "allow {% for name, net in config.networks.items() if "core" in net %}{{ name }}{% endfor %}"
+  }
+
+  checks = [
+    {
+      id = "host-telemetry-http-check-{{ node.name }}"
+      name = "host-telemetry-http-check-{{ node.name }}"
+      tcp = "{{ node.address }}:5540"
+      interval = "30s"
+      timeout = "1s"
+    }
+  ]
 }
 
 {% if "builtin_services" in node %}

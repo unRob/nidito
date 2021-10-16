@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
 service="$MILPA_ARG_SERVICE"
-
+shift
 if [[ "$MILPA_ARG_LOCAL" ]]; then
   exec docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
 fi
 
 alloc=$(curl -s "${NOMAD_ADDR}/v1/job/${service}/allocations" | jq -r '.[0].ID') || fail "Unknown job <${service}>"
 
-if [[ "$MILPA_ARG_INTERACTIVE" == "autodetect" ]]; then
+if [[ "$MILPA_OPT_INTERACTIVE" == "autodetect" ]]; then
   [ -t 1 ] && interactive="true" || interactive="false"
 else
-  interactive="${MILPA_ARG_INTERACTIVE:-false}"
+  interactive="${MILPA_OPT_INTERACTIVE:-false}"
 fi
 
-if [[ "$MILPA_ARG_TTY" == "autodetect" ]]; then
+if [[ "$MILPA_OPT_TTY" == "autodetect" ]]; then
   [ -t 2 ] && passtty="true" || passtty="false"
 else
-  passtty="${MILPA_ARG_TTY:-false}"
+  passtty="${MILPA_OPT_TTY:-false}"
 fi
 
 args=(/bin/sh)

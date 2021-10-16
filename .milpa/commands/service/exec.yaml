@@ -11,3 +11,10 @@ arguments:
   - name: command
     variadic: true
     description: The command to execute on the service
+options:
+  interactive:
+    default: autodetect
+    description: pass stdin to the resulting shell
+  tty:
+    default: autodetect
+    description: pass tty to the resulting shell

@@ -9,7 +9,7 @@ job "process-recordings" {
     task "process-recordings" {
 
       constraint {
-        attribute = "${meta.nidito-storage}"
+        attribute = "${meta.storage}"
         value     = "primary"
       }
 

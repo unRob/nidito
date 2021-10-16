@@ -17,6 +17,7 @@
     update: no
 
 - name: patch spk
+  when: needs_install
   lineinfile:
     path: "/tmp/consul-spk/{{ item.path }}"
     state: present

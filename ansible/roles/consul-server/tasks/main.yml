@@ -20,11 +20,11 @@
     mode: u=rw,g=,o=
   with_items:
     - name: ca.pem
-      content: "{{ config.services.consul.ca.public_key }}"
-    - name: server.crt
-      content: "{{ node.tls.consul.cert }}"
-    - name: server.key
-      content: "{{ node.tls.consul.key }}"
+      content: "{{ config.services.ca.cert }}"
+    - name: cert.pem
+      content: "{{ node.tls.consul }}"
+    - name: key.pem
+      content: "{{ node.tls.key }}"
   notify: restart consul
 
 - name: Configure consul

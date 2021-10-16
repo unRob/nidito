@@ -20,6 +20,14 @@
     name: nomad
     state: restarted
 
+- name: Restart docker service
+  when: ansible_pkg_mgr == "pacman"
+  listen: restart docker
+  become: yes
+  systemd:
+    name: docker
+    state: restarted
+
 - name: Restart nomad service
   when: ansible_pkg_mgr == "unknown"
   listen: restart nomad

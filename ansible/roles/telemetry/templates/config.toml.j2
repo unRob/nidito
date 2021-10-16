@@ -1,0 +1,87 @@
+data_dir = "{{ vector_data_dir }}"
+
+[sources.node_metrics]
+type = "host_metrics"
+collectors = [
+  "cpu",
+  "disk",
+  "filesystem",
+  "load",
+  "host",
+  "memory",
+  "network"
+]
+namespace = "host"
+scrape_interval_secs = 15
+
+[sources.http_proxy]
+type = "nginx_metrics"
+endpoints = [ "http://127.0.0.1:80/status" ]
+scrape_interval_secs = 15
+namespace = "http_proxy"
+
+[transforms.raw_metrics]
+type = "remap"
+inputs = ["node_metrics", "http_proxy"]
+source = """
+.source = "vector"
+.layer = "infra"
+"""
+
+
+[sources.journald_logs]
+type = "journald"
+current_boot_only = true
+include_units = [ "nomad", "consul", "vault", "docker", "sshd" ]
+
+
+[transforms.logs]
+type = "remap"
+inputs = ["journald_logs"]
+source = """
+data = parse_json(.message) ?? parse_key_value!(.message)
+
+res = {
+  source = "journald"
+  layer = "infra"
+  stream = ._TRANSPORT
+  service = .SYSLOG_IDENTIFIER
+  module = del(data.@module) ?? ""
+  host  = .host
+  level = del(data.level) ?? del(data.@level)
+  message = del(data.msg) ?? del(data.@message)
+}
+
+
+., err = merge(res, data)
+"""
+
+{# [sinks.honeycomb]
+type = "honeycomb"
+inputs = [ "journald_logs" ]
+api_key = "{{ config.services.honeycomb.api_key }}"
+dataset = "nidito" #}
+
+[sinks.prometheus]
+type = "prometheus_exporter"
+inputs = ["raw_metrics"]
+address = "{{ node.address }}:5540"
+default_namespace = "no_namespace"
+
+
+[sinks.loki]
+type = "loki"
+inputs = ["logs"]
+endpoint = "https://loki.nidi.to"
+
+encoding.codec = "json"
+healthcheck.enabled = true
+
+labels.layer = "infra"
+labels.stream = "{%raw%}{{{%endraw%} stream {%raw%}}}{%endraw%}"
+labels.service = "{%raw%}{{{%endraw%} service {%raw%}}}{%endraw%}"
+labels.module = "{%raw%}{{{%endraw%} module {%raw%}}}{%endraw%}"
+labels.host = "{%raw%}{{{%endraw%} host {%raw%}}}{%endraw%}"
+labels.level = "{%raw%}{{{%endraw%} level {%raw%}}}{%endraw%}"
+# remove fields that have been converted to labels to avoid having them twice
+remove_label_fields = false
