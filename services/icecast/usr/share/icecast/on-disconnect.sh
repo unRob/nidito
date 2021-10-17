@@ -14,7 +14,7 @@ sleep 5
 if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
   rm -rfv /recordings/*.mp3
   log "Mirror complete"
-  curl -XPOST https://nomad.service.consul:5560/v1/job/process-recordings/dispatch --data "{}"
+  curl -XPOST https://nomad.nidi.to/v1/job/process-recordings/dispatch --data "{}"
 else
   log "MC crapped its pants"
 fi

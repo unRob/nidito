@@ -1,7 +1,7 @@
 terraform {
-  # backend "consul" {
-  #   path = "nidito/state/ca"
-  # }
+  backend "consul" {
+    path = "nidito/state/ca"
+  }
 
   required_providers {
     tls = {
