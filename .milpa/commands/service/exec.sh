@@ -2,7 +2,7 @@
 
 service="$MILPA_ARG_SERVICE"
 shift
-if [[ "$MILPA_ARG_LOCAL" ]]; then
+if [[ "$MILPA_OPT_LOCAL" ]]; then
   exec docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
 fi
 
@@ -22,7 +22,7 @@ fi
 
 args=(/bin/sh)
 if [[ ${#@} -gt 1 ]]; then
-  args+=(-c "${*}")
+  args+=(-c "${MILPA_ARG_COMMAND[*]}")
 fi
 
 exec nomad alloc exec \

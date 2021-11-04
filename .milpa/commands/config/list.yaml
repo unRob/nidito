@@ -5,4 +5,4 @@ options:
   source:
     default: vault
     description: the source to query config from
-    values: [vault, local]
+    values: {static: [vault, local]}

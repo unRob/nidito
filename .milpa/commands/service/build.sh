@@ -2,7 +2,7 @@
 
 service="$MILPA_ARG_SERVICE"
 spec="$NIDITO_ROOT/services/$service.nomad"
-testing="$MILPA_OPT_TESTING"
+testing="$MILPA_OPT_LOCAL"
 
 [[ ! -f "$spec" ]] && fail "Unknown service: $service, see available services running: ${0% *} list"
 

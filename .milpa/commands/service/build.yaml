@@ -4,7 +4,7 @@ description: |
 arguments:
   - name: service
     description: The name of the service to build
-    values-subcommand: service list
+    values: { milpa: service list }
 options:
   local:
     type: bool
