@@ -9,6 +9,10 @@
   when: node.hardware.arch == 'arm32'
 
 - set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 

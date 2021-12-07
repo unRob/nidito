@@ -145,6 +145,7 @@ job "prometheus" {
         args = [
           "--config.file=/local/prometheus.yml",
           "--storage.tsdb.path=/var/lib/prometheus",
+          "--enable-feature=remote-write-receiver",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
           "--web.console.templates=/usr/share/prometheus/consoles",
           "--web.enable-admin-api",

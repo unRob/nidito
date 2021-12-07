@@ -69,14 +69,14 @@
   # notify: restart coredns
   template:
     src: templates/coredns.service.j2
-    mode: u=rwx,g=rwx,o=
+    mode: u=rwx,g=rw,o=r
     dest: /etc/systemd/system/coredns.service
 
 - name: Install coredns systemd config backup
   become: true
   template:
     src: templates/coredns.service.j2
-    mode: u=rwx,g=rw,o=
+    mode: u=rwx,g=rw,o=r
     dest: /config/coredns/coredns.service
 
 - name: Install edgerouter post-config.d script

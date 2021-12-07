@@ -1,3 +1,4 @@
+api.enabled = true
 data_dir = "{{ vector_data_dir }}"
 
 [sources.node_metrics]
@@ -12,12 +13,12 @@ collectors = [
   "network"
 ]
 namespace = "host"
-scrape_interval_secs = 15
+scrape_interval_secs = 5
 
 [sources.http_proxy]
 type = "nginx_metrics"
 endpoints = [ "http://127.0.0.1:80/status" ]
-scrape_interval_secs = 15
+scrape_interval_secs = 5
 namespace = "http_proxy"
 
 [transforms.raw_metrics]
@@ -39,21 +40,24 @@ include_units = [ "nomad", "consul", "vault", "docker", "sshd" ]
 type = "remap"
 inputs = ["journald_logs"]
 source = """
-data = parse_json(.message) ?? parse_key_value!(.message)
+data = parse_json!(.message)
 
 res = {
   source = "journald"
   layer = "infra"
-  stream = ._TRANSPORT
-  service = .SYSLOG_IDENTIFIER
-  module = del(data.@module) ?? ""
-  host  = .host
-  level = del(data.level) ?? del(data.@level)
-  message = del(data.msg) ?? del(data.@message)
+  stream = data.@_TRANSPORT
+  service = data.@SYSLOG_IDENTIFIER
+  module = data.@module
+  host  = data.@host
+  level = data.@level
+  message = data.message ?? .message
 }
 
+del(data.@module)
+del(data.@level)
+del(data.@message)
 
-., err = merge(res, data)
+., err = merge(data, res)
 """
 
 {# [sinks.honeycomb]
@@ -63,16 +67,16 @@ api_key = "{{ config.services.honeycomb.api_key }}"
 dataset = "nidito" #}
 
 [sinks.prometheus]
-type = "prometheus_exporter"
+type = "prometheus_remote_write"
 inputs = ["raw_metrics"]
-address = "{{ node.address }}:5540"
-default_namespace = "no_namespace"
-
+endpoint = "https://prometheus.nidi.to/api/v1/write"
+default_namespace = "nidito_node"
+healthcheck.enabled = false
 
 [sinks.loki]
 type = "loki"
 inputs = ["logs"]
-endpoint = "https://loki.nidi.to"
+endpoint = "https://loki.nidi.to/"
 
 encoding.codec = "json"
 healthcheck.enabled = true
@@ -83,5 +87,6 @@ labels.service = "{%raw%}{{{%endraw%} service {%raw%}}}{%endraw%}"
 labels.module = "{%raw%}{{{%endraw%} module {%raw%}}}{%endraw%}"
 labels.host = "{%raw%}{{{%endraw%} host {%raw%}}}{%endraw%}"
 labels.level = "{%raw%}{{{%endraw%} level {%raw%}}}{%endraw%}"
+labels.namespace = "host_logs"
 # remove fields that have been converted to labels to avoid having them twice
 remove_label_fields = false

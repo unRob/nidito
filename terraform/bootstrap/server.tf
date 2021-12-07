@@ -10,9 +10,18 @@ data consul_nodes nyc1 {
   }
 }
 
+variable "new_node" {
+  default = ""
+  description = "if set, a new token will be created for the given node name"
+}
+
 locals {
-  all_node_names = toset(concat(data.consul_nodes.casa.node_names, data.consul_nodes.nyc1.node_names, ["tepeyac"]))
-  # all_node_names = ["bootstrap"]
+  new_node_names = var.new_node == "" ? [] : [var.new_node]
+  all_node_names = concat(
+    data.consul_nodes.casa.node_names,
+    data.consul_nodes.nyc1.node_names,
+    local.new_node_names
+  )
 }
 
 # Acl Replication

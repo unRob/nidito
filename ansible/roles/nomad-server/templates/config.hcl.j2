@@ -73,12 +73,13 @@ client {
 plugin "raw_exec" {
   config {
     enabled = true
-    extra_labels = ["job_name", "task_group_name", "task_name", "namespace", "node_name", "region", "datacenter"]
   }
 }
 
 plugin "docker" {
   config {
+    extra_labels = ["job_name", "task_group_name", "task_name", "namespace", "node_name", "region", "datacenter"]
+
     gc {
       image_delay = "24h"
     }

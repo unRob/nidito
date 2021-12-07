@@ -11,7 +11,7 @@ job "http-proxy" {
   }
 
   update {
-    max_parallel = 2
+    max_parallel = 1
     min_healthy_time = "10s"
     healthy_deadline = "3m"
     progress_deadline = "5m"
