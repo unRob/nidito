@@ -2,9 +2,9 @@
 
 set -o pipefail
 if [[ ! "$MILPA_OPT_REMOTE" ]]; then
-  find "$(dirname "$MILPA_COMMAND_REPO")/services" -name '*.nomad' |
+  find "$NIDITO_ROOT/services" -name '*.nomad' -o -name '*.http-service' -depth 2 |
     sort |
-    sed -E 's/.*\/(.*).nomad/\1/'
+    sed -E 's/.*\/(.*).(nomad|http-service)/\1/'
 else
   curl -s "${NOMAD_ADDR}/v1/jobs" | jq -r '.[] | .Name'
 fi

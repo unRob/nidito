@@ -10,3 +10,7 @@ options:
   skip-plan:
     type: bool
     description: Skips planning the nomad job
+  dc:
+    description: the datacenter to deploy to
+    default: casa
+    values: {static: [casa, nyc1]}

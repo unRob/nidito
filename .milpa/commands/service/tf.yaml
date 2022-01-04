@@ -1,0 +1,16 @@
+summary: Runs terraform commands for a service
+description: |
+  basically a proxy to terraform "${@}"
+arguments:
+  - name: service
+    description: The name of the service to build
+    values: { milpa: service list }
+    required: true
+  - name: command
+    values:
+      script: terraform -help | awk '/^  [a-z]/ {print $1}'
+    description: the terraform command to run
+    required: true
+  - name: args
+    variadic: true
+    description: the arguments to pass to the terraform command

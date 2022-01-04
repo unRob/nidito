@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 
 service="$MILPA_ARG_SERVICE"
-spec="$NIDITO_ROOT/services/$service.nomad"
+service_folder="$NIDITO_ROOT/services/$service"
+spec="$service_folder/$service.nomad"
+http_spec="$service_folder/$service.http-service"
 
-cd "$NIDITO_ROOT/services" || @milpa.fail "services folder not found"
-if [[ ! "$MILPA_OPT_SKIP_PLAN" ]]; then
-  nomad plan -verbose "$spec"
-  result="$?"
-  [[ "$result" -gt 1 ]] && @milpa.fail "Could not run plan"
+cd "$service_folder" || @milpa.fail "services folder not found"
+
+if [[ -f "$spec" ]]; then
+  if [[ ! "$MILPA_OPT_SKIP_PLAN" ]]; then
+    nomad plan -verbose "$spec"
+    result="$?"
+    [[ "$result" -gt 1 ]] && @milpa.fail "Could not run plan"
+  fi
+
+  exec nomad run -verbose -consul-token "$CONSUL_HTTP_TOKEN" -region="$NOMAD_OPT_DC" "$spec"
 fi
 
-exec nomad run -verbose -consul-token "$CONSUL_HTTP_TOKEN" "$spec"
+if [[ -f "${http_spec}" ]]; then
+  exec bash "$http_spec"
+fi

@@ -1,0 +1,147 @@
+#page-list{
+  margin: 0;
+  padding: 0;
+}
+
+#page-list li {
+  display: inline-block;
+  border-radius: 3px;
+  background:rgba(207, 6, 120, .2);
+  text-align: center;
+  width: 1.2em;
+}
+
+nav form, #page-list {
+  display: inline-block;
+}
+
+.track-container {
+  margin-bottom: 1.5em;
+}
+
+.track-meta-container {
+  display: flex;
+  flex-direction: row;
+  justify-content:space-between;
+  align-items: center;
+  margin: 1em 0 0;
+}
+
+.track-meta-container h3 {
+  margin:0
+}
+
+.track-meta {
+  font-family: 'Aestetico';
+  font-weight: 100;
+  font-size: .5em;
+  text-align: right;
+}
+
+
+.track-meta p {
+  line-height: 1em;
+  padding: 0;
+  margin: 0;
+}
+
+.track-artist {
+  font-style: italic;
+}
+
+.track-player {
+  height: 100px;
+  background-color: rgba(20,0,0,.1);
+  background-size: cover;
+  background-position: center center;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+}
+
+.track-play {
+  font-size: 2em;
+  height: 50px;
+  background: rgba(207, 6, 120, .7);
+  color: #fff;
+  border: none;
+  width: 50px;
+  border-radius: 10px;
+  z-index: 100;
+  text-align: center;
+}
+
+.playing .track-play {
+  font-size: 1em;
+  font-weight: 400;
+  letter-spacing: .2em;
+}
+
+.track-play:focus, .track-play:hover {
+  background: rgba(207, 6, 120, 1);
+}
+
+.track-head {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  border-right: 5px solid rgba(255,255,255,.8);
+  background: rgba(255,255,255,.3);
+  height: 100px;
+  opacity: .2;
+  transition: all .2s ease-in;
+}
+
+.track-playtime {
+  font-family: 'Fira Code';
+  background: hsla(342.3, 83.8%, 21.2%, .7);
+  color: #fff;
+  padding: .3em;
+  border-radius: 10px;
+  z-index: 100;
+}
+
+.track-current {
+  display: block;
+}
+
+.track-remaining {
+  display: none;
+}
+
+.track-playtime.remaining .track-remaining{
+  display: block
+}
+
+.track-playtime.remaining .track-current{
+  display: none
+}
+
+
+.track-container.playing .track-head {
+  opacity:1;
+}
+
+@media screen and (max-width: 799px) {
+
+
+  .track-meta-container {
+    display: block;
+    margin: 1em 0 0;
+  }
+
+  .track-meta-container h3 {
+    margin-bottom: .5em;
+  }
+
+  .track-meta {
+    padding-bottom: .5em;
+    font-size: .7em;
+    text-align: left;
+  }
+
+}

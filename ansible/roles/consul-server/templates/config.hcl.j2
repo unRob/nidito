@@ -111,7 +111,7 @@ services {
     {
       id = "host-telemetry-http-check-{{ node.name }}"
       name = "host-telemetry-http-check-{{ node.name }}"
-      tcp = "{{ node.address }}:5540"
+      tcp = "localhost:5540"
       interval = "30s"
       timeout = "1s"
     }

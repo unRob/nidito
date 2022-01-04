@@ -6,5 +6,9 @@ CREATE TABLE tracks(
   genre varchar(255),
   timezone varchar(100),
   path text,
-  processing_hash varchar(255)
+  channels int,
+  duration float,
+  bit_rate int,
+  processing_hash varchar(255),
+  track_hash varchar(255)
 )

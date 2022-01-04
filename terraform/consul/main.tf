@@ -17,21 +17,6 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
-resource "consul_prepared_query" "dns-services" {
-
-  template {
-    type   = "name_prefix_match"
-    regexp = "^(.+)$"
-  }
-
-  service = "$${match(1)}"
-
-  name         = "dns-services"
-  only_passing = false
-
-  tags = ["nidito.dns.enabled"]
-}
-
 locals {
   static_entries = {
     consul = 5554

@@ -1,0 +1,147 @@
+body {
+  /* background-color: hsl(200, 40%, 60%); */
+  background-color: rgb(255, 198, 215);
+  background-image: none;
+  transition: background-color 1.5s ease-in-out;
+  font-family: "Aestetico";
+  font-size: 18px;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+#main-header {
+  border-bottom: 5px solid rgb(137, 22, 55);
+  background-color: hsl(342.3, 83.8%, 41.2%);
+  padding: 50px 20px 5px 20px;
+  margin-top:0;
+}
+
+#main-header h1 {
+  mix-blend-mode: hard-light;
+  font-family: "Fira Code";
+  font-size: 6.5vw;
+  margin: 0;
+}
+
+
+#main-header h1 a {
+  color: #fff;
+}
+
+
+#main-header p {
+  font-style: italic;
+  font-weight: 100;
+  font-size: 1.5em;
+  display: block;
+}
+
+h2, h3, h4 {
+  font-family: "Fira Code";
+}
+
+h2 {
+  font-size: 3em;
+}
+
+h3 {
+  font-size: 1.8em;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  margin-left: 200px;
+}
+
+main {
+  width: 100%;
+  max-width: 800px;
+  margin-left: 200px;
+  color: hsl(342.3, 83.8%, 21.2%);
+}
+
+main p {
+  font-size: 1.4em;
+  line-height: 1.5em;
+}
+
+main a {
+  color: rgb(207, 6, 120);
+}
+
+#header nav {
+  flex: none;
+  display: block;
+  margin-left: 175px;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  font-family: "Aestetico-Informal";
+  font-weight: 500;
+  margin-top: 1.5em;
+}
+
+#header nav ul {
+  padding: 0;
+  margin: 0;
+}
+
+#header nav li {
+  display: inline-block;
+  padding-right: 1em;
+}
+
+#header nav a {
+  color: rgba(255,255,255,.8);
+  text-decoration: none;
+}
+
+#header nav a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 1000px) {
+  h1 { font-size: 4.722em }
+  .container {
+    margin: 0;
+  }
+
+  main {
+    padding: 20px;
+  }
+}
+
+@media screen and (max-width: 799px) {
+  /* body {
+    font-size: 16px;
+  } */
+
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  .container {
+    margin-left: 0;
+  }
+
+  #main-header {
+    padding-left: 20px;
+  }
+
+  #main-header p {
+    font-size: 1em;
+  }
+
+  h3 {
+    font-size: 1.2em;
+  }
+
+  main {
+    padding: 10px;
+    box-sizing: border-box;
+  }
+}

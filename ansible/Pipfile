@@ -9,11 +9,10 @@ verify_ssl = true
 netaddr = "*"
 dnspython = "*"
 paramiko = "*"
-config-yourself = {extras = ["password"],version = "*"}
-ansible = "*"
+ansible = "4.9.0"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
 
 [scripts]
 tame = "ansible-playbook playbook.yml --diff"

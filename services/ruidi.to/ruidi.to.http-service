@@ -1,0 +1,20 @@
+#!/bin/env bash
+
+svccfg() {
+  vault kv get -format json -field data "nidito/config/services/$1"
+}
+
+eval "$(jq \
+  --argjson dns "$(svccfg dns)" \
+  --argjson cdn "$(svccfg cdn)" \
+  --argjson minio "$(svccfg minio)" \
+  --null-input \
+  --raw-output \
+  '["export MC_HOST_cajon=https://\($minio.key):\($minio.secret)@cajon.\($dns.zone)/",
+    "export MC_HOST_cdn=https://\($cdn.key):\($cdn.secret)@\($cdn.endpoint)/"][]')"
+
+mc mirror \
+  --overwrite \
+  --remove \
+  --attr x-amz-acl=public-read \
+  ./http cdn/cdn.rob.mx/ruidi.to || @milpa.fail "could not mirror assets"

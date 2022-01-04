@@ -3,6 +3,7 @@ region = "{{ node.dc }}"
 datacenter = "{{ node.dc }}"
 name = "{{ ansible_hostname }}"
 log_level = "warn"
+log_json = true
 {% set dc = config.datacenters[node.dc] %}
 
 bind_addr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"

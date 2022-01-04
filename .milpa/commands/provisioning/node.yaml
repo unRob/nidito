@@ -1,16 +1,15 @@
-summary: Does a thing
+summary: Provisions a node into this nidito
 description: |
-  Longer description of how it does the thing
-# see `milpa help docs command spec` for all the options
-# arguments:
-#   - name: something
-#     description: Sets SOMETHING
-#     required: true
-#     variadic: false
-#     values-subcommand: list things
-#     values: []
-# options:
-#   option:
-#     description: sets OPTION
-#     default: fourty-two
-#     values: [one, two, fourty-two]
+  1. Creates secrets for it in the config/hosts.yaml file,
+  2. adds the host to ssh config
+  3. adds dns records to coredns
+  4. creates a consul token and ca certs
+  5. and provisions software on the node
+arguments:
+  - name: node-name
+    description: the name of the node to bootstrap
+    required: true
+  - name: dc
+    description: the datacenter to add this host to
+    default: casa
+    values: {static: [casa, nyc1]}

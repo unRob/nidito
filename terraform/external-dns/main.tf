@@ -6,8 +6,16 @@ terraform {
   required_version = ">= 0.12.20"
 }
 
+data "vault_generic_secret" "do_token" {
+  path = "nidito/config/services/dns/external/provider"
+}
+
+data "vault_generic_secret" "dns_zone" {
+  path = "nidito/config/services/dns"
+}
+
 provider "digitalocean" {
-  token = data.consul_key_prefix.cfg.subkeys["dns/external/provider/token"]
+  token = data.vault_generic_secret.do_token.data["token"]
 }
 
 data "consul_key_prefix" "cfg" {
@@ -15,7 +23,7 @@ data "consul_key_prefix" "cfg" {
 }
 
 resource "digitalocean_domain" "root" {
-  name = data.consul_key_prefix.cfg.subkeys["dns/zone"]
+  name = data.vault_generic_secret.dns_zone.data["zone"]
 }
 
 resource "digitalocean_record" "txt_root" {
@@ -23,4 +31,9 @@ resource "digitalocean_record" "txt_root" {
   type   = "TXT"
   name   = "@"
   value  = "v=spf1 include:mailgun.org ~all;"
+}
+
+output "zone" {
+  value = digitalocean_domain.root.name
+  description = "this zone's root name"
 }

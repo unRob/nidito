@@ -1,4 +1,4 @@
-{{- with secret "kv/nidito/config/dns" }}
+{{- with secret "nidito/config/services/dns" }}
 {{- scratch.Set "zone" .Data.zone }}
 {{- end }}
 <icecast>
@@ -16,7 +16,7 @@
     </limits>
 
     <authentication>
-        {{- with secret "kv/nidito/config/services/icecast/credentials" }}
+        {{- with secret "nidito/config/services/icecast/credentials" }}
         <source-password>{{ .Data.source }}</source-password>
         <relay-password>{{ .Data.source }}</relay-password>
 
@@ -59,14 +59,13 @@
         <basedir>/usr/share/icecast</basedir>
 
         <!-- Note that if <chroot> is turned on below, these paths must both
-             be relative to the new root, not the original root -->
+        be relative to the new root, not the original root -->
         <logdir>/var/log/icecast</logdir>
         <webroot>/usr/share/icecast/web</webroot>
         <adminroot>/usr/share/icecast/admin</adminroot>
         <!-- <pidfile>/usr/share/icecast/icecast.pid</pidfile> -->
 
         <alias source="/" dest="/index.html"/>
-        <alias source="/play.html" dest="/play.html"/>
         <alias source="/status.json" dest="/status-json.xsl"/>
     </paths>
 

@@ -9,3 +9,6 @@ arguments:
   - name: log-args
     variadic: true
     description: Extra parameters to pass to `nomad alloc logs`. See `nomad alloc logs -help` for details
+options:
+  follow:
+    description: wait for new lines and display them.

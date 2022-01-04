@@ -73,3 +73,13 @@ output "nomad-server-token" {
   value = vault_token.nomad-server.client_token
   sensitive = true
 }
+
+
+resource "vault_nomad_secret_backend" "nomad-backend" {
+  backend                   = "nomad"
+  description               = "nomad access for apps"
+  default_lease_ttl_seconds = "3600"
+  max_lease_ttl_seconds     = "86400"
+  max_ttl                   = "86400"
+  address                   = "https://nomad.service.consul:5560"
+}

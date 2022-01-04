@@ -3,8 +3,21 @@ terraform {
     path = "nidito/state/vault"
   }
 
+  required_providers {
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 2.23.0"
+    }
+  }
+
   required_version = ">= 1.0.0"
 }
+
+variable "admin_password" {
+  description = "the password to set for the admin user"
+  sensitive = true
+}
+
 
 # generic secret provider
 resource "vault_mount" "kv" {
@@ -29,16 +42,20 @@ resource "vault_mount" "consul" {
   type = "consul"
 }
 
-module "dc-policies-casa" {
-  count = terraform.workspace == "default" ? 1 : 0
-  source = "./policies/casa"
+resource "vault_auth_backend" "userpass" {
+  type = "userpass"
+  path = "userpass"
+  description = "username and password for humans"
 }
 
-module "dc-policies-nyc1" {
-  count = terraform.workspace == "nyc1" ? 1 : 0
-  source = "./policies/nyc1"
-}
+# username auth
+resource "vault_generic_endpoint" "admin" {
+  depends_on           = [vault_auth_backend.userpass]
+  path                 = "auth/userpass/users/rob"
+  ignore_absent_fields = true
 
-module "policies" {
-  source = "./policies/shared"
+  data_json = jsonencode({
+    policies = ["admin"]
+    password = var.admin_password
+  })
 }

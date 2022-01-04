@@ -7,6 +7,16 @@ ca:
     ciphertext: 24rENIGj2ofPw6FzfKFRR7Rsa6pQ8ahxPqKkxecbwvXndfaPZBRIsvlnPmWLnaPe0K3gdsgX39sKKPoV0v7QXxO3wQCqa/UcCNtrPVPxALSpQENYeM6jtmtyX/wja5PriIe/7pmFKca9W4kZjBng1tXd0uQqzgH9R/dmZa8RNuK8SvcPiQ0xPss1ilhPYeH6Gtr3vJDE0Foo7bQS0pkGpF3fR39S4N2WSF7OM79C5XqKFClNljawtQKLxvCKYvEEvT1HSAWy1jMfCvBfe8lWI1z5nz56Q1hvPa13dcJ9XAu33b0pfjOeNjWHWnUnuLxWQD8rkBCv/a7lJ8VU8S/9rRdyAjSd0Nqexxny6t5En7FPLzvahnU=
     encrypted: true
     hash: f9f4623501b82e38fad5017f8a3ee8b941365b63a481c14c04ac626dc283b9a0
+cdn:
+  endpoint: nyc3.digitaloceanspaces.com
+  key:
+    ciphertext: bP3l1nPD7TIKu+T/lJkfrNZ65QHeKyCEKg36uoQv8wFlo4lfvbcLUI0HZMw+mkYTUbOhg6+UORJEzc6LmmFKMeQWHh0=
+    encrypted: true
+    hash: 578997091a94f5c8e453bba94ae71832facb3f89e914d7ba286b2db8af450f7e
+  secret:
+    ciphertext: u8tTuQoyvPu/cjLNoD7joOCzQxz//Aw8VkeUPNpTazl6eAvpgZuVSj+dMLg4LlsuFDaaI9ydZARba5X/ikl1bkLmM5v6cX8k4R/x1X0SBNNSiuTEpilA50Llcg==
+    encrypted: true
+    hash: c722b52d767d531bf369aaa266f41d0d3c5eebc0c62ec14f0bc14c1e3395f45d
 consul:
   encryption_key:
     ciphertext: utp3DmeQIpL6nB/6MBBekfDFvzd2tEFO/h002fSwzv5gkY8NVzCs2ANRoUBgLSnUMxaRuRcde/7Qj0uWCozMabcuooNMNE0KRIo4NZg/0LLTNIVad71vJ0dFyNs=

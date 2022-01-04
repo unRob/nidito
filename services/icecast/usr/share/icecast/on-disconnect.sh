@@ -4,6 +4,8 @@ source /home/icecast/minio-env.sh
 log () {
   echo "$(date) - $*"
 }
+
+
 echo "----------------------------"
 kind=$(basename "${1%%.*}")
 name="${1#*.}"
@@ -14,6 +16,7 @@ sleep 5
 if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
   rm -rfv /recordings/*.mp3
   log "Mirror complete"
+  # curl -XPOST https://chisme.nidi.to/v0/publish/radio:recording:complete -d '{"kind": "'"$kind"'", "name": "'"$name"'"}'
   curl -XPOST https://nomad.nidi.to/v1/job/process-recordings/dispatch --data "{}"
 else
   log "MC crapped its pants"

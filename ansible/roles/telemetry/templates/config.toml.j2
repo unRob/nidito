@@ -1,5 +1,8 @@
-api.enabled = true
 data_dir = "{{ vector_data_dir }}"
+
+[api]
+enabled = true
+address = "127.0.0.1:5540"
 
 [sources.node_metrics]
 type = "host_metrics"
@@ -30,41 +33,76 @@ source = """
 """
 
 
-[sources.journald_logs]
+[sources.journald_raw_logs]
 type = "journald"
 current_boot_only = true
-include_units = [ "nomad", "consul", "vault", "docker", "sshd" ]
+include_units = ["consul", "nomad", "vault", "docker", "sshd"]
 
 
-[transforms.logs]
+[sources.nomad_allocs]
+type = "file"
+ignore_older_secs = 600
+include = [ "/var/lib/nomad/alloc/**/alloc/logs/*" ]
+read_from = "beginning"
+
+
+
+[transforms.journald_logs]
 type = "remap"
-inputs = ["journald_logs"]
+inputs = ["journald_raw_logs"]
 source = """
-data = parse_json!(.message)
-
-res = {
-  source = "journald"
-  layer = "infra"
-  stream = data.@_TRANSPORT
-  service = data.@SYSLOG_IDENTIFIER
-  module = data.@module
-  host  = data.@host
-  level = data.@level
-  message = data.message ?? .message
+if .SYSLOG_IDENTIFIER == "sshd" {
+  data = {
+    "@level": "info",
+    "@message": .message
+  }
+} else {
+  data = parse_json(.message) ?? parse_syslog(.message) ?? parse_logfmt(.message) ?? {
+    "@level": "info",
+    "@message": .message
+  }
 }
 
-del(data.@module)
-del(data.@level)
-del(data.@message)
+res = {
+  "source": "journald",
+  "stream": "stdout",
+  "service": .SYSLOG_IDENTIFIER,
+  "host": .host,
+  "level": del(data.@level),
+  "message": del(data.@message)
+}
 
-., err = merge(data, res)
+if data.@message != "" {
+  res.message = del(data.@message)
+}
+
+if data.msg != "" {
+  res.message = del(data.msg)
+}
+
+if data.@timestamp != "" {
+  res.timestamp = del(data.@timestamp)
+}
+
+if data.ts != "" {
+  res.timestamp = del(data.ts)
+}
+
+if data.time != "" {
+  res.timestamp = del(data.time)
+}
+
+if data.@module != "" {
+  res.module = del(data.@module)
+}
+
+if ._TRANSPORT != "syslog" {
+  res.stream = ._TRANSPORT
+}
+
+., err = merge(res, data)
 """
 
-{# [sinks.honeycomb]
-type = "honeycomb"
-inputs = [ "journald_logs" ]
-api_key = "{{ config.services.honeycomb.api_key }}"
-dataset = "nidito" #}
 
 [sinks.prometheus]
 type = "prometheus_remote_write"
@@ -75,8 +113,8 @@ healthcheck.enabled = false
 
 [sinks.loki]
 type = "loki"
-inputs = ["logs"]
-endpoint = "https://loki.nidi.to/"
+inputs = ["journald_logs"]
+endpoint = "https://loki.nidi.to"
 
 encoding.codec = "json"
 healthcheck.enabled = true
@@ -90,3 +128,12 @@ labels.level = "{%raw%}{{{%endraw%} level {%raw%}}}{%endraw%}"
 labels.namespace = "host_logs"
 # remove fields that have been converted to labels to avoid having them twice
 remove_label_fields = false
+
+[sources.vector_logs]
+type = "internal_logs"
+
+[sinks.debug]
+type = "console"
+inputs = [ "vector_logs" ]
+encoding.codec = "json"
+target = "stdout"

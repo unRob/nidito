@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radio Nidito</title>
+    <link rel="stylesheet" href="https://cdn.rob.mx/css/fonts.css" />
+    <link rel="stylesheet" href="https://cdn.rob.mx/nidito/index.css" />
+    <link rel="stylesheet" href="https://cdn.rob.mx/ruidi.to/index.css" />
+  </head>
+  <body>
+    <header id="main-header">
+      <div class="container">
+        <h1>Radio Nidito</h1>
+        <p>Transmitiendo desde México, Distrito Federal con hasta 100 watts/h de consumo eléctrico.</p>
+      </div>
+    </header>
+
+    <main class="container">
+
+      <div id="al-aire" style="display:none">
+        <h2>Al aire: <span id="titulo"></span></h2>
+        <p>📅 <span id="fecha"></span></p>
+        <audio controls="controls" preload="none" style="width:100%;background-color:#ff0051">
+          <source src="" />
+        </audio>
+      </div>
+      <div id="apagado">
+        <h2>Fuera del aire</h2>
+        <p>Parece que no hay nadie haciendo ruiditos en casa, regresa en otro momento. No prometo nada, pero en una de esas, quién quita.</p>
+      </div>
+
+      <h2 id="transmisiones-anteriores">Transmisiones anteriores</h2>
+      <nav>
+        <ul id="page-list">
+        </ul>
+        <form method="get" action="/">
+          <select id="genre-select" name="genre">
+            <option value="">Todo</option>
+            <option value="Practicando piano">Practicando Piano</option>
+            <option value="Practicando guitarra">Practicando Guitarra</option>
+            <option value="Ruiditos">Ruiditos</option>
+          </select>
+        </form>
+      </nav>
+      <div id="anteriormente"></div>
+    </main>
+    <script src="https://cdn.rob.mx/ruidi.to/index.js" async="async"></script>
+  </body>
+</html>

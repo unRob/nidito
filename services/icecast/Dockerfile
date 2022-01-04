@@ -1,23 +1,25 @@
-FROM alpine
+FROM registry.nidi.to/base:latest
 
 ENV UPSTREAM_VERSION "2.4.0-kh15"
 
 RUN addgroup icecast && \
     adduser -D -G icecast icecast && \
-    apk add --no-cache --virtual .build-deps curl git autoconf make build-base curl-dev libtheora-dev libvorbis-dev libogg-dev libxslt-dev libxml2-dev speex-dev && \
-    apk add --no-cache curl libtheora libvorbis libogg libxslt libxml2 speex
-
-RUN wget "https://github.com/karlheyes/icecast-kh/archive/icecast-$UPSTREAM_VERSION.tar.gz" -O- | tar zxvf - && \
-	cd "icecast-kh-icecast-$UPSTREAM_VERSION" && \
-	./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-dependency-tracking && \
-	make && make install
-
-RUN apk del --no-cache .build-deps
+    apk --update add --no-cache --virtual .build-deps \
+      git autoconf make build-base curl-dev libtheora-dev libvorbis-dev libogg-dev libxslt-dev libxml2-dev speex-dev && \
+    apk --update add --no-cache \
+      curl libtheora libvorbis libogg libxslt libxml2 speex && \
+    wget "https://github.com/karlheyes/icecast-kh/archive/icecast-$UPSTREAM_VERSION.tar.gz" -O- | tar zxvf - && \
+      cd "icecast-kh-icecast-$UPSTREAM_VERSION" && \
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-dependency-tracking && \
+      make && make install && \
+    cd ../ && \
+    rm -rf "icecast-kh-icecast-$UPSTREAM_VERSION" && \
+    apk del --no-cache .build-deps
 
 COPY --from=minio/mc /usr/bin/mc /usr/local/bin/
-
 COPY --chown=icecast:icecast etc /etc
 COPY --chown=icecast:icecast usr /usr
+
 RUN mkdir /recordings && chown -R icecast:icecast /recordings
 
 CMD ["icecast", "-c", "/etc/icecast.xml"]

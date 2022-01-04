@@ -114,7 +114,7 @@ RULES
 }
 
 resource consul_acl_policy consul-server {
-  for_each = local.all_node_names
+  for_each = toset(local.all_node_names)
   name        = "server-consul-${each.value}"
   description = "${each.value} server policy"
   rules       = <<-RULES
@@ -133,7 +133,7 @@ resource consul_acl_policy consul-server {
 }
 
 resource consul_acl_token server {
-  for_each = local.all_node_names
+  for_each = toset(local.all_node_names)
   description = "server policy for ${each.value}"
   policies = [
     consul_acl_policy.consul-server[each.value].name,
@@ -173,6 +173,10 @@ resource consul_acl_policy nomad {
     }
 
     key_prefix "dns" {
+      policy = "read"
+    }
+
+    key_prefix "cdn" {
       policy = "read"
     }
 

@@ -62,7 +62,7 @@ resource vault_generic_secret main-cert {
   path = "nidito/tls/${data.vault_generic_secret.dns.data.zone}"
   data_json = jsonencode({
     private_key = acme_certificate.main-cert.private_key_pem,
-    cert = join("\n", [
+    cert = join("", [
       acme_certificate.main-cert.certificate_pem,
       acme_certificate.main-cert.issuer_pem,
     ])

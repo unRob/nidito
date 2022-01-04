@@ -1,0 +1,47 @@
+{{- with secret "nidito/config/services/consul/ports" }}
+{{- scratch.Set "consulPort" .Data.http }}
+{{- end }}
+{{- with secret "consul/" }}
+{{- scratch.Set "consulToken" .Data.token }}
+{{- end }}
+{{- $dc := env "node.region" }}
+{{- with secret (printf "nidito/config/datacenters/%s/dns" $dc) }}
+{{- scratch.Set "zone" .Data.zone }}
+{{- end }}
+positions:
+  filename: /data/positions.yaml
+clients:
+  - url: https://loki.{{ scratch.Get "zone" }}/loki/api/v1/push
+scrape_configs:
+- job_name: 'nomad-logs'
+  consul_sd_configs:
+    - server: 'consul.service.consul:{{ scratch.Get "consulPort" }}'
+      datacenter: "{{ $dc }}"
+      token: "{{ scratch.Get "consulToken" }}"
+      tags:
+        - nidito.logs.enabled
+  relabel_configs:
+    - source_labels: [__meta_consul_node]
+      target_label: __host__
+    - source_labels: [__meta_consul_service_metadata_external_source]
+      target_label: source
+      regex: (.*)
+      replacement: '$1'
+    - source_labels: [__meta_consul_service_id]
+      regex: '_nomad-task-([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})-.*'
+      target_label:  'task_id'
+      replacement: '$1'
+    # - source_labels: [__meta_consul_tags]
+    #   regex: ',(app|monitoring),'
+    #   target_label:  'group'
+    #   replacement:   '$1'
+    - source_labels: [__meta_consul_service]
+      target_label: job
+    - source_labels: ['__meta_consul_node']
+      regex:         '(.*)'
+      target_label:  'instance'
+      replacement:   '$1'
+    - source_labels: [__meta_consul_service_id]
+      regex: '_nomad-task-([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})-.*'
+      target_label:  '__path__'
+      replacement: '/nomad/alloc/$1/alloc/logs/*std*.{?,??}'
