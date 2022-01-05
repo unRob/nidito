@@ -4,11 +4,14 @@ job "putio-media-ingest" {
   type = "batch"
   priority = 10
 
-   vault {
-    policies = ["putio"]
+  periodic {
+    cron             = "*/15 * * * * *"
+    prohibit_overlap = true
+  }
 
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
+   vault {
+    policies = ["putio-media-ingest"]
+    change_mode = "restart"
   }
 
   group "putio-media-ingest" {
@@ -29,7 +32,7 @@ job "putio-media-ingest" {
         data = <<EOF
 [putio]
 type = putio
-{{ with secret "kv/nidito/config/services/putio" }}
+{{ with secret "nidito/config/third-party/putio" }}
 token = {"access_token":"{{ .Data.token }}","expiry":"0001-01-01T00:00:00Z"}
 {{ end }}
 EOF
@@ -37,7 +40,10 @@ EOF
       }
 
       config {
-        image = "registry.nidi.to/putio-media-ingest:202104220414"
+        image = "registry.nidi.to/putio-media-ingest:202201050009"
+
+        # needs to be able to talk to nomad to dispatch jobs
+        network_mode = "host"
 
         volumes = [
           "local/rclone.conf:/config/rclone/rclone.conf",

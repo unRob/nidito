@@ -16,8 +16,7 @@ sleep 5
 if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
   rm -rfv /recordings/*.mp3
   log "Mirror complete"
-  # curl -XPOST https://chisme.nidi.to/v0/publish/radio:recording:complete -d '{"kind": "'"$kind"'", "name": "'"$name"'"}'
-  curl -XPOST https://nomad.nidi.to/v1/job/process-recordings/dispatch --data "{}"
+  curl -XPOST https://nomad.nidi.to/v1/job/radio-processing/dispatch --data "{}"
 else
   log "MC crapped its pants"
 fi

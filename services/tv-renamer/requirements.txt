@@ -1,1 +1,1 @@
-tvnamer==3.0
+tvnamer==3.0.4

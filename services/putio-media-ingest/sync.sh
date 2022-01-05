@@ -7,12 +7,15 @@ function fail () {
   exit 2
 }
 
+downloaded=0
+
 function downloadMedia() {
   local kind; kind="$1"
 
   while read -r file; do
     echo "Downloading $file"
     rclone copy "putio:$file" "$kind/" >&2 || fail "Could not download $file"
+    downloaded=$(( downloaded + 1 ))
     echo "Deleting $file"
     rclone delete "putio:$file" >&2
     if [[ "$(dirname "${file#*/}")" != "." ]]; then
@@ -34,8 +37,16 @@ if ! rclone lsjson -R "putio:" |
   sort -n > tmp/source.list; then
   exit 2
 fi
-grep -i '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/tv-series.list
-grep -vi '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/movies.list
+grep -E -i '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/tv-series.list
+grep -E -vi '(S[0-9][0-9]|HDTV)' tmp/source.list > tmp/movies.list
+
+echo "TV Series:"
+cat tmp/tv-series.list
+echo "----"
+
+echo "Movies:"
+cat tmp/movies.list
+echo "----"
 
 downloadMedia tv-series || fail "Could not download tv-series"
 downloadMedia movies || fail "Could not download movies"
@@ -52,6 +63,9 @@ fi
 rm -rf tmp
 echo "Sync complete"
 
-set -o xtrace
-curl \
-  -XPOST https://nomad.nidi.to/v1/job/tv-renamer/dispatch --data "{}"
+if [[ "$downloaded" -gt 0 ]]; then
+  echo "Dispatching tv-renamer"
+  set -o xtrace
+  curl \
+    -XPOST https://nomad.nidi.to/v1/job/tv-renamer/dispatch --data "{}"
+fi

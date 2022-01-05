@@ -16,7 +16,7 @@
     </limits>
 
     <authentication>
-        {{- with secret "nidito/config/services/icecast/credentials" }}
+        {{- with secret "nidito/service/icecast/credentials" }}
         <source-password>{{ .Data.source }}</source-password>
         <relay-password>{{ .Data.source }}</relay-password>
 
@@ -29,32 +29,22 @@
 
     <listen-socket><port>8000</port></listen-socket>
 
+    {{- range secrets "nidito/service/icecast/mount/" }}
+    {{- with secret (printf "nidito/service/icecast/mount/%s" .) }}
     <mount type="normal">
-        <mount-name>/practicando.*</mount-name>
-        <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
-        <!-- <fallback-mount>/example2.ogg</fallback-mount> -->
-        <!-- <fallback-override>1</fallback-override> -->
-        <!-- <fallback-when-full>1</fallback-when-full> -->
-        <!-- <intro>/example_intro.ogg</intro> -->
-        <!-- <hidden>1</hidden> -->
-        <!-- <on-connect>/home/icecast/bin/stream-start</on-connect> -->
-        <on-disconnect>/usr/share/icecast/on-disconnect.sh</on-disconnect>
+      <mount-name>{{ .Data.pattern }}</mount-name>
+      {{- if .Data.record }}
+      <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
+      <on-disconnect>/usr/share/icecast/on-disconnect.sh</on-disconnect>
+      {{- end }}
     </mount>
-
-    <mount type="normal">
-        <mount-name>/presenta.*</mount-name>
-        <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
-        <on-disconnect>/usr/share/icecast/on-disconnect.sh</on-disconnect>
-    </mount>
-
-    <mount type="normal">
-        <mount-name>/jugando.*</mount-name>
-    </mount>
+    {{- end }}
+    {{- end }}
 
     <fileserve>1</fileserve>
 
     <paths>
-        <x-forwarded-for>10.42.20.2</x-forwarded-for>
+        <x-forwarded-for>{{ env "attr.unique.network.ip-address" }}</x-forwarded-for>
         <!-- basedir is only used if chroot is enabled -->
         <basedir>/usr/share/icecast</basedir>
 

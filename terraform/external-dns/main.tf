@@ -3,7 +3,22 @@ terraform {
     path = "nidito/state/external-dns"
   }
 
-  required_version = ">= 0.12.20"
+  required_providers {
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~> 2.13.0"
+    }
+    vault = {
+      source  = "hashicorp/vault"
+      version = "~> 2.23.0"
+    }
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+      version = "~> 2.16.0"
+    }
+  }
+
+  required_version = ">= 1.0.0"
 }
 
 data "vault_generic_secret" "do_token" {
@@ -18,12 +33,8 @@ provider "digitalocean" {
   token = data.vault_generic_secret.do_token.data["token"]
 }
 
-data "consul_key_prefix" "cfg" {
-  path_prefix = "/nidito/config"
-}
-
 resource "digitalocean_domain" "root" {
-  name = data.vault_generic_secret.dns_zone.data["zone"]
+  name = nonsensitive(data.vault_generic_secret.dns_zone.data["zone"])
 }
 
 resource "digitalocean_record" "txt_root" {
@@ -34,6 +45,6 @@ resource "digitalocean_record" "txt_root" {
 }
 
 output "zone" {
-  value = digitalocean_domain.root.name
+  value       = digitalocean_domain.root.name
   description = "this zone's root name"
 }

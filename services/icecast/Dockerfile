@@ -1,4 +1,4 @@
-FROM registry.nidi.to/base:latest
+FROM registry.nidi.to/base-sync:latest
 
 ENV UPSTREAM_VERSION "2.4.0-kh15"
 
@@ -16,7 +16,6 @@ RUN addgroup icecast && \
     rm -rf "icecast-kh-icecast-$UPSTREAM_VERSION" && \
     apk del --no-cache .build-deps
 
-COPY --from=minio/mc /usr/bin/mc /usr/local/bin/
 COPY --chown=icecast:icecast etc /etc
 COPY --chown=icecast:icecast usr /usr
 

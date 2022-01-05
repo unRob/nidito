@@ -11,7 +11,9 @@ terraform {
 
 
 data "terraform_remote_state" "external-dns" {
-  backend "consul" {
+  backend = "consul"
+  workspace = "default"
+  config = {
     path = "nidito/state/external-dns"
   }
 }
@@ -23,15 +25,15 @@ variable "name" {
 
 variable "ttl" {
   description = "This record's time-to-live in seconds"
-  type = int
+  type = number
   default = 3600
 }
 
 
 resource "digitalocean_record" "cname" {
-  domain = data.terraform_remote_state.external-dns.output.zone
+  domain = data.terraform_remote_state.external-dns.outputs.zone
   type   = "CNAME"
   name   = var.name
   ttl    = var.ttl
-  value  = data.terraform_remote_state.external-dns.output.zone
+  value  = "${data.terraform_remote_state.external-dns.outputs.zone}."
 }

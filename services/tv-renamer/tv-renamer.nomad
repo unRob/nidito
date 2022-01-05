@@ -4,9 +4,7 @@ job "tv-renamer" {
 
   vault {
     policies = ["tv-renamer"]
-
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
+    change_mode   = "restart"
   }
 
   parameterized {}
@@ -35,14 +33,14 @@ job "tv-renamer" {
           "filename_without_episode": "%(seriesname)s - E%(seasonnumber)02dE%(episode)s%(ext)s",
           "filename_without_episode_no_season": "%(seriesname)s - %(episode)s%(ext)s",
           "verbose": true,
-          "tvdb_api_key": "{{ with secret "kv/nidito/config/services/tvdb" }}{{ .Data.key }}{{ end }}"
+          "tvdb_api_key": "{{ with secret "nidito/config/third-party/tvdb" }}{{ .Data.key }}{{ end }}"
         }
         JSON
         destination = "local/config.json"
       }
 
       config {
-        image = "registry.nidi.to/tv-renamer:202009150407"
+        image = "registry.nidi.to/tv-renamer:202201042218"
 
         volumes = [
           "local/config.json:/app/config.json",

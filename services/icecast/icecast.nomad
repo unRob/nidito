@@ -3,6 +3,10 @@ job "radio" {
   priority = 50
 
   group "radio" {
+    update {
+      max_parallel = 1
+    }
+
     reschedule {
       delay          = "5s"
       delay_function = "fibonacci"
@@ -48,22 +52,18 @@ job "radio" {
       }
 
       template {
-        destination = "local/minio-env.sh"
+        destination = "secrets/minio-env.sh"
         data = file("minio-env.sh")
-
-        perms = "777"
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
+        perms = 0777
       }
 
       config {
-        image = "registry.nidi.to/icecast:202112310439"
-
+        image = "registry.nidi.to/icecast:202201050126"
         ports = ["http"]
 
         volumes = [
           "local/icecast.xml:/etc/icecast.xml",
-          "local/minio-env.sh:/home/icecast/minio-env.sh",
+          "secrets/minio-env.sh:/home/icecast/minio-env.sh",
           "/nidito/icecast:/recordings"
         ]
       }
@@ -104,54 +104,6 @@ job "radio" {
         }
       }
 
-    }
-
-    task "website-sync" {
-      lifecycle {
-        hook = "post-start"
-      }
-
-      driver = "docker"
-
-      vault {
-        policies = ["cdn"]
-      }
-
-      template {
-        destination = "local/website-sync.sh"
-        perms = 750
-        data = file("entrypoint.sh")
-      }
-
-      template {
-        destination = "secrets/file.env"
-        env = true
-        data = <<EOF
-{{- with secret "nidito/config/services/dns" }}
-{{- scratch.Set "zone" .Data.zone }}
-{{- end }}
-{{- with secret "nidito/config/services/minio" }}
-MC_HOST_cajon="https://{{ .Data.key }}:{{ .Data.secret }}@cajon.{{ scratch.Get "zone" }}/"
-{{- end }}
-{{- with secret "nidito/config/services/cdn" }}
-MC_HOST_cdn="https://{{ .Data.key }}:{{ .Data.secret }}@{{ .Data.endpoint }}/"
-{{- end }}
-EOF
-      }
-
-      config {
-        image = "registry.nidi.to/base-sync:latest"
-        command = "./local/entrypoint.sh"
-
-        volumes = [
-          "local/entrypoint.sh:/entrypoint.sh",
-        ]
-      }
-
-      resources {
-        cpu = 100
-        memory = 300
-      }
     }
   }
 }

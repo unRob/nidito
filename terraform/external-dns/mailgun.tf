@@ -5,11 +5,15 @@ locals {
   }
 }
 
+data "vault_generic_secret" "mailgun" {
+  path = "nidito/config/services/mailgun"
+}
+
 resource "digitalocean_record" "txt_smtp_domainkey" {
   domain = digitalocean_domain.root.name
   type   = "TXT"
   name   = "smtp._domainkey"
-  value  = data.consul_key_prefix.cfg.subkeys["services/mailgun/domainkey"]
+  value  = nonsensitive(data.vault_generic_secret.mailgun.data.domainkey)
 }
 
 resource "digitalocean_record" "mx_root" {
