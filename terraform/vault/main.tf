@@ -4,9 +4,13 @@ terraform {
   }
 
   required_providers {
+    consul = {
+      source  = "hashicorp/consul"
+      version = "~> 2.15.0"
+    }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.7.0"
     }
   }
 
@@ -34,28 +38,4 @@ resource "vault_mount" "nidito" {
   options = {
     version = 1
   }
-}
-
-# consul provider
-resource "vault_mount" "consul" {
-  path = "consul"
-  type = "consul"
-}
-
-resource "vault_auth_backend" "userpass" {
-  type = "userpass"
-  path = "userpass"
-  description = "username and password for humans"
-}
-
-# username auth
-resource "vault_generic_endpoint" "admin" {
-  depends_on           = [vault_auth_backend.userpass]
-  path                 = "auth/userpass/users/rob"
-  ignore_absent_fields = true
-
-  data_json = jsonencode({
-    policies = ["admin"]
-    password = var.admin_password
-  })
 }

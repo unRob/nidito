@@ -1,0 +1,9 @@
+summary: lists node names
+description: |
+  from config, consul or the naming pool at .milpa/docs/naming-pool.md
+options:
+  source:
+    default: consul
+    description: where to get values from
+    values:
+      static: [config,consul,pool,available]

@@ -65,6 +65,7 @@ job "grafana" {
           nidito-acl = "allow altepetl"
           nidito-http-buffering = "off"
           nidito-http-wss = "on"
+          nidito-http-max-body-size = "1m"
         }
 
         check {
@@ -77,3 +78,5 @@ job "grafana" {
     }
   }
 }
+
+162/91

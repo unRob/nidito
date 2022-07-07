@@ -21,3 +21,8 @@ function @configq () {
 
   @config "$1" "$2" | jq -r "$filter"
 }
+
+function @config.write () {
+  local file path; file="$1"; path="$2"; shift 2
+  gcy set "${@}" "$CONFIG_DIR/$file.yaml" "$path"
+}

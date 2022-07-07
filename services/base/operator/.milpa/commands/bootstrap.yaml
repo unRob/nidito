@@ -1,0 +1,10 @@
+summary: bootstraps the nidito repo
+description: |
+  cloning it out
+arguments:
+  - name: repo
+    description: the repo source to clone
+    default: git@github.com:unRob/nidito.git
+  - name: branch
+    default: master
+    description: the branch to clone from

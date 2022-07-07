@@ -69,6 +69,15 @@ client {
     {{ key }} = "{{ value }}"
 {% endfor %}
   }
+
+
+  host_network "private" {
+    cidr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+  }
+
+  host_network "public" {
+    cidr = "{% raw %}{{{% endraw %} GetPublicInterfaces | attr \"address\" {% raw %}}}{% endraw %}"
+  }
 }
 
 plugin "raw_exec" {

@@ -1,6 +1,7 @@
 #!/bin/env bash
-
-curl --silent --show-error -L https://cajon.nidi.to/tls/casa.pem >> /etc/ssl/certs/ca-certificates.crt
+function renew_ca () {
+  curl --silent --show-error -L https://cajon.nidi.to/tls/casa.pem >> /etc/ssl/certs/ca-certificates.crt
+}
 
 export CONSUL_HTTP_ADDR="https://consul.service.consul:5554"
 export NIDITO_DC="${NIDITO_DC:-casa}"
@@ -9,8 +10,8 @@ export VAULT_ADDR="https://vault.service.$NIDITO_DC.consul:5570"
 
 function switch_dc () {
   NIDITO_DC="$1"
-  NOMAD_ADDR="https://nomad.service.$NIDITO_DC.consul:5560"
-  VAULT_ADDR="https://vault.service.$NIDITO_DC.consul:5570"
+  export NOMAD_ADDR="https://nomad.service.$NIDITO_DC.consul:5560"
+  export VAULT_ADDR="https://vault.service.$NIDITO_DC.consul:5570"
 }
 
 function nomad () {

@@ -1,0 +1,13 @@
+summary: Grabs items from op connect
+description: |
+  using the main vault
+arguments:
+  - name: filter
+    description: the string to search for in item titles
+    required: true
+    variadic: true
+options:
+  field-filter:
+    type:
+    default: '.purpose == "PASSWORD"'
+    description: a jq filter for fields in an op item

@@ -10,5 +10,5 @@ CREATE TABLE tracks(
   duration float,
   bit_rate int,
   processing_hash varchar(255),
-  track_hash varchar(255)
+  track_hash varchar(255) NOT NULL UNIQUE
 )

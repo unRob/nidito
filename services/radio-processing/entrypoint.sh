@@ -76,22 +76,19 @@ function hash_matches () {
 }
 
 function migrate_db () {
-  log "Running db migration"
-  if !db <<<"SELECT track_hash FROM tracks LIMIT 1;" 2>/dev/null; then
-    log "adding track_hash column"
-    db <<<"ALTER TABLE tracks ADD COLUMN track_hash VARCHAR(255);"
-  fi
+  return 0
+  # log "Running db migration"
 
-  # db -column <<<"SELECT timestamp, track_hash, title || ':-:' || album || ':-:' || artist || ':-:' || genre || ':-:' || channels || ':-:' || duration || ':-:' || bit_rate from tracks;" | while read -r timestamp existing_hash hash_material; do
+  # db -column <<<"SELECT timestamp, track_hash, title || ':-:' || album || ':-:' || artist || ':-:' || genre || ':-:' || channels || ':-:' || duration || ':-:' || bit_rate from tracks_back;" | while read -r timestamp existing_hash hash_material; do
   #   new_hash="$(track_hash "$hash_material")"
   #   if [[ "$new_hash" == "$existing_hash" ]]; then
   #     continue
   #   fi
 
-  #   log "recording hash for track $timestamp: $new_hash (was $existing_hash) $hash_material"
-  #   db <<<"UPDATE tracks SET track_hash='$new_hash' WHERE timestamp='$timestamp';"
+  #   echo "recording hash for track $timestamp: $new_hash (was $existing_hash) $hash_material"
+  #   db <<<"UPDATE tracks_back SET track_hash='$new_hash' WHERE timestamp='$timestamp';"
   # done
-  log "db migration complete"
+  # log "db migration complete"
 }
 
 migrate_db
@@ -155,7 +152,7 @@ find "$SOURCE" -name '*.mp3' -maxdepth 1 | while read -r mp3; do
   done < <(ffprobe -i "$mp3" -show_streams -loglevel error | grep -E '^(channels|duration|bit_rate)=')
 
   hash_material="${title}:-:${album}:-:${artist}:-:${genre}:-:${channels}:-:${duration}:-:${bit_rate}"
-  current_hash="$(track_hash $hash_material)"
+  current_hash="$(track_hash "$hash_material")"
 
   if hash_matches "$timestamp" "$current_hash"; then
     log "metadata remains the same, no processing needed for $mp3"
@@ -210,7 +207,7 @@ VALUES(
   '$PROCESSING_HASH',
   '$current_hash'
 )
-ON CONFLICT(timestamp, track_hash) DO UPDATE SET
+ON CONFLICT(timestamp) DO UPDATE SET
   title=excluded.title,
   album=excluded.album,
   artist=excluded.artist,

@@ -2,10 +2,19 @@ set firewall all-ping enable
 set firewall broadcast-ping disable
 
 # todo: move this into the config
-set firewall group address-group homekit address 10.10.0.11
-set firewall group address-group homekit address 10.10.0.12
-set firewall group address-group homekit address 10.10.0.13
-set firewall group address-group homekit description homekit
+{
+
+set firewall group address-group homekit-clients address 10.42.30.0/24
+set firewall group address-group homekit-clients address 10.42.40.0/24
+set firewall group address-group homekit-clients address 10.42.200.0/24
+set firewall group address-group homekit-clients description homekit-users
+
+set firewall group address-group homekit-servers address 10.42.100.3
+set firewall group address-group homekit-servers address 10.42.100.9
+set firewall group address-group homekit-servers address 10.42.100.5
+set firewall group address-group homekit-servers address 10.42.100.4
+
+set firewall group address-group homekit-servers description ''
 
 set firewall group port-group http port 80
 set firewall group port-group http port 443

@@ -1,0 +1,16 @@
+summary: Deploy a service
+description: |
+  Deploys a service to nomad
+arguments:
+  - name: service
+    description: The name of the service to deploy
+    values: { milpa: nidito service list }
+    required: true
+options:
+  skip-plan:
+    type: bool
+    description: Skips planning the nomad job
+  dc:
+    description: the datacenter to deploy to
+    default: casa
+    values: {milpa: nidito dc list}

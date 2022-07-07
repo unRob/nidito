@@ -5,6 +5,25 @@
     mode: u=rwx,g=rwx,o=rx
     dest: /config/dyndns.sh
 
+
+- name: Update cache
+  become: true
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+
+- name: Install packages
+  become: true
+  apt:
+    pkg:
+      - sshguard
+      - mtr-tiny
+      - jq
+    present: true
+
+# TODO: https://github.com/dippynark/edgerouter-lite/blob/master/node-exporter.sh
+
 # - name: Configure the router
 #   edgeos_config:
 #     src: templates/edgeos.cfg.j2

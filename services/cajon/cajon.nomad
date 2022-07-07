@@ -78,6 +78,8 @@ ENV
         meta {
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
+          // needs to allow file uploads
+          nidito-http-max-body-size = "500m"
         }
 
         check {

@@ -1,0 +1,9 @@
+summary: Runs a docker shell with nidito stuff available
+description: |
+  makes my life easier when ssh-ing into any of the servers
+options:
+  mode:
+    description: either dev or node, depending on where we're running from
+    default: node
+    values:
+      static: [ dev, node ]

@@ -14,8 +14,8 @@ log "Mirror starting triggered by kind=$kind name=$name"
 sleep 5
 
 if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
-  rm -rfv /recordings/*.mp3
   log "Mirror complete"
+  rm -rfv /recordings/*.mp3
   curl -XPOST https://nomad.nidi.to/v1/job/radio-processing/dispatch --data "{}"
 else
   log "MC crapped its pants"

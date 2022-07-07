@@ -7,6 +7,7 @@
 {{ config.services.dns.zone }} {
     hosts {
         {% for name, n in config.nodes.items() if n.dc == node.dc -%}
+        {%- if n.tags.role == "router" -%}{% set gateway_name = name %}}{% end -%}
         {{ n.address }} {{ name }}.{{ config.services.dns.zone }}
         {% endfor %}
 
@@ -17,9 +18,13 @@
         # query for services here
         endpoint consul.service.consul:{{ config.services.consul.ports.http }}
         # using this consul token
-        token {{ config.services.dns.consul_token }}
+        {# token {{ config.services.dns.consul_token }} #}
+        token {{ lookup 'ansible.builtin.pipe' 'milpa config get --secret dns.service/consul.token' }}
         # cache for a minute
         ttl 1m
+        # send authoritative responses
+        {# gateway_name set above during host config #}
+        soa admin {{ gateway_name }}
 
         # acls will be read off the nidito-acl nomad meta tag
         acl_metadata_tag nidito-acl
@@ -45,6 +50,7 @@
     errors
 }
 
+# resolve other DCs names with tunneled addresses
 {% for dc_name, dc in config.datacenters.items() if dc_name != node.dc -%}
 # forwarded zone for {{ dc_name }}
 {{ dc.dns.zone }} {

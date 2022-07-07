@@ -1,0 +1,16 @@
+summary: Does a thing
+description: |
+  Longer description of how it does the thing
+# see `milpa help docs command spec` for all the options
+# arguments:
+#   - name: something
+#     description: Sets SOMETHING
+#     required: true
+#     variadic: false
+#     values-subcommand: list things
+#     values: []
+# options:
+#   option:
+#     description: sets OPTION
+#     default: fourty-two
+#     values: [one, two, fourty-two]

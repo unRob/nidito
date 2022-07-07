@@ -10,22 +10,26 @@ cd nidito
 # get required dependencies
 brew bundle check || brew bundle install --file=Brewfile
 curl -L https://milpa.dev/install.sh | bash -
+milpa itself shell install-autocomplete
 ```
 
 ## Usage
 
 ```sh
 # see sub-commands
-milpa help
+milpa nidito help
+
+# create a new node
+milpa nidito node provision "$hostname" "$datacenter"
 
 # run provisioning on nodes with ansible
-milpa node provision
+milpa nidito node provision
 
 # configure services and resources with terraform
-milpa config sync
+milpa nidito config backup
 
 # deploy services with nomad
-milpa service deploy docker-registry
+milpa nidito service deploy docker-registry
 ```
 
 ## Description
@@ -43,7 +47,8 @@ Power efficiency is the name of the game; I started with a 40 watt/hour budget w
 - **synology dsm918+**: NAS with nvidia gpu
 - **pixiepro**: quad-core 32-bit ARM microcomputer
 - **macbook pro 13"** _mid 2011_: Broken screen, found on the streets of Brooklyn
-- **macmini server** _late 2011_: donated by the Rodas Hardware Adoption Agency 
+- **macmini server** _late 2011_: donated by the Rodas Hardware Adoption Agency
+- **raspberry pi 4** _late 2021_:
 - **digitalocean 2gb droplet**: runs my personal website and projects in _the cloud_.
 
 ### Services
@@ -64,13 +69,15 @@ Without a working **network**, either wired, wireless or through a vpn, nothing 
 
 #### Workload services
 
-`consul`, `nomad` and `vault` provide the basis for running **workload**s and doing the service discovery/config dance. `vector` is also provisioned to every node. Along DNS and VPN, I consider these services "tier-1", as everything else is dead without it.
+`consul`, `nomad` and `vault` provide the basis for running **workload**s and doing the service discovery/config dance. Along DNS and VPN, I consider these services "tier-1", as everything else is dead without it.
 
 tier-2 services provide nicer abstractions for roberto, the power-user, to run stuff on. These services are:
 
 - **http-proxy**: nginx runs on every leader node, terminating SSL and proxying requests to every other service.
 - **docker-registry**: a container image registry
 - **telemetry**: `prometheus`, `grafana` and `loki` to get an idea of what's happening inside these boxes
+- **op-connect**: for keeping the secrets vault can't have
+- **ssl-renewal**: things need certs
 
 Finally, there's tier-3 services that actually do stuff for humans in my home:
 
@@ -78,3 +85,4 @@ Finally, there's tier-3 services that actually do stuff for humans in my home:
 - **cajon**: a drawer to put all my bytes in, i.e. `minio`
 - **media-pipeline**: downloads media files from putio, renames them and ships them to plex
 - **plex**: self-hosted media streaming service, including my personal recordings
+- **access control**: hacked my door so I don't have to open for friends and family

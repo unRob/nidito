@@ -69,7 +69,7 @@ acl {
   enable_token_replication = true
   down_policy = "extend-cache"
   tokens {
-    default = "{{ node.token.consul.node }}"
+    agent = "{{ node.token.consul.node }}"
     {% if "replication" in node.token.consul %}
     replication = "{{ node.token.consul.replication }}"
     {% endif %}
