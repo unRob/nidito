@@ -1,0 +1,20 @@
+address: 10.100.0.2
+auth:
+  username: rob
+  password: diamorrr
+dc: nyc1
+hardware:
+  arch: x86_64
+  model: do-2g-50g-nyc1
+  os: linux/arch
+tags:
+  reachability: public
+  role: leader
+tls:
+  consul: !!secret
+  key: !!secret
+  nomad: !!secret
+  vault: !!secret
+token:
+  consul: !!secret
+  consul_replication: !!secret

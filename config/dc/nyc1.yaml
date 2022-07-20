@@ -1,0 +1,14 @@
+dns:
+  authority: external
+  leaders: bedstuy
+  zone: rob.mx
+peering:
+  address: 10.42.31.3
+  peers:
+    - casa
+  private_key: !!secret
+primary: false
+subnet: 10.100.0.0/20
+vault:
+  nomad_token: !!secret
+  unseal_key: !!secret

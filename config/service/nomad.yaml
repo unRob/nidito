@@ -1,0 +1,9 @@
+# the token used by nomad to talk to consul
+consul_token: !!secret
+ports:
+  http: 5560
+  rpc: 5561
+  serf: 5562
+# set this to initiate a cluster recovery after shit ineveitably hits the fan
+recover_cluster: false
+version: 1.1.4

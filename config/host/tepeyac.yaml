@@ -1,0 +1,21 @@
+address: 10.42.20.5
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: x86_64
+  model: macmini5,3
+  os: linux/arch
+mac: !!secret
+tags:
+  reachability: private
+  role: leader
+  storage: secondary
+tls:
+  consul: !!secret
+  key: !!secret
+  nomad: !!secret
+  vault: !!secret
+token:
+  consul: !!secret

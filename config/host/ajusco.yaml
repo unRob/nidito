@@ -1,0 +1,21 @@
+address: 10.42.20.3
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: arm32
+  model: pixiepro
+  os: linux/arch
+mac: !!secret
+tags:
+  reachability: public
+  role: leader
+  storage: none
+tls:
+  consul: !!secret
+  key: !!secret
+  nomad: !!secret
+  vault: !!secret
+token:
+  consul: !!secret

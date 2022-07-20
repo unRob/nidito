@@ -1,0 +1,20 @@
+address: 10.42.20.4
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: x86_64
+  model: macbookpro8,1
+  os: macos/10.13
+mac: !!secret
+tags:
+  reachability: public
+  role: leader
+tls:
+  consul: !!secret
+  key: !!secret
+  nomad: !!secret
+  vault: !!secret
+token:
+  consul: !!secret

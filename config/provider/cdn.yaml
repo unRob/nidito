@@ -1,0 +1,3 @@
+endpoint: nyc3.digitaloceanspaces.com
+key: !!secret
+secret: !!secret

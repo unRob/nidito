@@ -1,0 +1,15 @@
+address: 10.42.0.1
+ansible:
+  command_timeout: 120
+  connection: ssh
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: mips
+  model: edgerouter-12p
+  os: linux/edgeos
+tags:
+  reachability: gateway
+  role: router
