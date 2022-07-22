@@ -1,27 +1,20 @@
 #!/usr/bin/env bash
-
-function get_op_item() {
-  op item get "$MILPA_ARG_ITEM" --vault "$MILPA_OPT_VAULT" --format json ||
-    @milpa.fail "Could not find 1Password item for $MILPA_ARG_ITEM in vault $MILPA_OPT_VAULT"
-}
+@milpa.load_util config
 
 function get_op_item_as_map() {
-  get_op_item | jq --arg entry "$1" --argjson tree "${2:-false}" '
+  @config.remote "$1" | jq '
+    ( .fields |
+      map(select(.section.label == "~annotations")) |
+      reduce .[] as $f ({}; setpath([$f.label]; $f.value | rtrimstr("\n")))
+    ) as $annotations |
     .fields |
-    map(
-      select(.value) |
-      if ($tree | not) then {
-        key: "op://nidito-admin/\($entry)/\(.section.label)/\(.label)",
-        value: .value
-      } else . end
-    ) |
-    if $tree then
-      reduce .[] as $f ({};
-        setpath( ([$f.section.label] + ($f.label | split("."))); $f.value )
-      )
-    else
-      from_entries
-    end' || @milpa.fail "Could not parse 1password item into map"
+    map(select(.value and .section.label != "~annotations" and .id != "password" and .id != "notesPlain")) |
+    reduce .[] as $f ({};
+      ($annotations[$f.id] // "secret" | . != "secret") as $needs_cast |
+      setpath(
+        $f.id | split(".") | map(if test("\d+") then from_json else . end );
+        $f.value | if $needs_cast then fromjson else . end )
+    )' || @milpa.fail "Could not parse 1password item into map"
 }
 
 function get_config_as_json() {

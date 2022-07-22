@@ -4,10 +4,11 @@ RUN apk --update add --no-cache curl jq ncurses less findutils bash-completion o
 RUN mkdir -p /etc/ssl/certs && \
   curl --silent --show-error --fail -L https://cajon.nidi.to/tls/casa.pem >> /etc/ssl/certs/ca-certificates.crt
 
-RUN export SHELL=bash && \
-  curl --silent --show-error --fail -L https://milpa.dev/install.sh \
-| VERSION=0.0.0-alpha.18 bash - && \
-  mkdir -p /etc/bash_completion.d && \
+RUN curl --silent --show-error --fail -L https://milpa.dev/install.sh \
+  | bash -
+
+RUN mkdir -p /etc/bash_completion.d && \
+  export SHELL=bash && \
   milpa itself shell install-autocomplete && \
   mv /etc/profile.d/color_prompt.sh.disabled /etc/profile.d/color_prompt.sh
 

@@ -72,7 +72,7 @@ resource acme_certificate cert {
   dns_challenge {
     provider = "digitalocean"
     config = {
-      DO_AUTH_TOKEN = data.vault_generic_secret.dns_provider.data.token
+      DO_AUTH_TOKEN = data.vault_generic_secret.provider_dns.data.token
       DO_PROPAGATION_TIMEOUT = 60
       DO_TTL = 30
     }

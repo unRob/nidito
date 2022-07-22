@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [[ "$NIDITO_ROOT" == "" ]]; then
-  NIDITO_ROOT="$(dirname "$(readlink "$MILPA_COMMAND_REPO")")"
+  NIDITO_ROOT="$(dirname "$(readlink -f "$MILPA_COMMAND_REPO")")"
   export NIDITO_ROOT
 fi
 

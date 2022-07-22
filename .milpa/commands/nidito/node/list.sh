@@ -2,7 +2,9 @@
 
 @milpa.log info "Listing nodes from ${MILPA_OPT_SOURCE}"
 case "${MILPA_OPT_SOURCE}" in
-  config) @configq hosts '.' 'keys[]' ;;
+  config)
+    @milpa.load_util config
+    @config.names host ;;
   consul) curl --silent --show-error --fail "$CONSUL_HTTP_ADDR/v1/agent/members?wan=1" |
     jq -r 'map(.Name | split(".") | first)[]' ;;
   pool|available)

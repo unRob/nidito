@@ -3,7 +3,7 @@ description: |
   from config or consul
 options:
   source:
-    default: config
+    default: local
     description: where to get values from
     values:
-      static: [config,consul]
+      static: [local,consul]

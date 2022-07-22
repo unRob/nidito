@@ -6,3 +6,5 @@ ansible/.cache
 .vscode
 .terraform.lock.hcl
 terraform.tfstate*
+config/.diff
+config/_ignored

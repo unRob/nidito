@@ -6,4 +6,4 @@ options:
     default: casa
     description: the dc to query for instances
     values:
-      milpa: nidito dc list --source config
+      milpa: nidito dc list --source local

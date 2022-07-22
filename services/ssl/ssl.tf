@@ -31,6 +31,7 @@ module "vault-policy" {
 }
 
 module "consul-policy" {
+  count = local.dc == "casa" ? 1 : 0
   source = "../../terraform/_modules/service/consul-policy"
   name = "ssl"
 

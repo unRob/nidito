@@ -16,4 +16,4 @@ arguments:
     description: the datacenter to add this host to
     required: true
     values:
-      milpa: nidito dc list --source config
+      milpa: nidito dc list --source local

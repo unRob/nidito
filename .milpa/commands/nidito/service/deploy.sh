@@ -9,6 +9,8 @@ cd "$service_folder" || @milpa.fail "services folder not found"
 
 @milpa.log info "deploying $service"
 
+export NOMAD_ADDR="${NOMAD_ADDR/.service.consul/.service.${MILPA_OPT_DC}.consul}"
+
 if [[ -f "$spec" ]]; then
   @milpa.log info "deploying with nomad"
   # export NOMAD_ADDR="https://nomad.service.$MILPA_OPT_DC.consul:5560"
