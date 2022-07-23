@@ -5,12 +5,18 @@ arguments:
   - name: file
     description: the config file to read from
     required: true
-    values: {milpa: 'nidito config list {{ Opt "source" }}'}
+    values:
+      milpa:
+        nidito config list {{ Opt "source" }}
   - name: path
     description: the path to the config value to read
     required: true
+    values:
+      suggest-raw: true
+      suggest-only: true
+      milpa: nidito config keys {{ Arg "file" }} {{ Current }}
 options:
   source:
-    default: vault
+    default: names
     description: the source to query config from
-    values: {static: [vault, local]}
+    values: {static: [names, vault]}

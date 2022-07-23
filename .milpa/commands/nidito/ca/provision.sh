@@ -3,8 +3,8 @@
 
 function cert_vars() {
   # shellcheck disable=2016
-  @config hosts . |
-    jq -rc --argjson dcs "$(@configq datacenters . 'keys')" '
+  @config.tree hosts . |
+    jq -rc --argjson dcs "$(@config.names dc)" '
   to_entries |
   map(
     select(.value.tags.role == "leader") |
@@ -41,8 +41,8 @@ function cert_vars() {
 @milpa.log info "running terraform to generate certificates"
 jq --null-input \
   --argjson certs "$(cert_vars)" \
-  --argjson hosts "$(@configq hosts . 'to_entries | map(select(.value.tags.role == "leader") | .key)')" \
-  --argjson ca "$(@configq services . '.ca // {key: "", cert: ""}')" \
+  --argjson hosts "$(@config.tree hosts 'to_entries | map(select(.value.tags.role == "leader") | .key)')" \
+  --argjson ca "$(@config.get service:ca || echo '{"key": "", "cert": ""}')" \
     '{$certs, $hosts, $ca, create_ca: ($ca.key | length == 0)}' |
     @tf.vars "ca"
 terraform output -json | jq 'with_entries({key: .key, value: .value.value})' > output.json || @milpa.fail "Failed writing output to file"

@@ -15,13 +15,19 @@ function @config.all_files () {
   find -s "$CONFIG_DIR" -not \( -path "$CONFIG_DIR/_ignored" -prune -o -path "$CONFIG_DIR/.diff" -prune \) -name '*.yaml'
 }
 
+function @config.all_names () {
+  @config.all_files | while read -r file; do
+    @config.path_to_name "$file"
+  done
+}
+
 function @config.names () {
-  while read -r file; do
+  @config.all_files | while read -r file; do
     name="$(@config.path_to_name "$file")"
     if [[ $name =~ "$1:"* ]]; then
       echo "${name#*:}"
     fi
-  done < <(@config.all_files)
+  done
 }
 
 function @config.path_to_name () {
@@ -36,7 +42,8 @@ function @config.name_to_path () {
 }
 
 function @config.get () {
-  yq -o json '.' "$(@config.name_to_path "$1")" | jq -r "$2"
+  yq -o json '.' "$(@config.name_to_path "$1")" |
+    jq -r --arg q "$2" 'if $q == "" then . else getpath($q | split(".") | map(if test("^\\d+$") then tonumber else . end)) end'
 }
 
 function @config.tree () {
@@ -104,25 +111,18 @@ function @config.remote_as_yaml () {
   )' <(@config.remote "$1")
 }
 
-# returns a kv pair like for an existing config file and its remote source
-# section.field\.name[type|delete](=value)
-function @config.op_update_args () {
+function @config.op_file_as_update () {
   path="$(@config.name_to_path "$1")"
   jq -L"$(@config.jq_module_dir)" -j -r --exit-status \
     --arg title "$1" \
-    --arg sep "$3" \
     --argjson remote "$(@config.remote "$1")" \
     --arg hash "$2" \
-    'include "op";
-    tree_to_fields($hash) |
-    (($remote.fields | field_keys) - field_keys) as $to_delete |
-    fields_to_cli($to_delete; $sep)' <(@config.file_as_json "$path")
+    'include "op"; tree_to_fields($hash) | fields_to_item($title; $remote)' <(@config.file_as_json "$path")
 }
 
 function @config.op_file_as_json () {
   path="$(@config.name_to_path "$1")"
-  modules="$(@config.jq_module_dir)"
-  jq -L"$modules" --exit-status \
+  jq -L"$(@config.jq_module_dir)" --exit-status \
   --arg title "$1" \
   --arg hash "$2" \
   'include "op"; tree_to_fields($hash) | fields_to_item($title)' <(@config.file_as_json "$path")

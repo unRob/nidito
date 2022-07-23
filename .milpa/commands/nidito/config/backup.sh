@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+@milpa.fail "deprecated"
 
 cd "$(dirname "$MILPA_COMMAND_REPO")/ansible" || @milpa.fail "could not cd into ansible dir"
 

@@ -7,6 +7,14 @@ def flat_tree:
 def flat_fields:
   reduce .[] as $field ({}; setpath($field.id; $field.value));
 
+def autocomplete($query):
+  reduce paths(scalars) as $p ([]; . + [$p | map(tostring) | join(".")]) |
+  map(
+    select(. | startswith($query)) |
+    gsub("^(?<m>\($query)[^.]+.?).*"; "\(.m)")
+  ) |
+  unique[];
+
 def tree_to_fields($file_hash):
   flat_tree |
   to_entries |
@@ -51,6 +59,14 @@ def fields_to_cli($delete_field_names; $separator):
 
 def fields_to_item($title):
   {
+    title: $title,
+    category: "PASSWORD",
+    sections: ( . | map(.section.id | select(.)) | unique | map({ id: ., label: .})),
+    fields: .
+  };
+
+def fields_to_item($title; $original):
+  ($original | del(.fields) | del(.sections)) * {
     title: $title,
     category: "PASSWORD",
     sections: ( . | map(.section.id | select(.)) | unique | map({ id: ., label: .})),
