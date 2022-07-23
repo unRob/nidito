@@ -72,3 +72,20 @@ def fields_to_item($title; $original):
     sections: ( . | map(.section.id | select(.)) | unique | map({ id: ., label: .})),
     fields: .
   };
+
+def fields_to_tree:
+  . as $fields |
+  (reduce (. | map(select(.section.id == "~annotations"))[]) as $a ({};
+    setpath([$a.label]; $a.value)
+  )) as $annotations |
+  reduce (. | map(select(.section.id != "~annotations" and .id != "notesPlain" and .id != "password")))[] as $field ({};
+    setpath(
+      $field.id | split(".") | map(if test("^\\d+$") then tonumber else . end);
+      if ($annotations | has($field.id) | not) then
+        $field.value
+      else
+        $annotations[$field.id] as $kind |
+        if $kind == "secret" then $field.value else ($field.value | fromjson) end
+      end
+    )
+  );

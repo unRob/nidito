@@ -1,6 +1,12 @@
 summary: Shows differences between local config values and remote ones
 description: |
   runs a diff on remote values vs local ones. expects local config to be unsealed.
+arguments:
+  - name: name
+    description: The config name(s) to diff. If unspecified, all configs will be compared
+    variadic: true
+    values:
+      milpa: nidito config list --source names
 options:
   cache:
     description: Don't fetch remote items, store secrets in config/.diff

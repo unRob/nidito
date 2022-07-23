@@ -65,4 +65,4 @@ at_root "ansible"
 pipenv run tame -l "$NODE_NAME"
 
 at_root ""
-milpa nidito config secrets flush
+milpa nidito config flush

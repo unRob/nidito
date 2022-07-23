@@ -13,16 +13,9 @@ description: |
 
   ## Caveats
   - text with newlines is not properly editable in 1password: newlines are broken on 8/mac and browser is wonky with newlines
-# see `milpa help docs command spec` for all the options
-# arguments:
-#   - name: something
-#     description: Sets SOMETHING
-#     required: true
-#     variadic: false
-#     values-subcommand: list things
-#     values: []
-# options:
-#   option:
-#     description: sets OPTION
-#     default: fourty-two
-#     values: [one, two, fourty-two]
+arguments:
+  - name: name
+    description: The config name(s) to flush. If unspecified, all configs will be flushed
+    variadic: true
+    values:
+      milpa: nidito config list --source names

@@ -1,1 +1,1 @@
-config/**/*.yaml filter=nidito-config diff=nidito-config
+config/**/*.yaml filter=op-config diff=op-config

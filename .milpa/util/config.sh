@@ -42,9 +42,42 @@ function @config.name_to_path () {
 }
 
 function @config.get () {
-  yq -o json '.' "$(@config.name_to_path "$1")" |
-    jq -r --arg q "$2" 'if $q == "" then . else getpath($q | split(".") | map(if test("^\\d+$") then tonumber else . end)) end'
+  local name query fmt raw file;
+  name="$1"
+  query="$2"
+  fmt="${3:-json}"
+  raw="${4:-tree}"
+  file="$(@config.name_to_path "$name")"
+  if [[ "$fmt" == "yaml" ]]; then
+    yq '.' "$file"
+  else
+    jq '.' <(@config.file_as_json "$file")
+  fi | @config.query "$query" "$fmt" "$raw"
 }
+
+function @config.get_remote () {
+  local name query fmt raw;
+  name="$1"
+  query="$2"
+  fmt="$3"
+  raw="${4:-tree}"
+  @config.remote_as_tree "$name" "$fmt" | @config.query "$query" "$fmt" "$raw"
+}
+
+function @config.query () {
+  local query fmt raw;
+  query="$1"
+  fmt="$2"
+  raw="${3:-tree}"
+  case "$fmt-${raw}" in
+    json-tree) jq --arg q "${query#.}" 'if $q == "" then . else getpath($q | split(".") | map(if test("^\\d+$") then tonumber else . end)) end' ;;
+    json-raw) jq -r --arg q "${query#.}" 'if $q == "" then . else getpath($q | split(".") | map(if test("^\\d+$") then tonumber else . end)) end | if (type == "array") then .[] else . end' ;;
+    yaml-tree) yq ".${query#.}" ;;
+    yaml-raw) yq -r ".${query#.} | with(select(. type = \"!!seq\"); . = .[])" ;;
+    *)
+  esac
+}
+
 
 function @config.tree () {
   while read -r file; do
@@ -55,8 +88,20 @@ function @config.tree () {
   done < <(@config.all_files) | jq --slurp 'reduce .[] as $i ({}; . * $i) | '"${2:-.}"
 }
 
+function @config.write_secret () {
+  # shellcheck disable=2016
+  query="$2" value="$3" yq \
+    '"." + (env(query) | sub(".(\d+)(.?)", "[${1}]${2}")) as $key |
+    with(eval($key); . = env(value) | . tag = "!!secret" | . style = "double")
+    ' "$(@config.name_to_path "$1")"
+}
+
 function @config.write () {
-  yq -o json '.' "$(@config.name_to_path "$1")" | jq "$2"
+  # shellcheck disable=2016
+  query="$2" value="$3" yq \
+    '"." + (env(query) | sub(".(\d+)(.?)", "[${1}]${2}")) as $key |
+    with(eval($key); . = env(value))
+    ' "$(@config.name_to_path "$1")"
 }
 
 
@@ -93,22 +138,30 @@ function @config.remote () {
     "$1" || @milpa.log error "Could not fetch remote item"
 }
 
-function @config.remote_as_yaml () {
+function @config.remote_as_tree () {
   # shellcheck disable=2016
-  yq '.fields as $fields |
-  with(.fields[];
-    .id ref $id |
-    .value tag = ( ($fields[] | select(.section.label == "~annotations" and .label == $id) | "!!" + (.value // "str")) ) |
-    .value style = ""
-  )
-  | .fields | map(select(
-    .value != ~
-    and .id != "password"
-    and .id != "notesPlain"
-    and .section.label != "~annotations"
-  )) | .[] as $f ireduce ({};
-    eval("." + ($f.id | sub(".(\d+)(.?)", "[${1}]${2}"))) = $f.value
-  )' <(@config.remote "$1")
+  case "${2:-yaml}" in
+    yaml)
+      yq '.fields as $fields |
+      with(.fields[];
+        .id ref $id |
+        .value tag = ( ($fields[] | select(.section.label == "~annotations" and .label == $id) | "!!" + (.value // "str")) ) |
+        .value style = ""
+      )
+      | .fields | map(select(
+        .value != ~
+        and .id != "password"
+        and .id != "notesPlain"
+        and .section.label != "~annotations"
+      )) | .[] as $f ireduce ({};
+        eval("." + ($f.id | sub(".(\d+)(.?)", "[${1}]${2}"))) = $f.value
+      )' <(@config.remote "$1")
+      ;;
+    json)
+      jq  -L"$(@config.jq_module_dir)" -r 'include "op"; .fields | fields_to_tree' <(@config.remote "$1")
+      ;;
+    *) @milpa.fail "Unknown tree format <$2>"
+  esac
 }
 
 function @config.op_file_as_update () {
@@ -130,4 +183,27 @@ function @config.op_file_as_json () {
 
 function @config.remote_hash () {
   op item get --vault nidito-admin --fields 'label=password' "$1"
+}
+
+function @config.upsert () {
+  local file="$1"
+  name=$(@config.path_to_name "$file")
+  @milpa.log info "Processing $(@milpa.fmt bold "$name") @ $file"
+  @milpa.log debug "config file for $name at $file"
+  hash="$(openssl dgst -md5 -hex <"$file")"
+
+  if remote_hash=$(@config.remote_hash "$name") 2>/dev/null ; then
+    if [[ $hash == "$remote_hash" ]]; then
+      @milpa.log success "$name is up to date with remote"
+      return
+    fi
+
+    @milpa.log info "Updating 1Password item for $name secrets"
+    @config.op_file_as_update "$name" "$hash" | op item edit --vault nidito-admin "$name" || @milpa.fail "could not update 1password item"
+    @milpa.log success "Updated $name"
+  else
+    @milpa.log info "Generating 1Password item for $name secrets"
+    @config.op_file_as_json "$name" "$hash" | op item create --vault nidito-admin >/dev/null || @milpa.fail "could not create 1password item"
+    @milpa.log success "Created $name"
+  fi
 }

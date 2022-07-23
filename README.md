@@ -11,6 +11,11 @@ cd nidito
 brew bundle check || brew bundle install --file=Brewfile
 curl -L https://milpa.dev/install.sh | bash -
 milpa itself shell install-autocomplete
+git config filter.op-config.smudge cat
+git config filter.op-config.clean "milpa nidito config filter clean %f"
+git config filter.op-config.required true
+git config diff.op-config.textconv "milpa nidito config filter diff"
+git config diff.op-config.binary true
 ```
 
 ## Usage

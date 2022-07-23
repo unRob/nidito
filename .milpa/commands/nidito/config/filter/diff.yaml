@@ -1,14 +1,22 @@
 # see `milpa help docs command spec` for all the options
 summary: Diffs a config file
 description: |
-  used in .gitattributes as
+  used in `.gitattributes` as
 
   ```
-  path/to/file.yaml diff="nidito-config"
-  # and .git/config
-  [diff "nidito-config"]
-  textconv = milpa nidito config secrets filter diff
-  binary = true
+  config/**/*.yaml filter=op-config diff=op-config
+  ```
+
+  and `.git/config`
+
+  ```
+  [filter "op-config"]
+    smudge = cat
+    clean = milpa nidito config filter clean %f
+    required = true
+  [diff "op-config"]
+    textconv = milpa nidito config filter diff
+    binary = true
   ```
 
   https://git-scm.com/docs/git#Documentation/git.txt-codeGITEXTERNALDIFFcode
