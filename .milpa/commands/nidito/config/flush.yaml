@@ -19,3 +19,7 @@ arguments:
     variadic: true
     values:
       milpa: nidito config list --source names
+options:
+  dry-run:
+    description: don't write changes, only show what would happen
+    type: bool

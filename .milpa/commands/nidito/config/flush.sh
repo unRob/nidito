@@ -14,7 +14,7 @@ function flushing () {
 
 set -o pipefail
 while read -r file; do
-  @config.upsert "$file"
+  @config.upsert "$file" "${MILPA_OPT_DRY_RUN:+dry-run}"
 done < <(flushing)
 
 @milpa.log complete "Flushed secrets to 1password"

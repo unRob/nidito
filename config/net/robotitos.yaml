@@ -1,0 +1,36 @@
+dc: casa
+description: Internet of shit runs my home
+dhcp:
+  robotitos:
+    range: 10.42.100.0/24
+    reservations:
+      apoltivi:
+        groups: [homekit-servers]
+        ip: 10.42.100.3
+        mac: !!secret
+      hueberto:
+        groups: [homekit-servers]
+        ip: 10.42.100.4
+        mac: !!secret
+      sonos:
+        groups: [homekit-servers, sonos]
+        ip: 10.42.100.5
+        mac: !!secret
+      joumpod:
+        groups: [homekit-servers]
+        ip: 10.42.100.6
+        mac: !!secret
+    size: 50
+    ssid: "robotitos"
+    vlan: 100
+firewall:
+  altepetl:
+    allow: [http, established, related]
+    default: drop
+  familia: [established, related]
+  local:
+    default: [dns, dhcp]
+range: 10.42.100.0/20
+services:
+  sonos:
+    ports: 3400-3401,3500,136-139,1900-1901,6969

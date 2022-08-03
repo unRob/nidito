@@ -1,0 +1,4 @@
+dc: nyc1
+description: Cloud hosted network
+dhcp: []
+range: 10.100.0.0/20

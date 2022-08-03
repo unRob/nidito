@@ -1,0 +1,18 @@
+dc: casa
+description: Friends and family get access to some network services
+familia:
+  range: 10.42.40.0/24
+  reservations: []
+  password: !!secret
+  size: 50
+  ssid: "\U0001F4E1"
+  vlan: 40
+firewall:
+  altepetl:
+    allow: [http, established, related]
+    default: drop
+  local:
+    default: [dns, dhcp]
+  robotitos:
+    default: accept
+range: 10.42.40.0/20
