@@ -18,8 +18,7 @@
         # query for services here
         endpoint consul.service.consul:{{ config.services.consul.ports.http }}
         # using this consul token
-        {# token {{ config.services.dns.consul_token }} #}
-        token {{ lookup 'ansible.builtin.pipe' 'milpa config get --secret dns.service/consul.token' }}
+        token {{ config.services.dns.consul_token }}
         # cache for a minute
         ttl 1m
         # send authoritative responses
