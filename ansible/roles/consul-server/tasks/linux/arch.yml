@@ -16,7 +16,7 @@
   check_mode: no
 
 - set_fact:
-    golang_artifact_arch: "armhfv6"
+    golang_artifact_arch: "arm"
   when: node.hardware.arch == 'arm32'
 
 - set_fact:

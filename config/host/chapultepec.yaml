@@ -1,0 +1,27 @@
+address: 10.42.20.2
+auth:
+  username: !!secret
+  password: !!secret
+builtin_services:
+  dsm:
+    port: 5000
+    zone: altepetl
+  plex:
+    port: 32400
+    zone: altepetl,familia,robotitos
+dc: casa
+hardware:
+  arch: x86_64
+  model: dsm918+
+  os: linux/dsm
+mac: !!secret
+tags:
+  role: leader
+  storage: primary
+tls:
+  consul: !!secret
+  key: !!secret
+  nomad: !!secret
+  vault: !!secret
+token:
+  consul: !!secret

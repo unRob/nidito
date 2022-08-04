@@ -1,3 +1,0 @@
-summary: Exports config.yaml to vault
-description: |
-  Reads all config values and exports them to vault

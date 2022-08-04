@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec milpa provisioning ansible-inventory "$@"
+exec milpa nidito operator ansible-inventory "$@"

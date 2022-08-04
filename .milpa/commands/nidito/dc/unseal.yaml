@@ -1,0 +1,9 @@
+summary: Unseals Vault instances
+description: |
+  Queries consul for vault instances and unseals them
+options:
+  dc:
+    default: casa
+    description: the dc to query for instances
+    values:
+      milpa: nidito dc list --source local

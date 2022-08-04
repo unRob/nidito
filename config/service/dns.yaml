@@ -1,0 +1,13 @@
+# configures the internal dns resolver
+consul:
+  # used by dns service to read services and stuff
+  token: !!secret
+# send upstream queries to these servers
+# todo: look into tls
+forwarders:
+  - 1.1.1.1
+  - 8.8.8.8
+provider: digitalocean
+# the fully qualified domain name for my nidito
+# internal services will be a subdomain of this domain
+zone: nidi.to

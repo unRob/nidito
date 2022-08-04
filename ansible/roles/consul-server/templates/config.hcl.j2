@@ -49,13 +49,22 @@ encrypt_verify_outgoing = true
 
 # https://learn.hashicorp.com/tutorials/consul/tls-encryption-secure
 # inbound http requests from the upstream proxy won't use mTLS
-verify_incoming = false
-verify_incoming_rpc = true
-verify_outgoing = true
-verify_server_hostname = true
-ca_file = "{{ consul_config_dir }}/tls/ca.pem"
-cert_file = "{{ consul_config_dir }}/tls/cert.pem"
-key_file = "{{ consul_config_dir }}/tls/key.pem"
+
+tls {
+  defaults {
+    ca_file = "{{ consul_config_dir }}/tls/ca.pem"
+    cert_file = "{{ consul_config_dir }}/tls/cert.pem"
+    key_file = "{{ consul_config_dir }}/tls/key.pem"
+    verify_incoming = false
+    verify_outgoing = true
+  }
+
+  internal_rpc {
+    verify_incoming = true
+    verify_server_hostname = true
+  }
+}
+
 auto_encrypt {
   allow_tls = true
 }
@@ -69,9 +78,9 @@ acl {
   enable_token_replication = true
   down_policy = "extend-cache"
   tokens {
-    default = "{{ node.token.consul.node }}"
-    {% if "replication" in node.token.consul %}
-    replication = "{{ node.token.consul.replication }}"
+    agent = "{{ node.token.consul }}"
+    {% if "consul_replication" in node.token %}
+    replication = "{{ node.token.consul_replication }}"
     {% endif %}
 
   }
@@ -88,10 +97,10 @@ ports {
 
 telemetry {
   prometheus_retention_time = "744h"
-  disable_compat_1.9 = true
+  disable_hostname = true
 }
 
-services {
+{# services {
   id ="host-telemetry"
   name = "host-telemetry"
   port = 5540
@@ -116,38 +125,5 @@ services {
       timeout = "1s"
     }
   ]
-}
-
-{% if "builtin_services" in node %}
-{% for svc_name, service in node.builtin_services.items() %}
-services {
-  id = "{{ svc_name }}"
-  name = "{{ svc_name }}"
-  port = {{ service.port }}
-  address = "{{ node.address }}"
-
-  tags = [
-    "ansible",
-    "nidito.dns.enabled",
-    "nidito.http.enabled",
-  ]
-
-  meta = {
-    nidito-acl = "allow {{ service.zone }}"
-    nidito-http-zone = "{{ service.zone }}"
-    nidito-http-buffering = "off"
-  }
-
-  checks = [
-    {
-      id = "{{ svc_name }}-http-check-{{ service.port }}"
-      name = "{{ svc_name }}-http-check-{{ service.port }}"
-      tcp = "localhost:{{ service.port }}"
-      interval = "30s"
-      timeout = "1s"
-    }
-  ]
-}
-{% endfor %}
-{% endif %}
+} #}
 # -----------------------------

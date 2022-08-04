@@ -34,7 +34,7 @@
     cd /tmp/coredns
     go get -u github.com/unRob/coredns-consul
     go generate
-    make coredns SYSTEM="GOARCH=mips64 GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
+    make coredns SYSTEM="GOARCH={{ ansible_machine }} GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
 
 - name: Get installed version
   become: true

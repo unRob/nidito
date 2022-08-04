@@ -1,0 +1,12 @@
+# see `milpa help docs command spec` for all the options
+summary: Autocompletes config keys
+description: |
+  using jq magic
+arguments:
+  - name: name
+    description: the config name to read from
+    required: true
+    values:
+      milpa: nidito config list --source names
+  - name: query
+    description: the key prefix to query against

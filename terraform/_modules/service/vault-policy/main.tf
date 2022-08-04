@@ -14,9 +14,20 @@ variable "paths" {
 }
 
 variable "nomad_roles" {
-  description = "list of nomad rolles to allow this policy to get tokens for"
+  description = "list of nomad roles to allow this policy to get tokens for"
   type = list(string)
   default = []
+}
+
+variable "consul_creds" {
+  description = "list of consul credentials to allow this policy to get tokens for"
+  type = list(string)
+  default = []
+}
+
+variable extra_rules {
+  default = ""
+  description = "Extra HCL rules to apply"
 }
 
 locals {
@@ -33,6 +44,7 @@ locals {
     },
     { for path in var.paths: ("nidito/${path}") => ["read", "list"] },
     { for role in var.nomad_roles: ("nomad/creds/${role}") => ["write"] },
+    { for role in var.consul_creds: ("consul-acl/creds/${role}") => ["create", "update", "delete", "read", "list"] },
   )
 }
 
@@ -44,5 +56,6 @@ resource "vault_policy" "service" {
   }
 
   %{ endfor }
+  ${var.extra_rules}
   HCL
 }

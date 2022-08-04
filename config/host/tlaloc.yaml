@@ -1,0 +1,22 @@
+address: 10.42.20.42
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: x86_64
+  model: macbookpro11,3
+  os: macos/11.6
+mac: !!secret
+tags:
+  # can be leader or router
+  role: leader
+  # one of: primary, secondary, none
+  storage: secondary
+token:
+  consul: !!secret
+tls:
+  key: !!secret
+  consul: !!secret
+  nomad: !!secret
+  vault: !!secret

@@ -115,6 +115,7 @@ EOF
 
         meta {
           nidito-acl = "allow altepetl"
+          nidito-http-max-body-size = "700m"
         }
 
         check {

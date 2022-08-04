@@ -1,0 +1,13 @@
+summary: Writes config to 1password
+description: |
+  Will either create or update existing items with a matching name. Uses https://1password.com/downloads/command-line/ and can talk to 1password.com or an `OP_CONNECT_HOST`.
+arguments:
+  - name: name
+    description: The config name(s) to flush. If unspecified, all configs will be flushed
+    variadic: true
+    values:
+      milpa: nidito config list --source names
+options:
+  dry-run:
+    description: don't write changes, only show what would happen
+    type: bool

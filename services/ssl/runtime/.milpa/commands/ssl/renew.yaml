@@ -1,0 +1,14 @@
+summary: Renews SSL certs for DC
+description: |
+  Does the letsencrypt dance
+arguments:
+  - name: dc
+    description: The DC to renew SSL certs for
+    required: true
+    # values:
+    #   suggest-only: true
+    #   milpa: nidito dc list
+options:
+  dry-run:
+    description: only plans, does not apply
+    type: bool

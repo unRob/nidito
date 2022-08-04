@@ -1,0 +1,30 @@
+summary: Retrieves configuration
+description: |
+  From vault or local files
+arguments:
+  - name: file
+    description: the config file to read from
+    required: true
+    values:
+      milpa:
+        nidito config list {{ Opt "source" }}
+  - name: path
+    description: the path to the config value to read
+    default: '.'
+    values:
+      suggest-raw: true
+      suggest-only: true
+      milpa: nidito config keys {{ Arg "file" }} {{ Current }}
+options:
+  source:
+    default: names
+    description: the source to query config from
+    values: {static: [names, op, vault]}
+  raw:
+    type: bool
+    description: print a raw, unquoted value (or list of scalar values)
+  format:
+    description: the format to output values in
+    default: yaml
+    values:
+      static: [json, yaml]

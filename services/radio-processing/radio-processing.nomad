@@ -1,4 +1,3 @@
-
 job "radio-processing" {
   datacenters = ["casa"]
   type = "batch"
@@ -46,7 +45,7 @@ job "radio-processing" {
       }
 
       config {
-        image = "registry.nidi.to/radio-processing:202201040337"
+        image = "registry.nidi.to/radio-processing:202201140554"
         command = "./local/entrypoint.sh"
 
         volumes = [

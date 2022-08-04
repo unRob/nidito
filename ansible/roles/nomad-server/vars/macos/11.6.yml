@@ -1,0 +1,4 @@
+nomad_config_dir: /usr/local/etc/nidito/nomad
+nomad_data_dir: /private/var/lib/nomad
+nomad_log_path: /usr/local/var/log/nomad
+nomad_group: wheel

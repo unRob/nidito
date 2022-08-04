@@ -3,15 +3,25 @@ terraform {
     path = "nidito/state/ca"
   }
 
-  required_providers {
+   required_providers {
     tls = {
       source  = "hashicorp/tls"
-      version = "3.1.0"
+      version = "4.0.2"
     }
-  }
-
-  required_version = ">= 1.0.0"
+    consul = {
+      source = "hashicorp/consul"
+      version = "2.15.1"
+    }
+   }
 }
+
+# next time i forget to renew ca certs in time
+# uncomment this so we can at least run the thing
+# provider "consul" {
+#   scheme = "https"
+#   address = "consul.service.consul:5554"
+#   insecure_https = true
+# }
 
 variable "hosts" {
   type = list(string)
@@ -59,7 +69,6 @@ resource "tls_private_key" "ca" {
 
 resource "tls_self_signed_cert" "ca" {
   count           = var.create_ca ? 1 : 0
-  key_algorithm   = "ECDSA"
   private_key_pem = tls_private_key.ca[0].private_key_pem
 
   subject {
@@ -86,7 +95,6 @@ resource "tls_private_key" "keys" {
 
 resource "tls_cert_request" "csr" {
   for_each        = local.cert_map
-  key_algorithm   = "ECDSA"
   private_key_pem = tls_private_key.keys[each.value.host].private_key_pem
 
   subject {
@@ -102,10 +110,10 @@ resource "tls_locally_signed_cert" "certs" {
   for_each         = local.cert_map
   cert_request_pem = tls_cert_request.csr[each.value.key].cert_request_pem
 
-  ca_key_algorithm   = "ECDSA"
   ca_private_key_pem = local.ca.key
   ca_cert_pem        = local.ca.cert
 
+  early_renewal_hours = 24 * 7
   validity_period_hours = 24 * 365
 
   allowed_uses = [

@@ -95,7 +95,7 @@ output "vault-token" {
   sensitive = true
 }
 
-# Consul Server
+# Consul server tokens
 resource consul_acl_policy dns {
   name = "server-consul-dns"
   rules = <<-RULES
@@ -152,6 +152,7 @@ output "server-tokens" {
 }
 
 
+# Nomad
 resource consul_acl_policy nomad {
   name        = "nomad-server"
   description = "nomad server policy"
@@ -184,7 +185,6 @@ resource consul_acl_policy nomad {
   RULES
 }
 
-# Nomad
 resource consul_acl_token nomad {
   description = "nomad server token"
   policies = [

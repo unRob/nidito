@@ -1,0 +1,4 @@
+# the TXT record to set with a domainkey
+domainkey: !!secret
+# not quite sure how this is used:
+dsm: !!secret

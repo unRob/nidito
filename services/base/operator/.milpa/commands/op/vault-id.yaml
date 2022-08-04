@@ -1,0 +1,3 @@
+summary: Returns the OP vault id
+description: |
+  so we can talk to op connect

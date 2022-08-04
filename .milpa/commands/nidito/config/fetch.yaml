@@ -1,0 +1,13 @@
+summary: Downloads configs from 1password
+description: |
+  Will either create or update existing files with matching 1Password item names. Uses https://1password.com/downloads/command-line/ and can talk to 1password.com or an `OP_CONNECT_HOST`.
+arguments:
+  - name: name
+    description: The config name(s) to fetch. If unspecified, all configs will be downloaded
+    variadic: true
+    values:
+      milpa: nidito config list --source op
+options:
+  dry-run:
+    description: don't write changes, only show what would happen
+    type: bool

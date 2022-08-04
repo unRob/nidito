@@ -52,6 +52,7 @@ job "http-proxy" {
       template {
         destination = "local/nidito/proxied-services"
         data = file("proxied-services.json.tpl")
+        change_mode   = "noop"
       }
 
       template {
@@ -59,7 +60,7 @@ job "http-proxy" {
         data = file("nginx.conf")
         change_mode   = "signal"
         change_signal = "SIGHUP"
-        splay = "5s"
+        splay = "10s"
       }
 
       template {
@@ -73,6 +74,8 @@ job "http-proxy" {
         perms = 0777
         change_mode   = "restart"
         data = file("docker-entrypoint.d/05-get-ssl-certs.sh")
+        change_signal = "SIGHUP"
+        splay = "10s"
       }
 
       config {

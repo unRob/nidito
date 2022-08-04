@@ -1,0 +1,32 @@
+service {
+  id = "{{ item.key }}"
+  name = "{{ item.key }}"
+  port = {{ item.value.port }}
+  address = "{{ node.address }}"
+
+  tags = [
+    "ansible",
+    "nidito.dns.enabled",
+    "nidito.http.enabled",
+  ]
+
+  meta = {
+    nidito-acl = "allow {{ item.value.zone }}"
+    nidito-http-zone = "{{ item.value.zone }}"
+    nidito-http-buffering = "off"
+    nidito-http-max-body-size = "0"
+    nidito-http-wss = "on"
+  }
+
+  token = "{{ node.token.consul }}"
+
+  checks = [
+    {
+      id = "{{ item.key }}-tcp-check-{{ item.value.port }}"
+      name = "{{ item.key }}-tcp-check-{{ item.value.port }}"
+      tcp = "{{ node.address }}:{{ item.value.port }}"
+      interval = "30s"
+      timeout = "1s"
+    }
+  ]
+}

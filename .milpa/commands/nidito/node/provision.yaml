@@ -1,0 +1,24 @@
+summary: Provisions a node into this nidito
+description: |
+  1. Creates secrets for it in the config/host/$NODE_NAME.yaml file,
+  2. adds the host to ssh config
+  3. adds dns records to coredns
+  4. creates a consul token and ca certs
+  5. and provisions software on the node
+arguments:
+  - name: node-name
+    description: the name of the node to bootstrap
+    required: true
+    values:
+      milpa: nidito node list --source available
+      suggest-only: true
+  - name: dc
+    description: the datacenter to add this host to
+    required: true
+    values:
+      milpa: nidito dc list --source local
+options:
+  ssh-key:
+    description: the path to the ssh-key to add to this node
+  address:
+    description: the node address to assign, leave unset for next available

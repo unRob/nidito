@@ -1,8 +1,0 @@
-summary: Retrieves configuration keys
-description: |
-  From vault or local files
-options:
-  source:
-    default: vault
-    description: the source to query config from
-    values: {static: [vault, local]}

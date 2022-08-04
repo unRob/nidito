@@ -1,0 +1,43 @@
+core: true
+dc: casa
+description: A network for trusted devices
+dhcp:
+  tepetl:
+    range: 10.42.20.0/24
+    size: 5
+    vlan: 20
+  atl:
+    range: 10.42.30.0/28
+    reservations:
+      chalco:
+        groups: [homekit-user]
+        ip: 10.42.30.7
+        mac: !!secret
+      chautengo:
+        groups: [homekit-user]
+        ip: 10.42.30.5
+        mac: !!secret
+      citlaltepetl:
+        groups: [homekit-users]
+        ip: 10.42.30.42
+        mac: !!secret
+      texcoco:
+        groups: [homekit-user]
+        ip: 10.42.30.4
+        mac: !!secret
+      tlaloc:
+        groups: [homekit-user]
+        ip: 10.42.30.43
+        mac: !!secret
+      zempoala:
+        groups: [homekit-user]
+        ip: 10.42.30.6
+        mac: 00:00:00:00:00:00
+    size: 5
+    ssid: "␖/␆"
+    vlan: 30
+range: 10.42.20.0/20
+services:
+  http:
+    ports: 80,443
+vpn: 10.42.31.0/29

@@ -32,7 +32,7 @@ job "grafana" {
       }
 
       env {
-        GF_INSTALL_PLUGINS = "grafana-piechart-panel"
+        GF_INSTALL_PLUGINS = "grafana-piechart-panel,consul"
         GF_DOMAIN_ROOT_URL = "https://grafana.nidi.to"
       }
 
@@ -65,6 +65,7 @@ job "grafana" {
           nidito-acl = "allow altepetl"
           nidito-http-buffering = "off"
           nidito-http-wss = "on"
+          nidito-http-max-body-size = "1m"
         }
 
         check {

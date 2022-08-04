@@ -1,6 +1,0 @@
-[submodule "build/nidito/consul-spk"]
-	path = build/nidito/consul-spk
-	url = git@github.com:numkem/consul-spk.git
-[submodule "build/nidito/nomad-spk"]
-	path = build/nidito/nomad-spk
-	url = git@github.com:numkem/nomad-spk.git

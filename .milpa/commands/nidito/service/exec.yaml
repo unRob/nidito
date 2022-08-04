@@ -1,0 +1,23 @@
+summary: Runs a command on a service
+description: |
+  Runs a command on a SERVICE, or opens a shell session to it, if no COMMAND is provided.
+
+  `/bin/sh -c` will be prepended automatically to COMMAND if more than one argument is passed.
+arguments:
+  - name: service
+    description: The service to run a command on
+    values: { milpa: nidito service list }
+    required: true
+  - name: command
+    variadic: true
+    description: The command to execute on the service
+options:
+  local:
+    type: bool
+    description: Runs the command on a locally-running service instead of remotely
+  interactive:
+    type: bool
+    description: pass stdin to the resulting shell
+  tty:
+    type: bool
+    description: pass tty to the resulting shell

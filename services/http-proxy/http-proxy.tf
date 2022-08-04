@@ -31,27 +31,4 @@ module "vault-policy" {
     "config/networks",
     "config/networks/*",
   ]
-  # nomad_roles = ["http-proxy"]
 }
-
-# resource "nomad_acl_policy" "http-proxy" {
-#   name        = "http-proxy"
-#   description = "Interact with this job's tasks"
-#   rules_hcl   = <<HCL
-#   namespace "default" {
-#     policy = "read"
-#     capabilities = [
-#       "alloc-exec",
-#       "alloc-lifecycle",
-#       "list-jobs",
-#     ]
-#   }
-#   HCL
-# }
-
-# resource "vault_nomad_secret_role" "http-proxy" {
-#   backend   = vault_nomad_secret_backend.config.backend
-#   role      = "http-proxy"
-#   type      = "client"
-#   policies  = ["http-proxy"]
-# }

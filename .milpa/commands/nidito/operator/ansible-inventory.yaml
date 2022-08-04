@@ -1,0 +1,10 @@
+summary: Produces inventory for ansible
+description: |
+  An ansible plugin to generate inventory from config values
+options:
+  list:
+    description: print out inventory for all hosts
+    type: bool
+  host:
+    description: print out inventory for one host
+    type: bool

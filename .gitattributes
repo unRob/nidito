@@ -1,0 +1,1 @@
+config/**/*.yaml filter=op-config diff=op-config

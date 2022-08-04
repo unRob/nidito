@@ -8,11 +8,18 @@
     - coredns
     - wireguard
 
-- name: Telemetry
-  hosts: role_leader
-  tags: [base, telemetry]
+# TODO: figure this shit out... again
+# - name: Telemetry
+#   hosts: role_leader
+#   tags: [base, telemetry]
+#   roles:
+#     - telemetry
+
+- name: macos
+  hosts: os_macos*
+  tags: [base]
   roles:
-    - telemetry
+    - server-users
 
 - name: Consul
   hosts: role_leader

@@ -1,0 +1,2 @@
+email: !!secret
+private_key: !!secret

@@ -1,8 +1,7 @@
-.tool-versions
-_data/*
-ansible/.cache
 .terraform
-.terraform
-.vscode
 .terraform.lock.hcl
+.tool-versions
+.vscode
+ansible/.cache
+config/.diff
 terraform.tfstate*

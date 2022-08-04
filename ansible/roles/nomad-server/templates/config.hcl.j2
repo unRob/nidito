@@ -14,7 +14,7 @@ server {
   min_heartbeat_ttl = "20s"
   # needs to be incremented gradually as servers boot
   bootstrap_expect = {% if dc.primary %}3{% else %}1{% endif %}
-  encrypt = "{{ config.services.nomad.encryption_key }}"
+  {# encrypt = "{{ config.services.nomad.encryption_key }}" #}
 }
 
 # Require TLS
@@ -68,6 +68,15 @@ client {
 {% for key, value in node.tags.items() %}
     {{ key }} = "{{ value }}"
 {% endfor %}
+  }
+
+
+  host_network "private" {
+    cidr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+  }
+
+  host_network "public" {
+    cidr = "{% raw %}{{{% endraw %} GetPublicInterfaces | attr \"address\" {% raw %}}}{% endraw %}"
   }
 }
 

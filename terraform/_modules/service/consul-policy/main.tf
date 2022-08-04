@@ -14,6 +14,12 @@ variable "prefixes" {
   default = {}
 }
 
+variable "session_prefixes" {
+  description = "session prefix permissions"
+  type = map
+  default = {}
+}
+
 variable "read_consul_data" {
   description = "allow reading consul service, node and agent metadata"
   type = bool
@@ -32,12 +38,25 @@ variable "create_local_token" {
   default = true
 }
 
+variable "create_vault_role" {
+  description = "Creates a vault role to be read by nomad tasks at provisioning"
+  type = bool
+  default = false
+}
 
 locals {
   service_prefixes = {
     ("nidito/service/${var.name}") = "write"
     ("nidito/service/${var.name}/*") = "write"
     ("nidito/service/${var.name}/+/*") = "write"
+  }
+}
+
+data "terraform_remote_state" "vault" {
+  backend = "consul"
+  workspace = terraform.workspace
+  config = {
+    path = "nidito/state/vault"
   }
 }
 
@@ -70,7 +89,22 @@ resource "consul_acl_policy" "service" {
     policy = "write"
   }
 
+  %{ if length(var.session_prefixes) > 0 }
+  %{ for prefix, policy in var.session_prefixes }session_prefix "${prefix}" {
+    policy = "${policy}"
+  }
+  %{ endfor }
+  %{ endif }
   HCL
+}
+
+resource "vault_consul_secret_backend_role" "service" {
+  count = var.create_vault_role ? 1 : 0
+  name    = "service-${var.name}"
+  backend = data.terraform_remote_state.vault.outputs.consul_backend_name
+  policies = [consul_acl_policy.service.name]
+  ttl = 600
+  max_ttl = 86400
 }
 
 output "name" {
@@ -99,6 +133,6 @@ resource "vault_generic_secret" "service" {
 }
 
 output "token_path" {
-  value = vault_generic_secret.service[0].path
+  value = var.create_service_token ? vault_generic_secret.service[0].path : ""
   description = "The vault path to the created consul token"
 }

@@ -50,10 +50,10 @@ resource "acme_certificate" "cert" {
   dns_challenge {
     provider = "digitalocean"
     config = {
-    DO_AUTH_TOKEN = var.digitalocean_token
-    DO_PROPAGATION_TIMEOUT = 60
-    DO_TTL = 30
-  }
+      DO_AUTH_TOKEN = var.digitalocean_token
+      DO_PROPAGATION_TIMEOUT = 60
+      DO_TTL = 30
+    }
   }
 }
 

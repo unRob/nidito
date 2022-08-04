@@ -1,0 +1,26 @@
+dc: casa
+description: The router's network
+dhcp:
+  local:
+    range: 10.42.0.0/24
+    reservations:
+      ap0:
+        ip: 10.42.0.100
+        mac: !!secret
+      ap1:
+        ip: 10.42.0.101
+        mac: !!secret
+      ap2:
+        ip: 10.42.0.102
+        mac: !!secret
+      cloudkey:
+        ip: 10.42.0.10
+        mac: !!secret
+      edgeswitch:
+        ip: 10.42.0.2
+        mac: !!secret
+    size: 5
+range: 10.42.0.0/24
+services:
+  dns:
+    ports: 53,5353

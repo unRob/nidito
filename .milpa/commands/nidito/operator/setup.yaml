@@ -1,0 +1,3 @@
+summary: Configures a local environment for development
+description: |
+  Configures git for config cleaning/smudging and fetches initial config from `$NIDITO_OP_VAULT`.

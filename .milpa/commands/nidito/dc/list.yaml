@@ -1,0 +1,9 @@
+summary: lists datacenter names
+description: |
+  from config or consul
+options:
+  source:
+    default: local
+    description: where to get values from
+    values:
+      static: [local,consul]

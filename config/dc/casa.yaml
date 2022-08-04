@@ -1,0 +1,15 @@
+dns:
+  authority: coredns
+  leaders: tepetl
+  zone: nidi.to
+peering:
+  address: 10.42.31.1
+  peers:
+    - nyc1
+  public_key: !!secret
+primary: true
+subnet: 10.42.0.0/16
+vault:
+  nomad_token: !!secret
+  unseal_key: !!secret
+  root_token: !!secret

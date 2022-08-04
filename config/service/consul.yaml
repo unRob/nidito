@@ -1,0 +1,13 @@
+# an encryption key for all consul messaging
+encryption_key: !!secret
+# long story, but one of the original servers had 8500 taken :/
+ports:
+  dns: 5553
+  http: 5555
+  https: 5554
+  serf_lan: 5551
+  serf_wan: 5552
+  server: 5550
+version: 1.13.1
+# this is the global management token
+token: !!secret

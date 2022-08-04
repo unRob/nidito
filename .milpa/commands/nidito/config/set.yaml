@@ -1,0 +1,22 @@
+summary: Writes configuration values
+description: |
+  Into local files
+arguments:
+  - name: name
+    description: the config name update
+    required: true
+    values:
+      suggest-only: true
+      milpa:
+        nidito config list --source names
+  - name: path
+    description: the path to the config value to update
+    required: true
+    values:
+      suggest-raw: true
+      suggest-only: true
+      milpa: nidito config keys {{ Arg "name" }} {{ Current }}
+options:
+  secret:
+    type: bool
+    description: set the value as a secret string

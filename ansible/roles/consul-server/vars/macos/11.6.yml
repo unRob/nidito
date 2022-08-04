@@ -1,0 +1,4 @@
+consul_config_dir: /usr/local/etc/nidito/consul
+consul_user: _consul
+consul_log_path: /usr/local/var/log/consul
+consul_group_name: _nidito

@@ -1,0 +1,21 @@
+summary: builds a service
+description: |
+  Builds a service by building (and pushing) its Dockerfile, if one is available, or running `make nidito-build` on the current service's working directory.
+arguments:
+  - name: service
+    description: The name of the service to build
+    values: { milpa: nidito service list }
+  - name: platforms
+    description: platforms to build for
+    variadic: true
+    values:
+      static: [linux/amd64, linux/arm64, linux/arm]
+    default: [linux/amd64, linux/arm64, linux/arm]
+options:
+  local:
+    type: bool
+    description: Builds without pushing docker images with the `testing` tag.
+  task:
+    description: an optional task to build instead of the service
+    values:
+      script: find '/Users/roberto/src/nidito/services/{{ Arg "service" }}' -maxdepth 1 -name '*.Dockerfile' | awk -F/ '{sub(".Dockerfile", ""); print $NF}'
