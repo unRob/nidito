@@ -62,9 +62,9 @@ function toggleLive() {
     document.querySelector("#fecha").innerText = trueDate.toLocaleDateString() + " @ " + trueDate.toLocaleTimeString()
 
     let radioURL = new URL(src.listenurl)
-    radioURL.host = window.location.host
-    radioURL.protocol = window.location.protocol
-    radioURL.port = window.location.port
+    // radioURL.host = window.location.host
+    // radioURL.protocol = window.location.protocol
+    // radioURL.port = window.location.port
     let currentSrc = document.querySelector("#al-aire audio source")
     if (currentSrc.src != radioURL) {
       console.log("going live")
