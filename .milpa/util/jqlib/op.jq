@@ -66,18 +66,10 @@ def fields_to_item($title):
   };
 
 def fields_to_item($title; $original):
-  ($original | del(.fields) | del(.sections)) * {
-    title: $title,
-    category: "PASSWORD",
-    sections: ( . | map(.section.id | select(.)) | unique | map({ id: ., label: .})),
-    fields: .
-  };
+  ($original | .version = .version + 1 | del(.fields) | del(.sections)) * fields_to_item($title);
 
-def fields_to_tree:
+def fields_to_typed_tree($annotations):
   . as $fields |
-  (reduce (. | map(select(.section.id == "~annotations"))[]) as $a ({};
-    setpath([$a.label]; $a.value)
-  )) as $annotations |
   reduce (. | map(select(.section.id != "~annotations" and .id != "notesPlain" and .id != "password")))[] as $field ({};
     setpath(
       $field.id | split(".") | map(if test("^\\d+$") then tonumber else . end);
@@ -89,3 +81,17 @@ def fields_to_tree:
       end
     )
   );
+
+def fields_to_tree:
+  fields_to_tree(false);
+
+def fields_to_tree(withAnnotations):
+  (reduce (. | map(select(.section.id == "~annotations"))[]) as $a ({};
+    setpath([$a.label]; $a.value)
+  )) as $annotations |
+  fields_to_typed_tree($annotations) |
+  if withAnnotations then
+    .["~annotations"] = $annotations
+  else
+    .
+  end;

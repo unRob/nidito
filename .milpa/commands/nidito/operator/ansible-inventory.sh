@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+@milpa.load_util config
 
 if [[ "$MILPA_OPT_LIST" ]]; then
   @milpa.log info "Listing inventory"
@@ -46,8 +47,8 @@ jq '{
   ))
 )
 ' \
-  --argjson hosts "$(@configq hosts '.')" \
-  --argjson networks "$(@configq networks '.')" \
-  --argjson services "$(@configq services '.')" \
-  --argjson datacenters "$(@configq datacenters '.')" \
+  --argjson hosts "$(@config.tree host '.')" \
+  --argjson networks "$(@config.tree net '.')" \
+  --argjson services "$(@config.tree service '.')" \
+  --argjson datacenters "$(@config.tree dc '.')" \
   --null-input

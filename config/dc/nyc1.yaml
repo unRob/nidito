@@ -12,3 +12,4 @@ subnet: 10.100.0.0/20
 vault:
   nomad_token: !!secret
   unseal_key: !!secret
+  root_token: !!secret

@@ -1,0 +1,17 @@
+# see `milpa help docs command spec` for all the options
+summary: Does a thing
+description: |
+  Works by doing a thing with another thing until the first thing looks about right
+# arguments:
+#   - name: something
+#     description: Sets SOMETHING
+#     required: true
+#     variadic: false
+#     values:
+#       script: whoami
+# options:
+#   option:
+#     description: sets OPTION
+#     default: fourty-two
+#     values:
+#       static: [one, two, fourty-two]

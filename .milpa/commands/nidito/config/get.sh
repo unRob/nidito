@@ -5,6 +5,7 @@ case "$MILPA_OPT_SOURCE" in
     vault kv get "nidito/config/$MILPA_ARG_FILE/${MILPA_ARG_PATH//.//}"
   ;;
   op)
+    @milpa.load_util config
     @config.get_remote "$MILPA_ARG_FILE" "${MILPA_ARG_PATH%.}" "${MILPA_OPT_FORMAT}" "${MILPA_OPT_RAW:+raw}"
     ;;
   names)

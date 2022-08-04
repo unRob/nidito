@@ -9,3 +9,5 @@ ports:
   serf_wan: 5552
   server: 5550
 version: 1.12.0
+# this the global management token
+token: !!secret

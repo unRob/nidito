@@ -15,6 +15,8 @@ RUN mkdir -p /etc/bash_completion.d && \
 COPY operator/.milpa /usr/local/lib/milpa/repos/operator
 COPY operator/bootstrap.sh /etc/profile.d/bash-bootstrap.sh
 
+COPY --from=1password/op:latest /usr/bin/op /usr/bin/op
+
 SHELL [ "/bin/bash" ]
 ENV SHELL "/bin/bash"
 ENTRYPOINT [ "bash", "-il" ]

@@ -61,6 +61,7 @@ function @config.get_remote () {
   query="$2"
   fmt="$3"
   raw="${4:-tree}"
+  set -o pipefail
   @config.remote_as_tree "$name" "$fmt" | @config.query "$query" "$fmt" "$raw"
 }
 
@@ -158,7 +159,7 @@ function @config.remote_as_tree () {
       )' <(@config.remote "$1")
       ;;
     json)
-      jq  -L"$(@config.jq_module_dir)" -r 'include "op"; .fields | fields_to_tree' <(@config.remote "$1")
+      jq  -L"$(@config.jq_module_dir)" -r --argjson withAnnotations "${3:-false}" 'include "op"; .fields | fields_to_tree($withAnnotations)' <(@config.remote "$1")
       ;;
     *) @milpa.fail "Unknown tree format <$2>"
   esac
@@ -185,12 +186,20 @@ function @config.remote_hash () {
   op item get --vault nidito-admin --fields 'label=password' "$1"
 }
 
+function @config.remote_items () {
+  op item list --vault nidito-admin --format json | jq -r 'map(.title) | sort[]'
+}
+
+function @config.file_hash () {
+  openssl dgst -md5 -hex <"$1"
+}
+
 function @config.upsert () {
   local file="$1" dry_run="${2:-}"
-  name=$(@config.path_to_name "$file")
-  @milpa.log info "Processing $(@milpa.fmt bold "$name") @ $file"
+  name=$(@config.path_to_name "$file") || @milpa.fail "could not find name for $file"
+  @milpa.log info "Writing $(@milpa.fmt bold "$name") @ $file"
   @milpa.log debug "config file for $name at $file"
-  hash="$(openssl dgst -md5 -hex <"$file")"
+  hash="$(@config.file_hash "$file")"
 
   if remote_hash=$(@config.remote_hash "$name" 2>/dev/null) ; then
     if [[ $hash == "$remote_hash" ]]; then
@@ -200,7 +209,7 @@ function @config.upsert () {
 
     @milpa.log info "Updating 1Password item for $name secrets"
     [[ "$dry_run" ]] && { @milpa.log warning "dry-run, no changes made"; return; }
-    @config.op_file_as_update "$name" "$hash" | op item edit --vault nidito-admin "$name" || @milpa.fail "could not update 1password item"
+    @config.op_file_as_update "$name" "$hash" | op item edit --dry-run --vault nidito-admin "$name" || @milpa.fail "could not update 1password item"
     @milpa.log success "Updated $name"
   else
     @milpa.log info "Generating 1Password item for $name secrets"
@@ -208,4 +217,39 @@ function @config.upsert () {
     @config.op_file_as_json "$name" "$hash" | op item create --vault nidito-admin >/dev/null || @milpa.fail "could not create 1password item"
     @milpa.log success "Created $name"
   fi
+}
+
+
+function @config.remote_secrets() {
+  jq '(.["~annotations"] // {}) as $annotations |
+    del(.["~annotations"]) |
+    . as $tree |
+    $annotations |
+    to_entries | map(
+      select(.value == "secret") |
+      (
+        .key |
+        split(".") |
+        map(if test("^\\d+$") then tonumber else . end)
+      ) as $path |
+      .value = ($tree | getpath($path))
+    ) |
+    from_entries
+  ' <(@config.remote_as_tree "$1" "json" "true")
+}
+
+function @config.merged_secrets () {
+  fs="$2" yq 'load(strenv(fs)) * .' <(@config.remote_as_tree "$1" "yaml")
+  # yq ea '. as $item ireduce ({}; . * $item )' $2 <(@config.remote_as_tree "$1" "yaml")
+  # secrets="$(@config.remote_secrets "$1")" yq '
+  #   . as $data |
+  #   (env(secrets) | to_entries) as $secrets |
+  #   with($secrets[];
+  #     (.key | sub(".(\d+)(.?)", "[${1}]${2}")) as $key |
+  #     .value as $value |
+  #     with(eval("$data." + $key);
+  #       . = $value | . tag = "!!secret" | . style = ""
+  #     )
+  #   ) | $data
+  # ' "$2"
 }

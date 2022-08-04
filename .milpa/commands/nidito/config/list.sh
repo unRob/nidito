@@ -12,5 +12,9 @@ case "$MILPA_OPT_SOURCE" in
     @milpa.load_util config
     @config.all_names
   ;;
+  op)
+    @milpa.load_util config
+    @config.remote_items
+  ;;
   *) @milpa.fail "Unknown source $MILPA_OPT_SOURCE"
 esac

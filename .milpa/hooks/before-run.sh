@@ -13,5 +13,3 @@ export CONFIG_DIR="$NIDITO_ROOT/config"
 function at_root () {
   cd "$NIDITO_ROOT/$1" || @milpa.fail "Could not cd into $1"
 }
-
-@milpa.load_util "config"

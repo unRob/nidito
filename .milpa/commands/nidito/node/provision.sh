@@ -17,7 +17,42 @@ next_addr="$(@config.tree host | jq -r --arg dc "$dc" '
 
 @milpa.log info "Provisioning node $NODE_NAME.$dns_zone IN A $next_addr"
 
+node_username=$(@milpa.ask "Enter the username of $NODE_NAME")
+node_password=$(@milpa.ask "Enter the password for ${node_username}@$NODE_NAME")
+
+arch=$(ssh "$node_username@$next_addr" uname -m)
+os=$(ssh "$node_username@$next_addr" uname -s)
+
+if [[ "$os" == "Linux" ]]; then
+  # todo: finish this shit
+  distro=$(ssh "$node_username@$next_addr" cat /etc/issue)
+  os="linux/"
+  model_default=$(ssh "$node_username@$next_addr" cat /sys/devices/virtual/dmi/id/product_name)
+  model_default=$(ssh "$node_username@$next_addr" cat /proc/device-tree/model)
+else
+  # hw.model: MacBookPro18,4
+  model_default=$(ssh "$node_username@$next_addr" sysctl hw.model)
+fi
+model=$(@milpa.ask "Enter the hardware model for $NODE_NAME")
+
+
 @milpa.log info "Storing node metadata"
+cat >"config/host/${NODE_NAME}.yaml" <<YAML
+address: $next_addr
+auth:
+  username: !!secret $node_username
+  password: !!secret $node_password
+dc: $dc
+hardware:
+  arch: $arch
+  model: $model
+  os: $os
+tags:
+  # can be leader or router
+  role: leader
+  # one of: primary, secondary, none
+  storage: none
+YAML
 @config.write "host:${NODE_NAME}" ".address" <<<"$next_addr"
 @config.write "host:${NODE_NAME}" ".dc" <<<"$dc"
 @config.write "host:${NODE_NAME}" ".hardware.arch"
