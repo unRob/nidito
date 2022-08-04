@@ -11,11 +11,10 @@ cd nidito
 brew bundle check || brew bundle install --file=Brewfile
 curl -L https://milpa.dev/install.sh | bash -
 milpa itself shell install-autocomplete
-git config filter.op-config.smudge cat
-git config filter.op-config.clean "milpa nidito config filter clean %f"
-git config filter.op-config.required true
-git config diff.op-config.textconv "milpa nidito config filter diff"
-git config diff.op-config.binary true
+# add some env vars to a posix shell
+eval "$(milpa nidito operator env)"
+# fetch config secrets and prevent them from landing into git
+milpa nidito operator setup
 ```
 
 ## Usage
@@ -28,10 +27,10 @@ milpa nidito help
 milpa nidito node provision "$hostname" "$datacenter"
 
 # run provisioning on nodes with ansible
-milpa nidito node provision
+milpa nidito node tame ...
 
-# configure services and resources with terraform
-milpa nidito config backup
+# fetch secrets from 1password into config/**/*.yaml
+milpa nidito config fetch
 
 # deploy services with nomad
 milpa nidito service deploy docker-registry
@@ -81,7 +80,7 @@ tier-2 services provide nicer abstractions for roberto, the power-user, to run s
 - **http-proxy**: nginx runs on every leader node, terminating SSL and proxying requests to every other service.
 - **docker-registry**: a container image registry
 - **telemetry**: `prometheus`, `grafana` and `loki` to get an idea of what's happening inside these boxes
-- **op-connect**: for keeping the secrets vault can't have
+- **op-connect**: for keeping the secrets that are needed to spin up shit
 - **ssl-renewal**: things need certs
 
 Finally, there's tier-3 services that actually do stuff for humans in my home:
