@@ -33,7 +33,7 @@ function @config.names () {
 }
 
 function @config.path_to_name () {
-  fname=$(readlink -f "$1" || echo "$1")
+  fname=$"$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
   fname="${fname##"${CONFIG_DIR}/"}"
   fname="${fname%.yaml}"
   echo "${fname//\//:}"

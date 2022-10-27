@@ -20,11 +20,465 @@
   },
   "editable": true,
   "gnetId": null,
-  "graphTooltip": 0,
+  "graphTooltip": 1,
   "id": 11,
-  "iteration": 1654145072814,
+  "iteration": 1666218505648,
   "links": [],
   "panels": [
+    {
+      "datasource": "Prometheus",
+      "description": "Basic network info per interface",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_bytes_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#7EB26D",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_bytes_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#0A50A1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_drop_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#6ED0E0",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_drop_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#E0F9D7",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_errs_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#BF1B00",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Recv_errs_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#CCA300",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_bytes_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#7EB26D",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_bytes_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#0A50A1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_drop_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#6ED0E0",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_drop_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#E0F9D7",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_errs_eth2"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#BF1B00",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Trans_errs_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#CCA300",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv_bytes_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#0A50A1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv_drop_eth0"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#99440A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv_drop_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#967302",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv_errs_eth0"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#BF1B00",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recv_errs_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#890F02",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_bytes_eth0"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#7EB26D",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_bytes_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#0A50A1",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_drop_eth0"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#99440A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_drop_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#967302",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_errs_eth0"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#BF1B00",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "trans_errs_lo"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#890F02",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 18,
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "rate(node_network_receive_bytes_total{instance=\"10.42.20.1:9100\",device!~\"(npi|loop|lo|itf|imq).*\"}[$__rate_interval])*8",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "rx {{device}}",
+          "refId": "A",
+          "step": 240
+        },
+        {
+          "exemplar": true,
+          "expr": "rate(node_network_transmit_bytes_total{instance=\"10.42.20.1:9100\",device!~\"(npi|loop|lo|itf|imq).*\"}[$__rate_interval])*-8",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "tx {{device}} ",
+          "refId": "B",
+          "step": 240
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Network Traffic",
+      "transformations": [],
+      "type": "timeseries"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -32,7 +486,378 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 8
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Güaifai",
+      "type": "row"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": -1,
+            "drawStyle": "bars",
+            "fillOpacity": 0,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap1 users"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8f1a4f",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap2 users"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#cc2671",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap3 users"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ff2d8c",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap1 guests"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#105658",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap2 guests"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1fa2a7",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ap3 guests"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#31f7fd",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 10,
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "unifipoller_device_stations{station_type=\"user\"}",
+          "interval": "30s",
+          "legendFormat": "{{name}} {{station_type}}s",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "unifipoller_device_stations{station_type=\"guest\"}",
+          "hide": false,
+          "interval": "30s",
+          "legendFormat": "{{name}} {{station_type}}s",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Clients / UAP",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-RdYlGr"
+          },
+          "custom": {
+            "fillOpacity": 100,
+            "lineWidth": 0
+          },
+          "mappings": [],
+          "max": 50,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 14,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "right"
+        },
+        "mergeValues": false,
+        "rowHeight": 0.46,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "max by (name) (unifipoller_client_rssi_db{essid!=\"robotitos\"})",
+          "format": "time_series",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "wifi clients",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "name"
+          }
+        }
+      ],
+      "type": "state-timeline"
+    },
+    {
+      "datasource": "Prometheus",
+      "description": "Bandwidth usage per wireless devices as reported by the UAPs. Rx is on the negative axis. Does not include amazon devices.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 0,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 12,
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (name) (rate(unifipoller_client_transmit_bytes_total{name!~\".*camera.*|.*cam(era)?$\"}[$__interval]))",
+          "instant": false,
+          "interval": "60s",
+          "legendFormat": "{{name}} {{mac}} Tx",
+          "refId": "B"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum by (name) (rate(unifipoller_client_receive_bytes_total{name!~\".*camera.*|.*cam(era)?$\"}[$__interval])*-1)",
+          "instant": false,
+          "interval": "60s",
+          "legendFormat": "{{name}} {{mac}} Rx",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "UAP Bandwidth / Wireless Devices",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
       },
       "id": 6,
       "panels": [],
@@ -65,7 +890,7 @@
         "h": 8,
         "w": 7,
         "x": 0,
-        "y": 1
+        "y": 27
       },
       "id": 2,
       "options": {
@@ -163,7 +988,7 @@
         "h": 8,
         "w": 12,
         "x": 7,
-        "y": 1
+        "y": 27
       },
       "id": 4,
       "options": {
@@ -180,7 +1005,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "avg by (instance) (last_over_time(nomad_client_host_cpu_total[$__range]))",
+          "expr": "avg by (instance) (avg_over_time(nomad_client_host_cpu_total[10s]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -199,6 +1024,93 @@
       ],
       "transparent": true,
       "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 61,
+            "lineWidth": 0
+          },
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "color": "dark-green",
+                  "index": 0,
+                  "text": "healthy"
+                },
+                "2": {
+                  "color": "dark-blue",
+                  "index": 1,
+                  "text": "leader"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              },
+              {
+                "color": "dark-blue",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 0,
+        "y": 35
+      },
+      "id": 20,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "mergeValues": true,
+        "rowHeight": 0.89,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "repeat": null,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "consul_autopilot_healthy + consul_server_isLeader",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{ instance }}",
+          "refId": "isHealthy"
+        }
+      ],
+      "title": "Consul server state",
+      "transformations": [],
+      "transparent": true,
+      "type": "state-timeline"
     },
     {
       "datasource": null,
@@ -258,7 +1170,7 @@
         "h": 8,
         "w": 12,
         "x": 7,
-        "y": 9
+        "y": 35
       },
       "id": 8,
       "options": {
@@ -287,7 +1199,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 30,
   "style": "dark",
   "tags": [],
@@ -296,14 +1208,12 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
-            "guerrero",
-            "tepeyac"
+            "All"
           ],
           "value": [
-            "guerrero",
-            "tepeyac"
+            "$__all"
           ]
         },
         "datasource": null,
@@ -329,16 +1239,12 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
-            "nginx",
-            "grafana",
-            "logs"
+            "All"
           ],
           "value": [
-            "nginx",
-            "grafana",
-            "logs"
+            "$__all"
           ]
         },
         "datasource": null,
@@ -364,12 +1270,25 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
-  "timepicker": {},
-  "timezone": "",
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
   "title": "Overview",
   "uid": "I5dazfrnk",
-  "version": 3
+  "version": 14
 }

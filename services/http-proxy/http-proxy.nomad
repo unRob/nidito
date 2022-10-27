@@ -35,6 +35,7 @@ job "http-proxy" {
       port "http" {
         static = 80
       }
+
       port "https" {
         static = 443
       }
