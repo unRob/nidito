@@ -15,7 +15,7 @@ jq '{
   _meta: {
     hostvars: $hosts | with_entries({
       key: .key,
-      value: ({node: (.value + {name: .key})} + .value._ansible)
+      value: ({node: (.value + {name: .key}), ansible_sudo_pass: (.value.auth.password // "")} + .value._ansible)
     })
   },
   all: {

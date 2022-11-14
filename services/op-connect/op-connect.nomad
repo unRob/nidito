@@ -33,7 +33,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-sync:latest"
+        image = "1password/connect-sync:1.5"
         ports = ["sync"]
       }
     }
@@ -56,7 +56,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-api:latest"
+        image = "1password/connect-api:1.5"
         ports = ["http", "api"]
       }
 

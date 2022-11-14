@@ -13,7 +13,7 @@
   git:
     name: https://github.com/numkem/nomad-spk.git
     dest: /tmp/nomad-spk
-    update: yes
+    update: no
 
 - name: patch spk
   when: needs_install

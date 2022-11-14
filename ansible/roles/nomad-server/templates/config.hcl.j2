@@ -72,11 +72,12 @@ client {
 
 
   host_network "private" {
-    cidr = "{% raw %}{{{% endraw %} GetPrivateInterfaces | include \"network\" \"{{ dc.subnet }}\" | attr \"address\" {% raw %}}}{% endraw %}"
+    cidr = "{{ dc.subnet }}"
   }
 
   host_network "public" {
     cidr = "{% raw %}{{{% endraw %} GetPublicInterfaces | attr \"address\" {% raw %}}}{% endraw %}"
+
   }
 }
 

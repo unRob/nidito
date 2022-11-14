@@ -8,7 +8,7 @@
     append: yes
 
 - name: Get installed version
-  shell: vault --version | head -n 1 | cut -dv -f2
+  shell: /usr/local/bin/vault --version | grep -oE '\d\.\d+\.\d+'
   register: installed_vault_version
   ignore_errors: yes
   check_mode: no

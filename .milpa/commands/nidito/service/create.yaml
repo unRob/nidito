@@ -1,0 +1,14 @@
+# see `milpa help docs command spec` for all the options
+summary: creates a new service
+description: |
+  and adds templates for nomad and terraform
+arguments:
+  - name: name
+    description: the name for the new service
+    required: true
+options:
+  dc:
+    description: the datacenter that we'll eventually deploy to
+    default: casa
+    repeated: true
+    values: {milpa: nidito dc list}

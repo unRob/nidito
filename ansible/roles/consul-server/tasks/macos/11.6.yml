@@ -7,10 +7,19 @@
     groups: _nidito
     append: yes
 
+- name: Get installed version
+  shell: consul --version | head -n 1 | cut -dv -f2
+  register: installed_consul_version
+  ignore_errors: yes
+  check_mode: no
+
 - name: Install consul
-  homebrew:
-    name: consul
-    state: present
+  when: installed_consul_version.stdout != config.services.consul.version
+  notify: Restart consul service
+  unarchive:
+    src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_darwin_amd64.zip"
+    remote_src: yes
+    dest: /usr/local/bin
 
 - name: Create the consul directory
   become: true

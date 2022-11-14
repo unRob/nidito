@@ -1,6 +1,6 @@
 cluster_name = "{{ node.dc }}"
 log_format = "json"
-
+plugin_directory = "{{ vault_config_dir }}/plugins"
 
 storage "consul" {
   address = "https://{{ ansible_hostname }}.node.consul:{{ config.services.consul.ports.https }}"

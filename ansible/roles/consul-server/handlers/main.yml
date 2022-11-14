@@ -2,7 +2,7 @@
   when: ansible_pkg_mgr == "homebrew"
   listen: restart consul
   become: yes
-  shell: "launchctl stop io.consul.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.consul.daemon.plist"
+  shell: "launchctl unload -w io.consul.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.consul.daemon.plist"
 
 - name: Restart consul service
   when: ansible_pkg_mgr == "pacman"

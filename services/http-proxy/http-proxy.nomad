@@ -34,10 +34,12 @@ job "http-proxy" {
     network {
       port "http" {
         static = 80
+        host_network = "public"
       }
 
       port "https" {
         static = 443
+        host_network = "public"
       }
     }
 

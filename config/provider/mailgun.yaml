@@ -1,4 +1,7 @@
 # the TXT record to set with a domainkey
 domainkey: !!secret
-# not quite sure how this is used:
-dsm: !!secret
+smtp:
+  server: smtp.mailgun.org
+  port: 587
+  username: dsm@nidi.to
+  password: !!secret
