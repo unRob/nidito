@@ -1,31 +1,31 @@
 - include_vars: "{{ node.hardware.os }}.yml"
 
-# - include_tasks: "{{ node.hardware.os }}.yml"
+- include_tasks: "{{ node.hardware.os }}.yml"
 
-# - name: Create config directory
-#   become: true
-#   file:
-#     owner: "{{ vault_user }}"
-#     path: "{{ vault_config_dir }}/tls"
-#     state: directory
-#     recurse: yes
+- name: Create config directory
+  become: true
+  file:
+    owner: "{{ vault_user }}"
+    path: "{{ vault_config_dir }}/tls"
+    state: directory
+    recurse: yes
 
-# - name: Install TLS certs
-#   become: true
-#   no_log: true
-#   copy:
-#     content: "{{ item.content }}"
-#     dest: "{{ vault_config_dir }}/tls/{{ item.name }}"
-#     owner: "{{ vault_user }}"
-#     mode: u=rw,g=,o=
-#   with_items:
-#     - name: ca.pem
-#       content: "{{ config.services.ca.cert }}"
-#     - name: key.pem
-#       content: "{{ node.tls.key }}"
-#     - name: cert.pem
-#       content: "{{ node.tls.vault }}"
-#   notify: restart vault
+- name: Install TLS certs
+  become: true
+  no_log: true
+  copy:
+    content: "{{ item.content }}"
+    dest: "{{ vault_config_dir }}/tls/{{ item.name }}"
+    owner: "{{ vault_user }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - name: ca.pem
+      content: "{{ config.services.ca.cert }}"
+    - name: key.pem
+      content: "{{ node.tls.key }}"
+    - name: cert.pem
+      content: "{{ node.tls.vault }}"
+  notify: restart vault
 
 - name: Create plugin directory
   become: true
@@ -46,26 +46,26 @@
 - name: Install 1password plugin
   become: true
   unarchive:
-    src: "{{ vault_op_plugin_src }}/op-connect-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
+    src: "{{ vault_joao_src }}/joao-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
     remote_src: yes
     dest: "{{ vault_config_dir }}/plugins"
     mode: u=rwx,g=,o=
     owner: "{{ vault_user }}"
   notify: configure vault plugin
 
-- name: get op_connect shasum
+- name: get joao shasum
   become: true
   shell: |
-    openssl dgst -sha256 -hex "{{ vault_config_dir }}/plugins/op-connect" | awk '{print $2}'
-  register: vault_op_connect_sha
+    openssl dgst -sha256 -hex "{{ vault_config_dir }}/plugins/joao" | awk '{print $2}'
+  register: vault_joao_sha
   notify: configure vault plugin
   check_mode: no
 
-# - name: Configure vault
-#   become: true
-#   template:
-#     src: templates/config.hcl.j2
-#     dest: "{{ vault_config_dir }}/config.hcl"
-#     owner: "{{ vault_user }}"
-#     mode: u=rw,g=r,o=
-#   notify: restart vault
+- name: Configure vault
+  become: true
+  template:
+    src: templates/config.hcl.j2
+    dest: "{{ vault_config_dir }}/config.hcl"
+    owner: "{{ vault_user }}"
+    mode: u=rw,g=r,o=
+  notify: restart vault

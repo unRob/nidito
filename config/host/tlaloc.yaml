@@ -16,7 +16,7 @@ tags:
 token:
   consul: !!secret
 tls:
-  key: !!secret
-  consul: !!secret
-  nomad: !!secret
-  vault: !!secret
+  key: !!secret ""
+  consul: !!secret ""
+  nomad: !!secret ""
+  vault: !!secret ""

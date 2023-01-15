@@ -1,0 +1,5 @@
+token: !!secret
+host: !!secret
+vaults:
+  admin: nidito-admin
+  service: nidito

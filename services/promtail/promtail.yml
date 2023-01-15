@@ -1,12 +1,12 @@
-{{- with secret "nidito/config/services/consul/ports" }}
-{{- scratch.Set "consulPort" .Data.http }}
+{{- with secret "cfg/infra/tree/service:consul" }}
+{{- scratch.Set "consulPort" .Data.ports.http }}
 {{- end }}
-{{- with secret "consul/" }}
+{{- with secret "consul/tktktkt" }}
 {{- scratch.Set "consulToken" .Data.token }}
 {{- end }}
 {{- $dc := env "node.region" }}
-{{- with secret (printf "nidito/config/datacenters/%s/dns" $dc) }}
-{{- scratch.Set "zone" .Data.zone }}
+{{- with secret (printf "cfg/infra/tree/dc:%s" $dc) }}
+{{- scratch.Set "zone" .Data.dns.zone }}
 {{- end }}
 positions:
   filename: /data/positions.yaml

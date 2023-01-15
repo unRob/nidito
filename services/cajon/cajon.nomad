@@ -11,8 +11,12 @@ job "cajon" {
     }
 
     network {
-      port "http" {}
-      port "admin" {}
+      port "http" {
+        host_network = "private"
+      }
+      port "admin" {
+        host_network = "private"
+      }
     }
 
     task "cajon" {
@@ -34,7 +38,7 @@ job "cajon" {
         destination = "secrets/environment"
         env = true
         data = <<ENV
-{{- with secret "nidito/config/services/minio" }}
+{{- with secret "cfg/svc/tree/nidi.to:cajon" }}
 MINIO_ACCESS_KEY={{ .Data.key }}
 MINIO_SECRET_KEY={{ .Data.secret }}
 {{ end }}
@@ -42,7 +46,7 @@ ENV
       }
 
       config {
-        image = "minio/minio"
+        image = "minio/minio:RELEASE.2022-10-24T18-35-07Z"
         args = [
           "gateway",
           "nas",

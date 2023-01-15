@@ -1,6 +1,14 @@
 job "puerta" {
   datacenters = ["casa"]
+  region = "casa"
   priority = 10
+
+  vault {
+    policies = ["puerta"]
+
+    change_mode   = "signal"
+    change_signal = "SIGHUP"
+  }
 
   group "puerta" {
     update {
@@ -22,55 +30,97 @@ job "puerta" {
     }
 
     network {
-      port "http" {}
+      port "http" {
+        host_network = "private"
+      }
+    }
+
+    task "db-restore" {
+      lifecycle {
+        hook = "prestart"
+      }
+
+      driver = "docker"
+      user = "nobody"
+
+      resources {
+        cpu    = 128
+        memory = 64
+        memory_max = 512
+      }
+
+      config {
+        image = "litestream/litestream:0.3.9"
+        args = ["restore", "/alloc/puerta.db"]
+        volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
+      }
+
+      template {
+        data = file("litestream.yaml")
+        destination = "secrets/litestream.yaml"
+      }
+    }
+
+    task "db-replicate" {
+      lifecycle {
+        hook = "prestart"
+        sidecar = true
+      }
+
+      driver = "docker"
+      user = "nobody"
+
+      resources {
+        cpu    = 256
+        memory = 128
+        memory_max = 512
+      }
+
+      config {
+        image = "litestream/litestream:0.3.9"
+        args = ["replicate"]
+        volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
+      }
+
+      template {
+        data = file("litestream.yaml")
+        destination = "secrets/litestream.yaml"
+      }
     }
 
     task "puerta" {
       driver = "docker"
       user = "nobody"
 
-      vault {
-        policies = ["puerta"]
-
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
-
       template {
-        destination = "secrets/users.json"
-        data = file("user-template.json.tpl")
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
-
-      template {
-        destination = "secrets/env"
-        env = true
+        destination = "secrets/config.yaml"
         data = <<-ENV
-          {{- with secret "nidito/service/puerta/config" }}
-          PUERTA_ADAPTER="{{ .DATA.adapter }}"
-          PUERTA_ENDPOINT="{{ .DATA.endpoint }}"
+          {{- with secret "cfg/svc/tree/nidi.to:puerta" }}
+          name: Castillo de Chapultebob
+          adapter:
+            kind: hue
+            username: {{ .Data.hue.key }}
+            ip: {{ .Data.hue.bridge }}
+            device: {{ .Data.hue.device }}
+          http:
+            listen: :{{ env "NOMAD_PORT_http" }}
+            protocol: https
           {{ end }}
-          {{- with secret "nidito/config/services/dns" }}
-          PUERTA_REALM="puerta.{{ .Data.zone }}"
-          {{ end }}
-          {{- with secret "nidito/service/puerta/consul" }}
-          CONSUL_HTTP_TOKEN={{ .DATA.token }}
-          {{ end }}
-          CONSUL_HTTP_ADDR={{ env "CONSUL_HTTP_ADDR" }}
+          {{- with secret "cfg/infra/tree/service:dns" }}
+            origin: puerta.{{ .Data.zone }}
+          {{- end -}}
         ENV
       }
 
       config {
-        image = "registry.nidi.to/puerta:202205040531"
+        image = "registry.nidi.to/puerta:202301042207"
         ports = ["http"]
+        network_mode = "host"
 
         args = [
-          "secrets/users.json"
-        ]
-
-        volumes = [
-          "secrets/users.json:/secrets/users.json",
+          "server",
+          "--config", "/secrets/config.yaml",
+          "--db", "/alloc/puerta.db"
         ]
       }
 
@@ -94,8 +144,8 @@ job "puerta" {
         meta {
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
-          nidito-http-rate-limit = "10r/m"
-          nidito-http-rate-limit-burst = "10r/m"
+          nidito-http-rate-limit = "15r/m"
+          nidito-http-rate-limit-burst = "20r/m"
         }
 
         check {

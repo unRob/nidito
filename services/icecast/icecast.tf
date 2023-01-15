@@ -16,10 +16,8 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "icecast"
-  paths = [
-    "config/services/minio",
-    "config/services/dns",
-  ]
+  services = ["cajon"]
+  configs = ["service:dns"]
 }
 
 module "external-dns" {

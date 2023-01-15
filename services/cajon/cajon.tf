@@ -14,7 +14,7 @@ terraform {
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.16.0"
+      version = "~> 2.25.2"
     }
   }
 
@@ -23,10 +23,7 @@ terraform {
 
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
-  name = "minio"
-  paths = [
-    "config/services/minio",
-  ]
+  name = "cajon"
 }
 
 
@@ -41,12 +38,12 @@ provider "digitalocean" {
   spaces_secret_key = data.vault_generic_secret.cdn.data.secret
 }
 
-data "vault_generic_secret" "dns" {
-  path = "nidito/config/services/dns/external/provider"
+data "vault_generic_secret" "digitalocean" {
+  path = "cfg/infra/tree/provider:digitalocean"
 }
 
 data "vault_generic_secret" "cdn" {
-  path = "nidito/config/services/cdn"
+  path = "cfg/infra/tree/provider:cdn"
 }
 
 

@@ -20,3 +20,6 @@ options:
   secret:
     type: bool
     description: set the value as a secret string
+  flush:
+    type: bool
+    description: save to 1password after writing to file

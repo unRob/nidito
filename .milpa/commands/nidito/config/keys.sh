@@ -3,5 +3,11 @@
 
 file="$(@config.name_to_path "${MILPA_ARG_NAME}")" || exit 0
 
-yq -o json '.' "$file" |
-  jq -L"$(@config.jq_module_dir)" --arg query "$MILPA_ARG_QUERY" -r 'include "op"; autocomplete($query)'
+joao get --output json "$file" . |
+  jq -r --arg query "$MILPA_ARG_QUERY" '
+    reduce paths(scalars) as $p ([]; . + [$p | map(tostring) | join(".")]) |
+    map(
+      select(. | startswith($query)) |
+      gsub("^(?<m>\($query)[^.]+.?).*"; "\(.m)")
+    ) |
+    unique[]'

@@ -2,7 +2,7 @@ $ORIGIN {{ config.services.dns.zone }}.
 $TTL 1h
 
 @	IN	SOA	{{ node.name }}.{{ config.services.dns.zone }}.	admin	(
-	41	; serial
+	42	; serial
 	12h	; refresh
 	3m	; retry
 	2w	; expire
@@ -21,4 +21,4 @@ $TTL 1h
 {% endfor %}
 
 ; Let clients pass letsencrypt's dns challenge
-_acme-challenge		5m		IN	NS		{{ config.services.dns.external.nameserver }}
+_acme-challenge		5m		IN	NS		{{ config.services.dns.acme_resolver }}

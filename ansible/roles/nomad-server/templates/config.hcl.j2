@@ -14,7 +14,14 @@ server {
   min_heartbeat_ttl = "20s"
   # needs to be incremented gradually as servers boot
   bootstrap_expect = {% if dc.primary %}3{% else %}1{% endif %}
-  {# encrypt = "{{ config.services.nomad.encryption_key }}" #}
+
+  # gossip encryption
+  # https://developer.hashicorp.com/nomad/tutorials/transport-security/security-gossip-encryption
+  encrypt = "{{ config.services.nomad.encryption_key }}"
+
+{# {% for name, dc in config.datacenters if dc.primary %}
+  authoritative_region = "{{ name }}"
+{% endfor %} #}
 }
 
 # Require TLS
@@ -38,6 +45,10 @@ ports {
   rpc = "{{ config.services.nomad.ports.rpc }}"
   serf = "{{ config.services.nomad.ports.serf }}"
 }
+
+{# acl {
+  enabled = true
+} #}
 
 # https://github.com/perrymanuk/hashi-homelab/blob/master/configs/nomad-server.hcl
 telemetry {
@@ -77,7 +88,6 @@ client {
 
   host_network "public" {
     cidr = "{% raw %}{{{% endraw %} GetPublicInterfaces | attr \"address\" {% raw %}}}{% endraw %}"
-
   }
 }
 
@@ -89,10 +99,18 @@ plugin "raw_exec" {
 
 plugin "docker" {
   config {
-    extra_labels = ["job_name", "task_group_name", "task_name", "namespace", "node_name", "region", "datacenter"]
+    extra_labels = [
+      "job_name",
+      "task_group_name",
+      "task_name",
+      "namespace",
+      "node_name",
+      "region",
+      "datacenter"
+    ]
 
     gc {
-      image_delay = "24h"
+      image_delay = "192h" # 8 days
     }
 
     volumes {

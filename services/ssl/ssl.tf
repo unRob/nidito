@@ -24,10 +24,9 @@ locals {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "ssl"
-  paths = [
-    "config/services/dns/external/provider",
-    "config/datacenters/${local.dc}/dns",
-    "config/providers/digitalocean",
+  configs = [
+    "dc:${local.dc}",
+    "provider:digitalocean",
   ]
   consul_creds = ["service-ssl"]
 
@@ -51,9 +50,10 @@ module "consul-policy" {
     "nidito/state/letsencrypt/registration" = "read"
     "nidito/state/letsencrypt" = "read"
     "nidito/state/letsencrypt-env:" = "list"
-    "nidito/state/letsencrypt-env:${local.dc}" = "write"
-    "nidito/state/letsencrypt-env:${local.dc}/.tfstate" = "write"
-    "nidito/state/letsencrypt-env:*" = "read"
+    "nidito/state/letsencrypt-env:*" = "write"
+    "nidito/state/letsencrypt-env:*/" = "write"
+    "nidito/state/letsencrypt-env:*/.tfstate" = "write"
+    "nidito/state/letsencrypt-env:*/.lock" = "write"
   }
 
   read_consul_data = true

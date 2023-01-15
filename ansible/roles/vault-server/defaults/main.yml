@@ -1,4 +1,4 @@
 vault_config_dir: /etc/vault.d
 vault_user: vault
-vault_op_plugin_version: cca2b55
-vault_op_plugin_src: "https://github.com/unRob/vault-plugin-secrets-onepassword/releases/download/1.0.0+nidito-{{ vault_op_plugin_version }}"
+vault_joao_version: v0.0.0+alpha.0
+vault_joao_src: "https://cdn.rob.mx/tools/joao/{{ vault_joao_version }}"

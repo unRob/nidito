@@ -1,7 +1,0 @@
-summary: Inserts secrets into file
-description: |
-  from op
-arguments:
-  - name: file
-    description: the file to process
-    required: true

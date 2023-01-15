@@ -4,7 +4,7 @@
 consul_addr="${CONSUL_HTTP_ADDR/service.consul/service.${MILPA_OPT_DC}.consul}"
 
 @milpa.log info "Getting unseal key from config"
-unseal_key="$(@config.get "dc:$MILPA_OPT_DC" vault.unseal_key json raw)" || @milpa.fail "Could not get unseal key from config"
+unseal_key="$(@config.get "dc:$MILPA_OPT_DC" vault.unseal_key)" || @milpa.fail "Could not get unseal key from config"
 
 set -o pipefail
 curl --silent --show-error --fail \

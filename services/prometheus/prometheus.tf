@@ -7,10 +7,7 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "prometheus"
-  paths = [
-    "config/services/consul/ports",
-    "config/services/ca",
-  ]
+  configs = ["service:consul", "service:ca"]
 }
 
 module "consul-policy" {

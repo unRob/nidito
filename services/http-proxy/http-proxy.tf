@@ -24,11 +24,12 @@ module "vault-policy" {
   name = "http-proxy"
   paths = [
     "tls/*",
-    "config/services/ca",
-    "config/datacenters/+/dns",
-    "config/dns",
-    "config/http/zones/*",
-    "config/networks",
-    "config/networks/*",
+  ]
+
+  configs = [
+    "service:ca",
+    "dc:*",
+    "service:dns",
+    "net:*",
   ]
 }

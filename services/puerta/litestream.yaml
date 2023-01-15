@@ -1,0 +1,13 @@
+{{- with secret "cfg/svc/tree/nidi.to:puerta" }}
+access-key-id:     {{ .Data.storage.key }}
+secret-access-key: {{ .Data.storage.secret }}
+
+dbs:
+  - path: /alloc/puerta.db
+    replicas:
+      - name: s3
+        type: s3
+        bucket: {{ .Data.storage.bucket }}
+        path: puerta.db
+        endpoint: https://{{ .Data.storage.endpoint }}
+{{- end }}

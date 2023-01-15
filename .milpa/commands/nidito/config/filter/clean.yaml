@@ -1,7 +1,0 @@
-summary: Removes secrets from file and prints to stdout
-description: |
-  See `filter` of gitattributes(5).
-arguments:
-  - name: file
-    description: the file to process
-    required: true

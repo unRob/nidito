@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/vault"
       version = "~> 2.23.0"
     }
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+      version = "~> 2.25.2"
+    }
   }
 
   required_version = ">= 1.0.0"
@@ -16,15 +20,16 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "puerta"
-  paths = [
-    "config/services/dns",
-  ]
+  configs = ["service:dns"]
 }
 
-module "consul-policy" {
-  source = "../../terraform/_modules/service/consul-policy"
-  name = "puerta"
-  create_service_token = true
+data "vault_generic_secret" "do" {
+  path = "cfg/infra/tree/provider:digitalocean"
+}
+
+
+provider "digitalocean" {
+  token = data.vault_generic_secret.do.data.token
 }
 
 module "external-dns" {

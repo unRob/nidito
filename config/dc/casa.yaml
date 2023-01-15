@@ -1,13 +1,22 @@
+primary: true
 dns:
   authority: coredns
   leaders: tepetl
+  # zone for stuff
   zone: nidi.to
 peering:
-  address: 10.42.31.1
+  address: 10.42.31.1/24
+  endpoint: !!secret
+  key:
+    public: !!secret
+    private: !!secret
   peers:
-    - nyc1
-  public_key: !!secret
-primary: true
+    rob:
+      public_key: !!secret
+      allowed_ips:
+        - 10.42.31.42/32
+    bedstuy:
+      dc: nyc1
 subnet: 10.42.0.0/16
 vault:
   nomad_token: !!secret

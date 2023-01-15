@@ -38,7 +38,7 @@ job "radio-processing" {
         env = true
         data = <<EOF
         SOURCE=/recordings
-        {{- with secret "nidito/config/services/cdn" }}
+        {{- with secret "cfg/infra/tree/service:cdn" }}
         MC_HOST_cdn="https://{{ .Data.key }}:{{ .Data.secret }}@{{ .Data.endpoint }}/"
         {{- end }}
         EOF

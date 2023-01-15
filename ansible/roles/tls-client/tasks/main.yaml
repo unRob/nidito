@@ -1,0 +1,14 @@
+- name: Add cert to store
+  become: true
+  copy:
+    content: "{{ config.services.ca.cert }}"
+    dest: /etc/ssl/certs/nidito-internal-ca.pem
+    owner: root
+    mode: u=rwx,g=rwx,o=
+  register: added_tls_cert
+  no_log: true
+
+- name: Rebuild SSL cert store
+  become: true
+  when: added_tls_cert.changed
+  shell: update-ca-certificates

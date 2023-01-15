@@ -23,6 +23,7 @@ job "loki" {
     network {
       port "http" {
         to = 3100
+        host_network = "private"
       }
     }
 

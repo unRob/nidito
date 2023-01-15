@@ -9,9 +9,9 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "promtail"
-  paths = [
-    "config/services/ca",
-    "config/services/consul/ports",
+  configs = [
+    "service:ca",
+    "service:consul"
   ]
 }
 

@@ -1,1 +1,2 @@
-config/**/*.yaml filter=op-config diff=op-config
+config/**/*.yaml filter=joao diff=joao
+**/*.joao.yaml filter=joao diff=joao

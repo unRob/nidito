@@ -4,17 +4,13 @@ terraform {
   }
 
   required_providers {
-    # acme = {
-    #   source  = "vancluever/acme"
-    #   version = "~> 2.5.3"
-    # }
     consul = {
       source = "hashicorp/consul"
       version = "~> 2.14.0"
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.16.0"
+      version = "~> 2.25.2"
     }
     vault = {
       source  = "hashicorp/vault"
@@ -25,21 +21,12 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
-
-# provider "acme" {
-#   server_url = "https://acme-v02.api.letsencrypt.org/directory"
-# }
-
 provider "digitalocean" {
-  token = data.vault_generic_secret.dns.data.token
+  token = data.vault_generic_secret.do.data.token
 }
 
-# variable "vault_password" {
-#   description = "the password to authenticate to vault with as a user"
-# }
-
-data "vault_generic_secret" "dns" {
-  path = "nidito/config/services/dns/external/provider"
+data "vault_generic_secret" "do" {
+  path = "cfg/infra/tree/provider:digitalocean"
 }
 
 data "digitalocean_droplet" "bedstuy" {
@@ -59,23 +46,10 @@ resource "digitalocean_record" "www" {
   value  = "ruidi.to."
 }
 
-# module "tls" {
-#   source = "../../terraform/_modules/tls-cert"
-#   domain_name = "ruidi.to"
-#   digitalocean_token = data.vault_generic_secret.dns.data.token
-#   dc = "nyc1"
-#   vault_password = var.vault_password
-# }
-
 resource "consul_keys" "cdn-config" {
   datacenter = "nyc1"
   key {
     path = "cdn/ruidi.to"
     value = "ruidi.to"
   }
-}
-
-resource vault_generic_secret cert-request {
-  path = "nidito/service/ssl/domains/ruidi.to"
-  data_json = jsonencode({})
 }

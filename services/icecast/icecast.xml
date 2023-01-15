@@ -1,4 +1,4 @@
-{{- with secret "nidito/config/services/dns" }}
+{{- with secret "cfg/infra/tree/service:dns" }}
 {{- scratch.Set "zone" .Data.zone }}
 {{- end }}
 <icecast>
@@ -16,12 +16,12 @@
     </limits>
 
     <authentication>
-        {{- with secret "nidito/service/icecast/credentials" }}
-        <source-password>{{ .Data.source }}</source-password>
-        <relay-password>{{ .Data.source }}</relay-password>
+        {{- with secret "cfg/svc/tree/nidi.to:icecast" }}
+        <source-password>{{ .Data.auth.source }}</source-password>
+        <relay-password>{{ .Data.auth.source }}</relay-password>
 
-        <admin-user>admin</admin-user>
-        <admin-password>{{ .Data.admin }}</admin-password>
+        <admin-user>{{ .Data.auth.admin }}</admin-user>
+        <admin-password>{{ .Data.auth.password }}</admin-password>
         {{- end }}
     </authentication>
 
@@ -29,11 +29,11 @@
 
     <listen-socket><port>8000</port></listen-socket>
 
-    {{- range secrets "nidito/service/icecast/mount/" }}
-    {{- with secret (printf "nidito/service/icecast/mount/%s" .) }}
+    {{- with secret "cfg/svc/tree/nidi.to:icecast" }}
+    {{ $name, $mount := range .Data.mounts }}
     <mount type="normal">
-      <mount-name>{{ .Data.pattern }}</mount-name>
-      {{- if .Data.record }}
+      <mount-name>{{ $mount.pattern }}</mount-name>
+      {{- if $mount.record }}
       <dump-file>/recordings/%Y-%m-%d.%H-%M-%S.${mount}</dump-file>
       <on-disconnect>/usr/share/icecast/on-disconnect.sh</on-disconnect>
       {{- end }}

@@ -1,91 +1,94 @@
 . {
-    forward . {{ config.services.dns.external.forwarders | join(" ") }}
-    cache
+  forward . {{ config.services.dns.forwarders | join(" ") }}
+  cache
 }
 
 # Main zone
 {{ config.services.dns.zone }} {
-    hosts {
-        {% for name, n in config.nodes.items() if n.dc == node.dc -%}
-        {%- if n.tags.role == "router" -%}{% set gateway_name = name %}}{% end -%}
-        {{ n.address }} {{ name }}.{{ config.services.dns.zone }}
-        {% endfor %}
+  hosts {
+    {% set gateway_name = "unknown" -%}
+    {% for name, n in config.nodes.items() if n.dc == node.dc -%}
+    {{ n.address }} {{ name }}.{{ config.services.dns.zone }}
+    {% endfor %}
 
-        fallthrough
-    }
+    fallthrough
+  }
 
-    consul_catalog nidito.dns.enabled {
-        # query for services here
-        endpoint consul.service.consul:{{ config.services.consul.ports.http }}
-        # using this consul token
-        token {{ config.services.dns.consul_token }}
-        # cache for a minute
-        ttl 1m
-        # send authoritative responses
-        {# gateway_name set above during host config #}
-        soa admin {{ gateway_name }}
+  consul_catalog nidito.dns.enabled {
+    # query for services here
+    endpoint consul.service.consul:{{ config.services.consul.ports.https }}
+    scheme https
+    # using this consul token
+    token {{ config.services.dns.consul.token }}
+    # cache for a minute
+    ttl 1m
 
-        # acls will be read off the nidito-acl nomad meta tag
-        acl_metadata_tag nidito-acl
-        # acl zones are defined here
-        acl_zone external 0.0.0.0/0
-        {% for name, net in config.networks.items() if "dc" in net and net.dc == node.dc -%}
-        acl_zone {{ name }} {{ net.range }}
-        {% endfor %}
+    # acls will be read off the nidito-acl nomad meta tag
+    acl_metadata_tag nidito-acl
+    # acl zones are defined here
+    acl_zone external 0.0.0.0/0
+    {% for name, net in config.networks.items() if "dc" in net and net.dc == node.dc -%}
+    acl_zone {{ name }} {{ net.range }}
+    {% endfor %}
 
-        # when services have the nidito.http.enabled tag
-        # answer with the nginx service addresses
-        service_proxy nidito.http.enabled nginx
-        # look for additional static entries in this kv path
-        config_kv_path dns/static-entries
-    }
+    # when services have the nidito.http.enabled tag
+    # answer with the nginx service addresses
+    service_proxy nidito.http.enabled nginx
+    # look for additional static entries in this kv path
+    config_kv_path dns/static-entries
+  }
 
-    file {{ coredns_config_path }}/zones/main
+  file {{ coredns_config_path }}/zones/main
 
-    log {
-      class denial error
-    }
+  log {
+    class denial error
+  }
 
-    errors
+  errors
 }
 
 # resolve other DCs names with tunneled addresses
 {% for dc_name, dc in config.datacenters.items() if dc_name != node.dc -%}
 # forwarded zone for {{ dc_name }}
 {{ dc.dns.zone }} {
-    hosts {
-      {% for name, n in config.nodes.items() if n.dc == dc_name -%}
-      {{ n.address }} {{ name }}.{{ dc.dns.zone }}
-      {% endfor %}
+  hosts {
+    {% for name, n in config.nodes.items() if n.dc == dc_name -%}
+    {{ n.address }} {{ name }}.{{ dc.dns.zone }}
+    {% endfor %}
 
-      fallthrough
-    }
+    fallthrough
+  }
 
-    forward . {{ config.services.dns.external.forwarders | join(" ") }}
-    cache
+  forward . {{ config.services.dns.forwarders | join(" ") }}
+  cache
 }
 {% endfor %}
 
 consul {
-    # allow only specific networks to query this zone
-    # either way, both consul and the node's firewall should deny
-    # but just in case of computers, and to make my life easier
-    acl {
-        allow net 127.0.0.1/32
-        {% for _, network in config.networks.items() if "core" in network -%}
-        allow net {{ network.range }}
-        {% endfor %}
+  # allow only specific networks to query this zone
+  # either way, both consul and the node's firewall should deny
+  # but just in case of computers, and to make my life easier
+  acl {
+    allow net 127.0.0.1/32
+    {% for _, network in config.networks.items() if "core" in network -%}
+    allow net {{ network.range }}
+    {% endfor %}
 
-        block
-    }
+    block
+  }
 
-    # Forward all requests to all leader nodes of this DC
-    forward . {% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %} {{n.address}}:{{ config.services.consul.ports.dns }}{% endfor %} {
-        policy random
-    }
+  # Forward all requests to all leader nodes of this DC
+  forward . {% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %} {{n.address}}:{{ config.services.consul.ports.dns }}{% endfor %} {
+    policy random
+  }
 
-    log {
-        class denial error
-    }
-    errors
+  cache {
+    success 500
+    denial 10
+  }
+
+  log {
+    class denial error
+  }
+  errors
 }

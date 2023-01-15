@@ -12,9 +12,10 @@ function flushing () {
   done | sort
 }
 
-set -o pipefail
-while read -r file; do
-  @config.upsert "$file" "${MILPA_OPT_DRY_RUN:+dry-run}"
-done < <(flushing)
+args=()
+if [[ "$MILPA_OPT_DRY_RUN" ]]; then
+  args+=(--dry-run)
+fi
+joao flush "${args[@]}" "$(flushing)"
 
 @milpa.log complete "Flushed secrets to 1password"

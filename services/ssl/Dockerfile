@@ -1,9 +1,9 @@
 FROM registry.nidi.to/base-operator:latest
-ENV TF_VERSION=1.2.3
+ENV TF_VERSION=1.3.5
 ARG TARGETARCH
 
 RUN export TARGETARCH=${TARGETARCH} && \
-  curl -L -o terraform.zip https://releases.hashicorp.com/terraform/1.2.3/terraform_${TF_VERSION}_linux_${TARGETARCH}.zip && \
+  curl -L -o terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_${TARGETARCH}.zip && \
   unzip terraform.zip && \
   mv terraform /usr/bin && \
   rm -rf terraform.zip

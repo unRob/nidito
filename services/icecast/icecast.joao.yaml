@@ -1,0 +1,14 @@
+auth:
+  source: !!secret
+  admin: !!secret
+  password: !!secret
+mounts:
+  jugando:
+    pattern: /jugando.*
+    record: false
+  practicando:
+    pattern: /practicando.*
+    record: true
+  presenta:
+    pattern: /presenta.*
+    record: true

@@ -16,7 +16,4 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "tv-renamer"
-  paths = [
-    "config/third-party/tvdb"
-  ]
 }

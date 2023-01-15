@@ -20,6 +20,7 @@ job "grafana" {
     network {
       port "http" {
         to = 3000
+        host_network = "private"
       }
     }
 
@@ -32,7 +33,7 @@ job "grafana" {
       }
 
       env {
-        GF_INSTALL_PLUGINS = "grafana-piechart-panel,consul"
+        GF_INSTALL_PLUGINS = "grafana-piechart-panel"
         GF_DOMAIN_ROOT_URL = "https://grafana.nidi.to"
       }
 

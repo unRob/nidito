@@ -2,4 +2,5 @@
 # comes from terraform/bootstrap
 consul_token: !!secret
 port: 5570
-version: 1.12.0
+version: 1.12.2
+nomad_token: !!secret

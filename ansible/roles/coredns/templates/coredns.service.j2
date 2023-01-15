@@ -7,7 +7,7 @@ Wants=vyatta-router.service
 [Service]
 ExecReload=/bin/kill -SIGUSR1 $MAINPID
 ExecStart=/config/coredns/coredns
-WorkingDirectory=/home/coredns
+WorkingDirectory=/config/coredns/config
 StandardOutput=syslog
 
 {# LimitNOFILE=1048576

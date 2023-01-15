@@ -18,11 +18,10 @@ job "op-connect" {
     task "sync" {
       driver = "docker"
 
-      template {
-        destination = "secrets/1password-credentials.json"
-        # this file was dropped into the vm manually
-        data = file("/root/op-connect/1password-credentials.json")
-        change_mode   = "restart"
+      resources {
+        cpu    = 100
+        memory = 200
+        memory_max = 500
       }
 
       env {
@@ -35,16 +34,20 @@ job "op-connect" {
       config {
         image = "1password/connect-sync:1.5"
         ports = ["sync"]
+        volumes = [
+          # this file was dropped into the vm manually
+          "/root/op-connect/1password-credentials.json:/secrets/1password-credentials.json"
+        ]
       }
     }
 
     task "api" {
       driver = "docker"
 
-      template {
-        destination = "secrets/1password-credentials.json"
-        data = file("/root/op-connect/1password-credentials.json")
-        change_mode   = "restart"
+      resources {
+        cpu    = 100
+        memory = 200
+        memory_max = 500
       }
 
       env {
@@ -58,6 +61,10 @@ job "op-connect" {
       config {
         image = "1password/connect-api:1.5"
         ports = ["http", "api"]
+        volumes = [
+          # this file was dropped into the vm manually
+          "/root/op-connect/1password-credentials.json:/secrets/1password-credentials.json"
+        ]
       }
 
       service {

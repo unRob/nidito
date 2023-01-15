@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -o pipefail
 export VAULT_ADDR="${VAULT_ADDR/service.consul/service.${MILPA_ARG_DC}.consul}"
 
 function vault_get () {
@@ -11,26 +12,30 @@ function vault_list() {
 }
 
 @milpa.log info "Renewing SSL for DC: $MILPA_ARG_DC"
-main_zone=$(vault_get "nidito/config/datacenters/${MILPA_ARG_DC}/dns" .data.zone) || @milpa.fail "could not find main_zone"
+main_zone=$(vault_get "cfg/infra/tree/dc:${MILPA_ARG_DC}" .data.dns.zone) || @milpa.fail "could not find main_zone"
 @milpa.log info "DC $MILPA_ARG_DC hosted at DNS zone $main_zone"
 
+jq --null-input --arg zone "$main_zone" '{domains: {($zone): "default"}}' >terraform.tfvars.json
+
 @milpa.log info "Looking for additional SSL certs to renew..."
-additional=()
 while read -r zone; do
-  additional+=("$zone")
+  zone_token=$(vault_get "nidito/service/ssl/domains/$zone" '.token // "token"') || @milpa.fail "no vault config found for zone $zone at nidito/service/ssl/domains/$zone"
+
+  jq --arg zone "$zone" --arg token "$zone_token" '.domains[$zone] = $token' <terraform.tfvars.json > terraform.tfvars.json.tmp || @milpa.fail "could not set token args"
+  mv terraform.tfvars.json.tmp terraform.tfvars.json
 done < <(vault_list nidito/service/ssl/domains '(.data.keys // [])[]')
 
-@milpa.log info "Found ${#additional[*]} zones: ${additional[*]// /, }"
+jq -r '(.domains | keys) as $keys |
+"Renewing " +
+($keys | length | tostring) +
+" zones: " +
+ ($keys | join(", "))' terraform.tfvars.json | @milpa.log info
+
 terraform init || @milpa.fail "Could not initialize tf directory"
 
 terraform workspace select "$MILPA_ARG_DC" || @milpa.fail "Could not select $MILPA_ARG_DC workspace"
 
-plan_args=()
-if [[ "${#additional[*]}" -eq 0 ]]; then
-  plan_args=("-var" "lookup_domains=false")
-fi
-
-terraform plan -detailed-exitcode -input=false -out=tf-plan "${plan_args[@]}"
+terraform plan -detailed-exitcode -input=false -out=tf-plan
 code="$?"
 trap 'rm -rf tf-plan' ERR EXIT
 
@@ -48,6 +53,10 @@ case "$code" in
       exit
     fi
     @milpa.log success "Plan succeded, applying..."
+    ;;
+  *)
+    @milpa.fail "Unknown exit code: $code"
+    ;;
 esac
 
 domains="$(terraform show -json tf-plan | jq -r '

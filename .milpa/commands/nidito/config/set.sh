@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
 @milpa.load_util config
-value=""
-if [[ -t 1 ]]; then
-  prompt="Please enter the value for ${MILPA_ARG_PATH}: "
-  read -re -p "$prompt " value
-else
-  @milpa.log debug "Reading value from stdin"
-  value="$(cat)"
-fi
+args=()
 
-writer=@config.write
 if [[ "$MILPA_OPT_SECRET" ]]; then
-  writer=@config.write_secret
+  args+=("--secret")
 fi
 
-"$writer" "$MILPA_ARG_NAME" "${MILPA_ARG_PATH}" "$value" || @milpa.fail "Could not update $MILPA_ARG_NAME"
+if [[ "$MILPA_OPT_FLUSH" ]]; then
+  args+=("--flush")
+fi
+
+file="$(@config.name_to_path "${MILPA_ARG_NAME}")" || exit 0
+joao set "${args[@]}" "$file" "$MILPA_ARG_PATH" || @milpa.fail "Could not update $MILPA_ARG_NAME"

@@ -16,7 +16,7 @@
 
 - name: Get the latest installer
   get_url:
-    url: "{{ latest_wireguard_download_url }}"
+    url: "{{ latest_wireguard_download_url.stdout }}"
     dest: /config/wireguard/installer.deb
   register: new_installer
 
@@ -26,11 +26,11 @@
   shell:
     dpkg -i /config/wireguard/installer.deb
 
-- name: Install edgerouter post-config.d script
-  become: true
-  copy:
-    src: files/post-config.sh
-    mode: u=rwx,g=rwx,o=rx
-    dest: /config/scripts/post-config.d/wireguard.sh
+# - name: Install edgerouter post-config.d script
+#   become: true
+#   copy:
+#     src: files/post-config.sh
+#     mode: u=rwx,g=rwx,o=rx
+#     dest: /config/scripts/post-config.d/wireguard.sh
 
 

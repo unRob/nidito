@@ -3,8 +3,10 @@ encryption_key: !!secret
 # long story, but one of the original servers had 8500 taken :/
 ports:
   dns: 5553
-  http: 5555
+  http: -1 # disable http
   https: 5554
+  grpc: -1 # disable grpc
+  grpc_tls: 8503 # default port
   serf_lan: 5551
   serf_wan: 5552
   server: 5550

@@ -39,6 +39,21 @@ retry_join_wan = [
   {% endfor %}
 ]
 
+# Disable peering
+# https://developer.hashicorp.com/consul/docs/connect/cluster-peering
+# we're not ready for it, since we're not using connect
+# at some point we might wanna reconsider WAN federation and move into multi-cluster
+peering {
+  enabled = false
+}
+
+# Disable connect
+# it looks pretty neat and all but I find vlans enough for my current needs
+# the gateway looks sweet, but it seems to be kubernetes only for now, :shrug:
+connect {
+  disabled = false
+}
+
 # -----------------------------
 # Encryption
 # -----------------------------
@@ -82,7 +97,6 @@ acl {
     {% if "consul_replication" in node.token %}
     replication = "{{ node.token.consul_replication }}"
     {% endif %}
-
   }
 }
 
@@ -93,6 +107,8 @@ ports {
   dns = {{ config.services.consul.ports.dns }}
   http = {{ config.services.consul.ports.http }}
   https = {{ config.services.consul.ports.https }}
+  grpc = {{ config.services.consul.ports.grpc }}
+  grpc_tls = {{ config.services.consul.ports.grpc_tls }}
 }
 
 telemetry {

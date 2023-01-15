@@ -7,7 +7,7 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "radio-processing"
-  paths = [
-    "config/services/cdn",
+  configs = [
+    "service:cdn",
   ]
 }

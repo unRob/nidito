@@ -32,7 +32,7 @@ job "putio-media-ingest" {
         data = <<EOF
 [putio]
 type = putio
-{{ with secret "nidito/config/third-party/putio" }}
+{{ with secret "cfg/infra/tree/provider:putio" }}
 token = {"access_token":"{{ .Data.token }}","expiry":"0001-01-01T00:00:00Z"}
 {{ end }}
 EOF

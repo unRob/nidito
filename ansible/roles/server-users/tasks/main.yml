@@ -3,3 +3,12 @@
   group:
     name: _nidito
     state: present
+
+- name: Add the _consul user
+  become: true
+  user:
+    name: "_consul"
+    create_home: no
+    shell: /usr/bin/false
+    groups: _nidito
+    append: yes

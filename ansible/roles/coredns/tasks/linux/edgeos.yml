@@ -1,5 +1,18 @@
+- name: Get installed version
+  become: true
+  shell: |
+    /config/coredns/coredns -version | awk -F- '/CoreDNS/ {print $2}'
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != coredns_version }}"
+
 - name: Get coredns repo
   delegate_to: localhost
+  when: needs_install
+  check_mode: no
   git:
     name: https://github.com/coredns/coredns.git
     dest: /tmp/coredns
@@ -8,6 +21,8 @@
 
 - name: Add consul plugin
   delegate_to: localhost
+  check_mode: no
+  when: needs_install
   lineinfile:
     path: /tmp/coredns/plugin.cfg
     state: present
@@ -20,6 +35,8 @@
     path: /tmp/coredns/plugin.cfg
     state: absent
     line: "{{ item }}"
+  check_mode: no
+  when: needs_install
   with_items:
     - route53:route53
     - azure:azure
@@ -30,22 +47,14 @@
 
 - name: Compile coredns
   delegate_to: localhost
+  check_mode: no
+  when: needs_install
   shell: |
     cd /tmp/coredns
     go get -u github.com/unRob/coredns-consul
     go generate
-    make coredns SYSTEM="GOARCH={{ ansible_machine }} GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
+    make coredns SYSTEM="GOARCH=mips64 GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
 
-- name: Get installed version
-  become: true
-  shell: |
-    /config/coredns/coredns -version | awk -F- '/CoreDNS/ {print $2}'
-  register: installed_version
-  check_mode: no
-  ignore_errors: yes
-
-- set_fact:
-    needs_install: "{{ installed_version.stdout != coredns_version }}"
 
 - name: Create the coredns directory
   become: true
@@ -69,7 +78,7 @@
   # notify: restart coredns
   template:
     src: templates/coredns.service.j2
-    mode: u=rwx,g=rw,o=r
+    mode: u=rwx,g=r,o=r
     dest: /etc/systemd/system/coredns.service
 
 - name: Install coredns systemd config backup
@@ -79,14 +88,23 @@
     mode: u=rwx,g=rw,o=r
     dest: /config/coredns/coredns.service
 
-- name: Install edgerouter post-config.d script
+- name: Create the coredns firstboot directory
+  become: true
+  file:
+    path: "/config/scripts/firstboot.d"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
+- name: Install edgerouter firstboot.d script
   become: true
   copy:
     src: files/post-config.sh
     mode: u=rwx,g=rwx,o=rx
-    dest: /config/scripts/post-config.d/coredns.sh
+    dest: /config/scripts/firstboot.d/coredns.sh
 
-- name: Run post-config script
+- name: Run firstboot script
   when: needs_install
   become: true
-  shell: /config/scripts/post-config.d/coredns.sh
+  shell: /config/scripts/firstboot.d/coredns.sh

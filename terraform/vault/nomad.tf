@@ -66,7 +66,11 @@ resource "vault_token" "nomad-server" {
   policies     = [vault_policy.nomad.name]
   no_parent    = true
   # one week
+  renewable = true
   period = "168h"
+  metadata = {
+    "purpose" = "nomad-servers"
+  }
 }
 
 output "nomad-server-token" {

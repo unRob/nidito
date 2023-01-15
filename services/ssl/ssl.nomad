@@ -30,7 +30,7 @@ job "ssl" {
       }
 
       config {
-        image = "registry.nidi.to/ssl:202209162215"
+        image = "registry.nidi.to/ssl:202211270603"
         command = "${node.region}"
       }
 

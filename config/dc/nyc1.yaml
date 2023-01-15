@@ -3,10 +3,14 @@ dns:
   leaders: bedstuy
   zone: rob.mx
 peering:
-  address: 10.42.31.3
+  address: 10.42.31.3/32
+  endpoint: !!secret
   peers:
-    - casa
+    anahuac:
+      dc: anahuac
+      resolve_dns: true
   private_key: !!secret
+  public_key: !!secret
 primary: false
 subnet: 10.100.0.0/20
 vault:

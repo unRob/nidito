@@ -11,3 +11,5 @@ provider: digitalocean
 # the fully qualified domain name for my nidito
 # internal services will be a subdomain of this domain
 zone: nidi.to
+# resolves DNS for ACME requests
+acme_resolver: ns1.digitalocean.com

@@ -1,0 +1,2 @@
+vault: nidito
+nameTemplate: nidi.to:{{ FileName }}

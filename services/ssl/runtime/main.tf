@@ -21,9 +21,10 @@ terraform {
   required_version = ">= 1.2.0"
 }
 
-variable "lookup_domains" {
-  default = true
-  description = "lookup domains in vault"
+variable "domains" {
+  type = map(string)
+  default = {}
+  description = "domains"
 }
 
 provider "acme" {
@@ -38,17 +39,12 @@ locals {
   dc = terraform.workspace
 }
 
-data "vault_generic_secret" "dns" {
-  path = "nidito/config/datacenters/${local.dc}/dns"
-}
-
-data "vault_kv_secrets_list" "domains" {
-  count = var.lookup_domains ? 1 : 0
-  path       = "nidito/service/ssl/domains"
+data "vault_generic_secret" "dc" {
+  path = "cfg/infra/tree/dc:${local.dc}"
 }
 
 data "vault_generic_secret" "provider_dns" {
-  path = "nidito/config/providers/digitalocean"
+  path = "cfg/infra/tree/provider:digitalocean"
 }
 
 data "terraform_remote_state" "registration" {
@@ -61,29 +57,18 @@ data "terraform_remote_state" "registration" {
   }
 }
 
-locals {
-  domains = nonsensitive(
-    toset(
-      concat(
-        [data.vault_generic_secret.dns.data.zone],
-        var.lookup_domains ? data.vault_kv_secrets_list.domains[0].names : []
-      )
-    )
-  )
-}
-
 resource acme_certificate cert {
-  for_each = local.domains
+  for_each = var.domains
   account_key_pem           = data.terraform_remote_state.registration.outputs.account_key
-  common_name               = each.value
-  subject_alternative_names = ["*.${each.value}"]
+  common_name               = each.key
+  subject_alternative_names = ["*.${each.key}"]
 
   recursive_nameservers = ["1.1.1.1:53", "8.8.8.8:53"]
 
   dns_challenge {
     provider = "digitalocean"
     config = {
-      DO_AUTH_TOKEN = data.vault_generic_secret.provider_dns.data.token
+      DO_AUTH_TOKEN = data.vault_generic_secret.provider_dns.data[each.value == "default" ? "token" : each.value]
       DO_PROPAGATION_TIMEOUT = 60
       DO_TTL = 30
     }

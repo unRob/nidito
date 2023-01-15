@@ -53,10 +53,10 @@ trap 'rm -rf output.json' ERR EXIT TERM
 
 @milpa.log info "Writing keys to config"
 while read -r host; do
-  value="$(jq -r --arg host "$host" '.keys[$host]' output.json)"
+  value="$(jq -r --arg host "$host" '.keys[$host]' output.json)" || @milpa.fail "could not find keys for $host"
   @config.write_secret "host:$host" "tls.key" "$value" || @milpa.fail "could not save key for $host"
   @milpa.log success "Wrote tls key for $host"
-done < <(jq -r '.keys | keys[]' output.json)
+done < <(jq -r '.keys | keys[]' output.json) || @milpa.fail "could not read keys"
 @milpa.log success "All keys stored"
 
 @milpa.log info "Writing certs to config"

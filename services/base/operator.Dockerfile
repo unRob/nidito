@@ -5,7 +5,7 @@ RUN mkdir -p /etc/ssl/certs && \
   curl --silent --show-error --fail -L https://cajon.nidi.to/tls/casa.pem >> /etc/ssl/certs/ca-certificates.crt
 
 ENV SHELL "/bin/bash"
-RUN curl --silent --show-error --fail -L https://milpa.dev/install.sh | bash -
+RUN curl --silent --show-error --fail -L https://milpa.dev/install.sh | MILPA_VERSION=0.0.0-alpha.33 bash -
 
 RUN mkdir -p /etc/bash_completion.d && \
   export SHELL=bash && \

@@ -17,7 +17,5 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "putio-media-ingest"
-  paths = [
-    "config/third-party/putio"
-  ]
+  configs = ["provider:putio"]
 }

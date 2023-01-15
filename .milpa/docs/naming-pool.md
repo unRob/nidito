@@ -1,4 +1,4 @@
-My local hosts are named after mountains, volcanos and hills around México City, mostly. Bold means taken. I don't think I'll need
+My local hosts are named after mountains, volcanos and hills around México City, mostly. I don't think I'll ever want to manage more computers than there's mountains in the Anahuac valley. Bold means the name is in use.
 
 - **`ajusco`**: volcán
 - **`chapultepec`**: cerro
@@ -14,12 +14,12 @@ My local hosts are named after mountains, volcanos and hills around México City
 - `telapon`: cerro
 - `tepetzinco`: cerro (peñón de los baños)
 - **`tepeyac`**: cerro
-- `tetecon`: volcán
+- **`tetecon`**: volcán
 - `tetlalmanche`: volcán (volcán de guadalupe/borrego)
 - `teuhtli`: volcán
 - **`tláloc`**: volcán
 - `xaltepec`: volcán
-- **`xitle`**: volcán
+- `xitle`: volcán
 - `zacatenco`: cerro
 
 Routers and Somebody else's computers (SECs) are named after the place they're physically located at:
@@ -29,8 +29,8 @@ Routers and Somebody else's computers (SECs) are named after the place they're p
 
 Roaming hosts are named after features beyond the Anahuac valley:
 
-- **`citlaltépetl`**: volcán (puebla/veracruz)
-- **`chautengo`**: lago (guerrero)
-- **`zempoala`**: lagunas (morelos)
-- **`texcoco`** lago (estado de méxico)
-- **`chalco`** lago (estado de méxico)
+- **`citlaltépetl`**: volcán (puebla/veracruz), my main workstation
+- **`chautengo`**: lago (guerrero), an ipad air
+- **`zempoala`**: lagunas (morelos), ipad mini
+- **`texcoco`** lago (estado de méxico), iphone
+- **`chalco`** lago (estado de méxico), ipad pro

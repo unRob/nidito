@@ -1,2 +1,2 @@
 email: !!secret
-private_key: !!secret
+private_key: !!secret ""

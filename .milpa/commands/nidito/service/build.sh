@@ -41,7 +41,7 @@ if [[ -f "$dockerfile" ]]; then
       --cache-to "type=registry,src=$image:buildcache" \
       "$service_folder" --push || @milpa.fail "Could not build image"
 
-    sed -i '' -E 's#^( *image *= *)"[^"]*"#\1"'"$image:$dateTag"'"#' "$spec"
+    sed -i '' -E 's#^( *image *= *)"registry.nidi.to/puerta:[^"]*"#\1"'"$image:$dateTag"'"#' "$spec"
   fi
 elif [[ -f "$NIDITO_ROOT/services/$service/Makefile" ]]; then
   cd "$NIDITO_ROOT/services/$service" && make nidito-build

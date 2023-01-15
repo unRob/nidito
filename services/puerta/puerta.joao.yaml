@@ -1,0 +1,9 @@
+hue:
+  key: !!secret
+  bridge: !!secret
+  device: 53
+storage:
+  bucket: puerta
+  key: !!secret
+  secret: !!secret
+  endpoint: !!secret

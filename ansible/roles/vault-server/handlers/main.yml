@@ -32,14 +32,24 @@
     set -o errexit
     export VAULT_ADDR="https://{{ node.address }}:5570"
     export VAULT_TOKEN="{{ config.datacenters[node.dc].vault.root_token }}"
-    export PLUGIN_SHA="{{ vault_op_connect_sha.stdout }}"
-    export VERSION="1.0.0+nidito-{{ vault_op_plugin_version }}"
+    export PLUGIN_SHA="{{ vault_joao_sha.stdout }}"
+    export VERSION="{{ vault_joao_version }}"
 
-    vault plugin register -sha256="$PLUGIN_SHA" -command=op-connect -version="$VERSION" secret op-connect
+    set -x
+    vault plugin register \
+      -sha256="$PLUGIN_SHA" \
+      -version="$VERSION" \
+      -args="vault-plugin" secret joao
 
-    if vault plugin list secret | grep -c -m1 '^op-connect ' >/dev/null; then
-      vault secrets tune -plugin-version="$VERSION" config/
-      vault plugin reload -plugin op-connect || true
+    if vault plugin list secret | grep -c -m1 '^joao ' >/dev/null; then
+      vault secrets tune -plugin-version="$VERSION" cfg/infra/
+      vault secrets tune -plugin-version="$VERSION" cfg/svc/
     else
-      vault secrets enable --path=config op-connect
+      vault secrets enable -path=cfg/infra joao
+      vault secrets enable -path=cfg/svc joao
     fi
+    set +x
+
+    vault write cfg/infra/1password host={{ config.services.connect.host }} token={{ config.services.connect.token }} vault={{ config.services.connect.vaults.admin }}
+    vault write cfg/svc/1password host={{ config.services.connect.host }} token={{ config.services.connect.token }} vault={{ config.services.connect.vaults.service }}
+    vault plugin reload -plugin joao || true

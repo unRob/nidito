@@ -59,7 +59,7 @@ storage:
 
 http:
   addr: :{{ env "NOMAD_PORT_http" }}
-  {{ with secret "nidito/config/services/dns" }}
+  {{ with secret "cfg/infra/tree/service:dns" }}
   host: https://registry.{{ .Data.zone }}
   {{ end }}
   secret: averysecuresecret

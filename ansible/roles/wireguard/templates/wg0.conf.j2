@@ -1,11 +1,19 @@
 [Interface]
 PrivateKey = {{ config.datacenters[node.dc].peering.private_key }}
 ListenPort = {{ config.services.wireguard.port }}
+Address = {{ peer.peering.address }}
+{% for peer_name in config.datacenters[node.dc].peering.peers if "dc" in peer and "resolve_dns" in peer %}
+{% set peer = config.datacenters[peer_name] %}
+PostUp = resolvectl domain wg0 '~{{ peer.dns.zone }}' '~42.10.in-addr.arpa'; resolvectl dns wg0 {{ peer.peering.address | replace(/\/\d+$/, "") }}:53
+MTU = 1420
+{% endfor %}
 
-{% for peer_name in config.datacenters[node.dc].peering.peers %}
+{% for peer_name in config.datacenters[node.dc].peering.peers.items() %}
+{% if "dc" in peer%}
 {% set peer = config.datacenters[peer_name] %}
 [Peer]
 PublicKey = {{ peer.peering.public_key }}
-AllowedIPs = {{ peer.peering.address }}/32, {{ peer.subnet }};
+AllowedIPs = {{ peer.peering.address | replace(/\/\d+$/, "") }}/32, {{ peer.subnet }};
 Endpoint = {{ peer.dns.zone }}:{{ config.services.wireguard.port }}
+{% endif %}
 {% endfor %}

@@ -3,7 +3,7 @@
 
 export NODE_NAME="${MILPA_ARG_NODE_NAME}"
 dc="$MILPA_ARG_DC"
-dns_zone=$(@config.get_raw "dc:$dc" ".dns.zone") || @milpa.fail "Could not find datacenter $dc"
+dns_zone=$(@config.get "dc:$dc" dns.zone) || @milpa.fail "Could not find datacenter $dc"
 
 if [[ "$MILPA_OPT_ADDRESS" == "" ]]; then
   # shellcheck disable=2016
@@ -114,7 +114,7 @@ yq . "config/host/${NODE_NAME}.yaml"
 at_root "ansible"
 pipenv run tame -l "role_router" --diff -v --tags coredns --ask-become-pass
 
-if [[ $(@config.get_raw "dc:$dc" ".dns.authority") == "external" ]]; then
+if [[ $(@config.get "dc:$dc" dns.authority) == "external" ]]; then
   @milpa.log info "Creating external dns records"
   vault kv patch "nidito/config/hosts/$NODE_NAME" dc="$dc" || @milpa.fail "Could not flush node config to vault"
   @tf.dc "external-dns" "$dc"

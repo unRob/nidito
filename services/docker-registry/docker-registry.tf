@@ -16,7 +16,5 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "docker-registry"
-  paths = [
-    "config/services/dns",
-  ]
+  configs = ["service:dns"]
 }

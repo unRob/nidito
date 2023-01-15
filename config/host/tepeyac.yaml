@@ -13,9 +13,9 @@ tags:
   role: leader
   storage: secondary
 tls:
-  consul: !!secret
-  key: !!secret
-  nomad: !!secret
-  vault: !!secret
+  consul: !!secret ""
+  key: !!secret ""
+  nomad: !!secret ""
+  vault: !!secret ""
 token:
   consul: !!secret

@@ -1,5 +1,5 @@
-{{- with secret "nidito/config/services/consul/ports" }}
-{{- scratch.Set "consulPort" .Data.http }}
+{{- with secret "cfg/infra/tree/service:consul" }}
+{{- scratch.Set "consulPort" .Data.ports.http }}
 {{- end }}
 {{- with secret "nidito/service/prometheus/consul" }}
 {{- scratch.Set "consulToken" .Data.token }}

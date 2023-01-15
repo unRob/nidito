@@ -33,7 +33,7 @@ job "tv-renamer" {
           "filename_without_episode": "%(seriesname)s - E%(seasonnumber)02dE%(episode)s%(ext)s",
           "filename_without_episode_no_season": "%(seriesname)s - %(episode)s%(ext)s",
           "verbose": true,
-          "tvdb_api_key": "{{ with secret "nidito/config/third-party/tvdb" }}{{ .Data.key }}{{ end }}"
+          "tvdb_api_key": "{{ with secret "cfg/svc/tree/nidi.to:tv-renamer" }}{{ .Data.tvdb }}{{ end }}"
         }
         JSON
         destination = "local/config.json"

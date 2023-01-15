@@ -30,7 +30,7 @@ job "promtail" {
       template {
         destination = "secrets/tls/ca.pem"
         data = <<-PEM
-        {{- with secret "nidito/config/services/ca" }}
+        {{- with secret "cfg/infra/tree/service:ca" }}
         {{ .Data.cert }}
         {{- end }}
         PEM
