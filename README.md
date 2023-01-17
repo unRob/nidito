@@ -50,8 +50,8 @@ Power efficiency is the name of the game; I started with a 40 watt/hour budget w
 - **edgeswitch 8-150**
 - **synology dsm918+**: NAS with nvidia gpu
 - **pixiepro**: quad-core 32-bit ARM microcomputer
-- **macbook pro 13"** _mid 2011_: Broken screen, found on the streets of Brooklyn
 - **macmini server** _late 2011_: donated by the Rodas Hardware Adoption Agency
+- **macbook pro 15"** _mid 2014_: Old personal laptop
 - **raspberry pi 4** _late 2021_:
 - **digitalocean 2gb droplet**: runs my personal website and projects in _the cloud_.
 

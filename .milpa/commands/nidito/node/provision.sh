@@ -108,7 +108,7 @@ tags:
   storage: none
 YAML
 @milpa.log success "Node metadata stored in $CONFIG_DIR/hosts.yaml"
-yq . "config/host/${NODE_NAME}.yaml"
+joao get "config/host/${NODE_NAME}.yaml"
 
 # add dns records
 at_root "ansible"

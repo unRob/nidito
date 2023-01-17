@@ -56,15 +56,17 @@ locals {
   policies = merge(
     local.token_policies,
     {
+      ("config/kv/service:${var.name}") = ["read"]
       ("cfg/svc/tree/${var.domain}:${var.name}") = ["read"]
       ("cfg/svc/trees") = ["list"]
       ("cfg/infra/trees") = ["list"]
-      ("data/${var.name}") = ["read", "list"]
-      ("data/${var.name}/*") = ["read", "list"]
-      ("data/${var.name}/+/*") = ["read", "list"]
+      ("nidito/service/${var.name}") = ["read", "list"]
+      ("nidito/service/${var.name}/*") = ["read", "list"]
+      ("nidito/service/${var.name}/+/*") = ["read", "list"]
     },
+    { for cfg in var.configs: ("config/kv/${cfg}") => ["read"] },
     { for cfg in var.configs: ("cfg/infra/tree/${cfg}") => ["read"] },
-    { for svc in var.services: ("cfg/svc/tree/${cfg}") => ["read"] },
+    { for svc in var.services: ("cfg/svc/tree/${svc}") => ["read"] },
       /* deprecated */
     { for path in var.paths: ("nidito/${path}") => ["read", "list"] },
     { for role in var.nomad_roles: ("nomad/creds/${role}") => ["write"] },
