@@ -1,4 +1,4 @@
 vault_config_dir: /etc/vault.d
 vault_user: vault
-vault_joao_version: v0.0.0+alpha.0
+vault_joao_version: v0.0.0+alpha.5
 vault_joao_src: "https://cdn.rob.mx/tools/joao/{{ vault_joao_version }}"

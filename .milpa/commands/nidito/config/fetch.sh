@@ -5,7 +5,7 @@
 
 function fetching () {
   if [[ "${#MILPA_ARG_NAME}" -eq 0 ]]; then
-    @config.remote_items
+    @config.all_files
     return
   fi
 
