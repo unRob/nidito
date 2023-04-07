@@ -110,10 +110,11 @@ job "puerta" {
             origin: puerta.{{ .Data.zone }}
           {{- end -}}
         ENV
+        change_mode = "noop"
       }
 
       config {
-        image = "registry.nidi.to/puerta:202301042207"
+        image = "registry.nidi.to/puerta:202302111803"
         ports = ["http"]
         network_mode = "host"
 
