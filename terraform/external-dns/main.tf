@@ -6,15 +6,15 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.13.0"
+      version = "~> 2.17.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.14.0"
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.25.2"
+      version = "~> 2.27.1"
     }
   }
 
@@ -22,19 +22,19 @@ terraform {
 }
 
 data "vault_generic_secret" "do_token" {
-  path = "nidito/config/services/dns/external/provider"
+  path = "cfg/infra/tree/provider:digitalocean"
 }
 
 data "vault_generic_secret" "dns_zone" {
-  path = "nidito/config/services/dns"
+  path = "cfg/infra/tree/service:dns"
 }
 
 provider "digitalocean" {
-  token = data.vault_generic_secret.do_token.data["token"]
+  token = data.vault_generic_secret.do_token.data.token
 }
 
 resource "digitalocean_domain" "root" {
-  name = nonsensitive(data.vault_generic_secret.dns_zone.data["zone"])
+  name = nonsensitive(data.vault_generic_secret.dns_zone.data.zone)
 }
 
 resource "digitalocean_record" "txt_root" {
