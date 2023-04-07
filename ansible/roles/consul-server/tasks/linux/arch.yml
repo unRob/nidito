@@ -4,7 +4,6 @@
     name: "{{ consul_user }}"
     create_home: no
     shell: /usr/bin/false
-    append: yes
 
 - name: Get installed version
   shell: consul --version | head -n 1 | cut -dv -f2

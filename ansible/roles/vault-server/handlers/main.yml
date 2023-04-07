@@ -27,7 +27,7 @@
 - name: Configure 1password plugin
   listen: configure vault plugin
   delegate_to: localhost
-  no_log: true
+  # no_log: true
   shell: |
     set -o errexit
     export VAULT_ADDR="https://{{ node.address }}:5570"

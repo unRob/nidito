@@ -30,11 +30,13 @@ retry_join = [ "{{ dc.dns.leaders }}.{{ dc.dns.zone }}" ]
 bootstrap_expect = 1
 # reply with our "wan" address when servicing dns/http requests from other DCs
 translate_wan_addrs = true
+recursors = ["9.9.9.9", "1.1.1.1"]
 {% endif %}
 
 # Bind all servers together
 retry_join_wan = [
-  {% for name, rdc in config.datacenters.items() if name in dc.peering.peers %}
+  {% for name, peer in dc.peering.peers.items() if "dc" in peer -%}
+  {%- set rdc = config.datacenters[peer.dc] %}
   "{{ rdc.dns.leaders }}.{{ rdc.dns.zone }}",
   {% endfor %}
 ]
@@ -51,7 +53,7 @@ peering {
 # it looks pretty neat and all but I find vlans enough for my current needs
 # the gateway looks sweet, but it seems to be kubernetes only for now, :shrug:
 connect {
-  disabled = false
+  enabled = false
 }
 
 # -----------------------------
@@ -97,6 +99,7 @@ acl {
     {% if "consul_replication" in node.token %}
     replication = "{{ node.token.consul_replication }}"
     {% endif %}
+
   }
 }
 

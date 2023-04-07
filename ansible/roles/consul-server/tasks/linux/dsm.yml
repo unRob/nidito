@@ -27,16 +27,16 @@
   with_items:
     - path: 1_create_package/ui/config
       regex: '^(\s+)"port":"[\d+]"(,?)'
-      line: '\g<1>"port": "{{ config.services.consul.ports.http }}"\g<2>'
+      line: '\g<1>"port": "{{ config.services.consul.ports.https }}"\g<2>'
     - path: 2_create_project/INFO
       regex: '^version="[\d.]+"'
       line: 'version="{{ config.services.consul.version }}"'
     - path: 2_create_project/INFO
       regex: '^adminport="?[\d.]+"?'
-      line: 'adminport={{ config.services.consul.ports.http }}'
+      line: 'adminport={{ config.services.consul.ports.https }}'
     - path: 2_create_project/scripts/consul.sc
       regex: '^dst.ports=.+'
-      line: 'dst.ports="{{ config.services.consul.ports.http }}/tcp {{ config.services.consul.ports.serf_lan }},{{ config.services.consul.ports.serf_wan }}/tcp,udp {{ config.services.consul.ports.dns }}/udp"'
+      line: 'dst.ports="{{ config.services.consul.ports.https }}/tcp {{ config.services.consul.ports.serf_lan }},{{ config.services.consul.ports.serf_wan }}/tcp,udp {{ config.services.consul.ports.dns }}/udp"'
 
 - name: Get consul binary
   when: needs_install

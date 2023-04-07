@@ -1,1 +1,1 @@
-- include: "{{ node.platform }}.yml"
+- include_tasks: "{{ node.platform }}.yml"
