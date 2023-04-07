@@ -25,6 +25,7 @@ job "prometheus" {
     network {
       port "http" {
         static = 9090
+        host_network = "private"
       }
     }
 

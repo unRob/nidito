@@ -30,7 +30,7 @@
     <listen-socket><port>8000</port></listen-socket>
 
     {{- with secret "cfg/svc/tree/nidi.to:icecast" }}
-    {{ $name, $mount := range .Data.mounts }}
+    {{ range $name, $mount := .Data.mounts }}
     <mount type="normal">
       <mount-name>{{ $mount.pattern }}</mount-name>
       {{- if $mount.record }}

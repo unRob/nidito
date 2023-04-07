@@ -6,7 +6,12 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.14.0"
+    }
+
+     consul = {
+      source  = "hashicorp/consul"
+      version = "~> 2.17.0"
     }
   }
 
@@ -16,7 +21,7 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "icecast"
-  services = ["cajon"]
+  services = ["nidi.to:cajon"]
   configs = ["service:dns"]
 }
 

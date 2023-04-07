@@ -17,8 +17,12 @@ job "docker-registry" {
     }
 
     network {
-      port "http" {}
-      port "metrics" {}
+      port "http" {
+        host_network = "private"
+      }
+      port "metrics" {
+        host_network = "private"
+      }
     }
 
 

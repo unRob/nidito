@@ -25,6 +25,7 @@ job "radio" {
       port "http" {
         to = 8000
         static = 8000
+        host_network = "private"
       }
     }
 
@@ -58,7 +59,7 @@ job "radio" {
       }
 
       config {
-        image = "registry.nidi.to/icecast:202201050126"
+        image = "registry.nidi.to/icecast:202304070642"
         ports = ["http"]
 
         volumes = [

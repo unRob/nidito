@@ -1,6 +1,6 @@
 FROM registry.nidi.to/base-sync:latest
 
-ENV UPSTREAM_VERSION "2.4.0-kh15"
+ENV UPSTREAM_VERSION "2.4.0-kh18"
 
 RUN addgroup icecast && \
     adduser -D -G icecast icecast && \
