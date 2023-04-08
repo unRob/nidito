@@ -1,0 +1,13 @@
+summary: Shows planned changes for a service deployment
+description: |
+  does a diff of nomad and terraform plans
+arguments:
+  - name: service
+    description: The name of the service to plan
+    values: { milpa: nidito service list }
+    required: true
+options:
+  dc:
+    description: the datacenter to deploy to
+    default: casa
+    values: {milpa: nidito dc list}

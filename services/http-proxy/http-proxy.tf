@@ -22,9 +22,7 @@ provider "vault" {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "http-proxy"
-  paths = [
-    "tls/*",
-  ]
+  paths = ["tls/*"]
 
   configs = [
     "service:ca",

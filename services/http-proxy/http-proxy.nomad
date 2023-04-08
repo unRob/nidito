@@ -34,12 +34,12 @@ job "http-proxy" {
     network {
       port "http" {
         static = 80
-        host_network = "public"
+        host_network = "private"
       }
 
       port "https" {
         static = 443
-        host_network = "public"
+        host_network = "private"
       }
     }
 
@@ -75,7 +75,7 @@ job "http-proxy" {
       template {
         destination = "secrets/ssl/write-ssl"
         perms = 0777
-        change_mode   = "restart"
+        change_mode   = "signal"
         data = file("docker-entrypoint.d/05-get-ssl-certs.sh")
         change_signal = "SIGHUP"
         splay = "10s"
