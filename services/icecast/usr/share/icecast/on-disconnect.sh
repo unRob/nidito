@@ -16,7 +16,17 @@ sleep 5
 if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
   log "Mirror complete"
   rm -rfv /recordings/*.mp3
-  curl -XPOST https://nomad.nidi.to/v1/job/radio-processing/dispatch --data "{}"
+  log "dispatching processing job"
+  if curl --fail --show-error --silent \
+    --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
+    -H "Authorization: Bearer ${NOMAD_TOKEN}" \
+    -XPOST \
+    -v localhost/v1/job/radio-processing/dispatch \
+    --data "{}"; then
+    log "dispatched job"
+    exit 0
+  fi
+  log "could not dispatch job"
 else
   log "MC crapped its pants"
 fi

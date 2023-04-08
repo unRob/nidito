@@ -4,11 +4,11 @@ set -o pipefail
 export VAULT_ADDR="${VAULT_ADDR/service.consul/service.${MILPA_ARG_DC}.consul}"
 
 function vault_get () {
-  curl --silent --fail --show-error -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
+  curl --max-time 5 --silent --fail --show-error -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
 }
 
 function vault_list() {
-  curl --silent --fail --show-error --request LIST -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
+  curl --max-time 5 --silent --fail --show-error --request LIST -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
 }
 
 @milpa.log info "Renewing SSL for DC: $MILPA_ARG_DC"
@@ -66,7 +66,6 @@ domains="$(terraform show -json tf-plan | jq -r '
     .values.common_name
   ) | join(", ")
 ')"
-
 
 @milpa.log info "Renewing SSL certs for $domains..."
 terraform apply --input=false -auto-approve tf-plan || @milpa.fail "Could not apply plan"

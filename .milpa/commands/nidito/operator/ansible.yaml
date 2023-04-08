@@ -1,0 +1,22 @@
+summary: Runs ansible on hosts
+description: |
+  a wrapper for ansible-playbook
+arguments:
+  - name: role
+    description: the role to apply
+    required: true
+    values:
+      script: |
+        cd $NIDITO_ROOT/ansible && pipenv run ansible-playbook playbook.yml --list-tags 2>/dev/null |
+          awk -F'[' '/TASK TAGS/ {gsub(", ", "\n"); gsub("]", ""); print $2}' |
+          sort | uniq
+  - name: hosts
+    description: A list of hosts to
+    required: true
+    variadic: true
+    values:
+      milpa: nidito node list
+options:
+  dry-run:
+    description: don't apply, only show changes
+    type: bool

@@ -1,6 +1,6 @@
 summary: lists node names
 description: |
-  from config, consul or the naming pool at .milpa/docs/naming-pool.md
+  from config, consul or the naming pool at .milpa/nidito/docs/naming-pool.md
 options:
   source:
     default: consul

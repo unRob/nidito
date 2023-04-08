@@ -1,5 +1,5 @@
 {{- with secret "cfg/infra/tree/service:consul" }}
-{{- scratch.Set "consulPort" .Data.ports.http }}
+{{- scratch.Set "consulPort" .Data.ports.https }}
 {{- end }}
 {{- with secret "nidito/service/prometheus/consul" }}
 {{- scratch.Set "consulToken" .Data.token }}
@@ -15,6 +15,7 @@ scrape_configs:
       - '10.42.0.10:9130'
 
   - job_name: consul-server
+    scheme: https
     scrape_interval: 15s
     metrics_path: /v1/agent/metrics
     authorization:
@@ -37,7 +38,7 @@ scrape_configs:
   - job_name: host_metrics
     scrape_interval: 15s
     consul_sd_configs:
-      - server: "consul.service.consul:{{ scratch.Get "consulPort" }}"
+      - server: "https://consul.service.consul:{{ scratch.Get "consulPort" }}"
         datacenter: "{{ env "node.region" }}"
         token: "{{ scratch.Get "consulToken" }}"
         tags:
@@ -51,7 +52,7 @@ scrape_configs:
   - job_name: consul-services
     scrape_interval: 15s
     consul_sd_configs:
-      - server: "consul.service.consul:{{ scratch.Get "consulPort" }}"
+      - server: "https://consul.service.consul:{{ scratch.Get "consulPort" }}"
         datacenter: "{{ env "node.region" }}"
         token: "{{ scratch.Get "consulToken" }}"
         tags:

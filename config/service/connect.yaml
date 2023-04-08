@@ -1,5 +1,6 @@
 token: !!secret
-host: !!secret
+host: https://op.query.consul:5577
 vaults:
   admin: nidito-admin
   service: nidito
+credentials: !!secret ""

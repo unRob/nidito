@@ -1,11 +1,34 @@
 job "op-connect" {
-  datacenters = ["nyc1"]
+  datacenters = ["nyc1", "casa"]
   type = "system"
+  priority = 90
+
+  constraint {
+    attribute = "${meta.storage}"
+    operator = "set_contains_any"
+    value = "primary,secondary"
+  }
+
+  constraint {
+    attribute = "${meta.os_family}"
+    operator  = "!="
+    value     = "macos"
+  }
 
   group "op-connect" {
+
+    vault {
+      policies = ["op"]
+
+      change_mode   = "signal"
+      change_signal = "SIGHUP"
+    }
+
     network {
       port "http" {
-        host_network = "public"
+        static = 5577
+        to = 8443
+        host_network = "private"
       }
       port "sync" {
         host_network = "private"
@@ -29,15 +52,28 @@ job "op-connect" {
         OP_BUS_PEERS = "${NOMAD_ADDR_api}"
         XDG_DATA_HOME = "${NOMAD_ALLOC_DIR}"
         OP_SESSION = "${NOMAD_SECRETS_DIR}/1password-credentials.json"
+        OP_TLS_KEY_FILE = "${NOMAD_SECRETS_DIR}/tls.key"
+        OP_TLS_CERT_FILE = "${NOMAD_SECRETS_DIR}/tls.pem"
+      }
+
+      template {
+        destination = "secrets/tls.key"
+        data = "{{ with secret (printf \"nidito/service/op/%s\" (env \"node.unique.name\") ) }}{{ .Data.key }}{{ end }}"
+      }
+
+      template {
+        destination = "secrets/tls.pem"
+        data = "{{ with secret (printf \"nidito/service/op/%s\" (env \"node.unique.name\") ) }}{{ .Data.cert }}{{ end }}"
+      }
+
+      template {
+        destination = "secrets/1password-credentials.json"
+        data = "{{ with secret \"nidito/service/op/_credentials\" }}{{ .Data.json }}{{ end }}"
       }
 
       config {
         image = "1password/connect-sync:1.5"
         ports = ["sync"]
-        volumes = [
-          # this file was dropped into the vm manually
-          "/root/op-connect/1password-credentials.json:/secrets/1password-credentials.json"
-        ]
       }
     }
 
@@ -56,15 +92,28 @@ job "op-connect" {
         OP_HTTP_PORT = "${NOMAD_PORT_http}"
         XDG_DATA_HOME = "${NOMAD_ALLOC_DIR}"
         OP_SESSION = "${NOMAD_SECRETS_DIR}/1password-credentials.json"
+        OP_TLS_KEY_FILE = "${NOMAD_SECRETS_DIR}/tls.key"
+        OP_TLS_CERT_FILE = "${NOMAD_SECRETS_DIR}/tls.pem"
+      }
+
+      template {
+        destination = "secrets/tls.key"
+        data = "{{ with secret (printf \"nidito/service/op/%s\" (env \"node.unique.name\") ) }}{{ .Data.key }}{{ end }}"
+      }
+
+      template {
+        destination = "secrets/tls.pem"
+        data = "{{ with secret (printf \"nidito/service/op/%s\" (env \"node.unique.name\") ) }}{{ .Data.cert }}{{ end }}"
+      }
+
+      template {
+        destination = "secrets/1password-credentials.json"
+        data = "{{ with secret \"nidito/service/op/_credentials\" }}{{ .Data.json }}{{ end }}"
       }
 
       config {
         image = "1password/connect-api:1.5"
         ports = ["http", "api"]
-        volumes = [
-          # this file was dropped into the vm manually
-          "/root/op-connect/1password-credentials.json:/secrets/1password-credentials.json"
-        ]
       }
 
       service {
@@ -76,12 +125,13 @@ job "op-connect" {
           "nidito.http.enabled",
           "nidito.http.public",
           "nidito.ingress.enabled",
-          "nidito.dns.external"
+          "nidito.dns.enabled"
         ]
 
         meta {
           nidito-acl = "allow external"
           nidito-http-max-body-size = "50m"
+          nidito-http-backend-proxy = "https://op.query.consul"
         }
       }
     }

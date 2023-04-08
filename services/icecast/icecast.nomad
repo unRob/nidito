@@ -45,6 +45,10 @@ job "radio" {
         value     = "primary"
       }
 
+      identity {
+        env = true
+      }
+
       template {
         destination = "local/icecast.xml"
         data = file("icecast.xml")

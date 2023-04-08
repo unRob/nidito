@@ -2,34 +2,49 @@
   when: ansible_pkg_mgr == "homebrew"
   listen: restart nomad
   become: yes
-  shell: "launchctl stop io.nomad.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.nomad.daemon.plist"
+  shell: "launchctl unload -w /Library/LaunchDaemons/io.nomad.daemon.plist 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.nomad.daemon.plist"
+  register: restarted_nomad
 
 - name: Reload nomad service
+  when: ansible_pkg_mgr == "homebrew" and not restarted_nomad.changed
+  listen: restart nomad
+  become: yes
+  shell: kill -HUP "$(ps x | awk '/\/usr\/local\/bin\/nomad agent/ {print $1; exit}')"
+
+
+- name: Reload systemctl daemons
+  when: ansible_pkg_mgr == "pacman"
+  listen: reload systemctl daemons
+  become: yes
+  systemd:
+    daemon_reload: true
+
+- name: Restart nomad service
   when: ansible_pkg_mgr == "pacman"
   listen: restart nomad
+  become: yes
+  systemd:
+    name: nomad
+    state: restarted
+  register: restarted_nomad
+
+- name: Reload nomad service
+  when: ansible_pkg_mgr == "pacman" and not restarted_nomad.changed
+  listen: reload nomad
   become: yes
   systemd:
     name: nomad
     state: reloaded
 
 - name: Restart nomad service
-  when: ansible_pkg_mgr == "pacman"
-  listen: really restart nomad
-  become: yes
-  systemd:
-    name: nomad
-    state: restarted
-
-- name: Restart docker service
-  when: ansible_pkg_mgr == "pacman"
-  listen: restart docker
-  become: yes
-  systemd:
-    name: docker
-    state: restarted
-
-- name: Restart nomad service
   when: ansible_pkg_mgr == "unknown"
   listen: restart nomad
   become: yes
   shell: /usr/syno/bin/synopkg restart nomad || /usr/syno/bin/synopkg start nomad
+  register: restarted_nomad
+
+- name: Reload nomad service
+  when: ansible_pkg_mgr == "unknown" and not restarted_nomad.changed
+  listen: restart nomad
+  become: yes
+  shell: kill -HUP "$(pidof $(which nomad) | awk '{print $NF}')"

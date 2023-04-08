@@ -20,3 +20,4 @@ tls:
   consul: !!secret ""
   nomad: !!secret ""
   vault: !!secret ""
+  op: !!secret ""

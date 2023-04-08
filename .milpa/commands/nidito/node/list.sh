@@ -13,5 +13,5 @@ case "${MILPA_OPT_SOURCE}" in
      '/^- '"$filter"'`/ {
        gsub("[`\*]", "", $1); sub("- ", "", $1); print $1
       }' \
-     "$NIDITO_ROOT/.milpa/docs/naming-pool.md" ;;
+     "$NIDITO_ROOT/.milpa/nidito/docs/naming-pool.md" ;;
 esac | sort -n

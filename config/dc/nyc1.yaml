@@ -7,7 +7,7 @@ peering:
   endpoint: !!secret
   peers:
     anahuac:
-      dc: anahuac
+      dc: casa
       resolve_dns: true
   private_key: !!secret
   public_key: !!secret
@@ -17,3 +17,9 @@ vault:
   nomad_token: !!secret
   unseal_key: !!secret
   root_token: !!secret
+nomad:
+  # created with
+  # nomad acl token create -type="management" -global=true -name="nyc1 Replication Token"
+  replication:
+    accessor: !!secret
+    secret: !!secret

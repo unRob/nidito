@@ -1,8 +1,8 @@
+# for log_level, tls, and vault configuration, see: config.hot-reload.hcl
 data_dir = "{{ nomad_data_dir }}"
 region = "{{ node.dc }}"
 datacenter = "{{ node.dc }}"
 name = "{{ ansible_hostname }}"
-log_level = "warn"
 log_json = true
 {% set dc = config.datacenters[node.dc] %}
 
@@ -18,26 +18,9 @@ server {
   # gossip encryption
   # https://developer.hashicorp.com/nomad/tutorials/transport-security/security-gossip-encryption
   encrypt = "{{ config.services.nomad.encryption_key }}"
-
-{# {% for name, dc in config.datacenters if dc.primary %}
+{% for name, odc in config.datacenters.items() if odc.primary %}
   authoritative_region = "{{ name }}"
-{% endfor %} #}
-}
-
-# Require TLS
-# https://learn.hashicorp.com/tutorials/nomad/security-enable-tls?in=nomad/transport-security#configuring-nomad
-tls {
-  http = true
-  rpc = true
-  # This allows the agent to accept both TLS and plaintext traffic.
-  rpc_upgrade_mode = true
-  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
-  cert_file = "{{ nomad_config_dir }}/tls/cert.pem"
-  key_file = "{{ nomad_config_dir }}/tls/key.pem"
-  verify_server_hostname = false
-  # Enabling verify_https_client effectively protects Nomad from unauthorized
-  # network access at the cost of **losing Consul HTTPS health checks**...
-  verify_https_client = false
+{% endfor %}
 }
 
 ports {
@@ -46,9 +29,12 @@ ports {
   serf = "{{ config.services.nomad.ports.serf }}"
 }
 
-{# acl {
+acl {
   enabled = true
-} #}
+{% if not dc.primary %}
+  replication_token = "{{ dc.nomad.replication.secret }}"
+{% endif %}
+}
 
 # https://github.com/perrymanuk/hashi-homelab/blob/master/configs/nomad-server.hcl
 telemetry {
@@ -137,12 +123,20 @@ consul {
   ]
 }
 
-vault {
-  enabled = true
-  address = "https://vault.service.consul:{{ config.services.vault.port }}"
+ui {
+  enabled =  true
 
-  token = "{{ dc.vault.nomad_token }}"
-  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+  consul {
+    ui_url = "https://consul.service.consul:{{ config.services.consul.ports.https }}/ui"
+  }
 
-  create_from_role = "nomad-cluster"
+  vault {
+    ui_url = "https://vault.service.consul:{{ config.services.vault.port }}/ui"
+  }
+
+  label {
+    text = "{{ node.dc }}"
+    background_color = "{% if dc.primary %}#c11145{% else %}#1d9467{% endif %}"
+    text_color = "#ffffff"
+  }
 }

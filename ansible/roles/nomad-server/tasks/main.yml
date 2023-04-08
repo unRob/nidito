@@ -36,7 +36,6 @@
       content: "{{ node.tls.nomad }}"
   notify: restart nomad
 
-
 - name: Configure nomad
   become: true
   template:
@@ -45,3 +44,12 @@
     owner: "{{ nomad_user }}"
     mode: u=rw,g=r,o=
   notify: restart nomad
+
+- name: Configure nomad tls, vault and log_level
+  become: true
+  template:
+    src: templates/config.hot-reload.hcl.j2
+    dest: "{{ nomad_config_dir }}/config.hot-reload.hcl"
+    owner: "{{ nomad_user }}"
+    mode: u=rw,g=r,o=
+  notify: reload nomad

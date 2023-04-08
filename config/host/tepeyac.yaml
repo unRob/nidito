@@ -17,5 +17,6 @@ tls:
   key: !!secret ""
   nomad: !!secret ""
   vault: !!secret ""
+  op: !!secret ""
 token:
   consul: !!secret

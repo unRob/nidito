@@ -8,5 +8,6 @@
 @milpa.shell.export VAULT_ADDR "$VAULT_ADDR"
 @milpa.shell.export CONSUL_HTTP_TOKEN "$(milpa nidito config get service:consul token)"
 @milpa.shell.export VAULT_TOKEN "$(milpa nidito config get "dc:${NIDITO_DC:-casa}" vault.root_token)"
+@milpa.shell.export NOMAD_TOKEN "$(milpa nidito config get "service:nomad" acl.secret)"
 
 echo "alias nidito='milpa nidito'"

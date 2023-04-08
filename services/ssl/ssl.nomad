@@ -30,13 +30,14 @@ job "ssl" {
       }
 
       config {
-        image = "registry.nidi.to/ssl:202211270603"
+        image = "registry.nidi.to/ssl:202302162326"
         command = "${node.region}"
       }
 
       resources {
-        cpu = 10
+        cpu = 100
         memory = 100
+        memory_max = 500
       }
     }
   }

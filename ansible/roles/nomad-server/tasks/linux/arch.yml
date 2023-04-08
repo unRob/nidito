@@ -16,23 +16,10 @@
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 
-- name: Install docker
-  become: yes
-  pacman:
-    name: docker
-    state: present
-
-- name: Enable docker
-  become: yes
-  notify: restart docker
-  systemd:
-    name: docker
-    enabled: yes
-
 - name: Install nomad
   when: installed_nomad_version.stdout != config.services.nomad.version
   become: yes
-  notify: really restart nomad
+  notify: restart nomad
   unarchive:
     remote_src: yes
     src: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
@@ -43,6 +30,7 @@
   copy:
     src: files/nomad.service
     dest: /usr/lib/systemd/system/
+  notify: reload systemctl daemons
 
 - name: Create the nomad config directory
   become: true
