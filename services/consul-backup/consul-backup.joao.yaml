@@ -1,0 +1,9 @@
+storage:
+  endpoint: !!secret
+  bucket: nidito-dr
+auth:
+  key: !!secret
+  secret: !!secret
+keypair:
+  secret: !!secret
+  public: !!secret

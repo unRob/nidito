@@ -23,9 +23,16 @@ if [[ -f "$dockerfile" ]]; then
     image="${image}-$MILPA_OPT_TASK"
   fi
 
+  build_args=()
+  if [[ -f "$service_folder/build_args.sh" ]]; then
+    while read -r arg; do
+      build_args+=( --build-arg "$arg" )
+    done < <("$service_folder/build_args.sh") || @milpa.fail "Could not run build_args to completion"
+  fi
+
   if [[ "$testing" ]]; then
     @milpa.log info "Creating $image:testing"
-    docker build -t "${image}:testing" --file "$dockerfile" "$service_folder" || @milpa.fail "Could not build image"
+    docker build "${build_args[@]}" -t "${image}:testing" --file "$dockerfile" "$service_folder" || @milpa.fail "Could not build image"
   else
     @milpa.log info "Creating $image:latest with buildx ($dateTag / $shaTag)"
     @milpa.log info "Using dockerfile at $dockerfile"
@@ -39,6 +46,7 @@ if [[ -f "$dockerfile" ]]; then
       --file "$dockerfile" \
       --cache-from "type=registry,src=$image:buildcache" \
       --cache-to "type=registry,src=$image:buildcache" \
+      "${build_args[@]}" \
       "$service_folder" --push || @milpa.fail "Could not build image"
 
     sed -i '' -E 's#^( *image *= *)"registry.nidi.to/'"$service"':[^"]*"#\1"'"$image:$dateTag"'"#' "$spec"
