@@ -44,10 +44,6 @@ path "sys/capabilities-self" {
 path "auth/token/renew-self" {
   capabilities = ["update"]
 }
-
-# path "nidito/config/*" {
-#   capabilities = ["read"]
-# }
 HCL
 }
 
@@ -67,14 +63,14 @@ resource "vault_token" "nomad-server" {
   no_parent    = true
   # one week
   renewable = true
-  period = "168h"
+  period    = "168h"
   metadata = {
     "purpose" = "nomad-servers"
   }
 }
 
 output "nomad-server-token" {
-  value = vault_token.nomad-server.client_token
+  value     = vault_token.nomad-server.client_token
   sensitive = true
 }
 
@@ -86,4 +82,47 @@ resource "vault_nomad_secret_backend" "nomad-backend" {
   max_lease_ttl_seconds     = "86400"
   max_ttl                   = "86400"
   address                   = "https://nomad.service.consul:5560"
+}
+
+resource "nomad_acl_policy" "admin" {
+  name        = "admin"
+  description = "can do everything"
+
+  # https://developer.hashicorp.com/nomad/tutorials/access-control/access-control-policies#namespace-rules
+  rules_hcl = <<-EOF
+    namespace "*" {
+      policy = "write"
+      capabilities = ["alloc-node-exec"]
+    }
+
+    node {
+      policy = "write"
+    }
+
+    agent {
+      policy = "write"
+    }
+
+    operator {
+      policy = "write"
+    }
+
+    plugin {
+      policy = "read"
+    }
+
+    host_volume "*" {
+      policy = "write"
+    }
+
+  EOF
+}
+
+resource "nomad_acl_role" "admins" {
+  name        = "admin"
+  description = "cluster admin"
+
+  policy {
+    name = nomad_acl_policy.admin.name
+  }
 }

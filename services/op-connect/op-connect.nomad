@@ -15,6 +15,11 @@ job "op-connect" {
     value     = "macos"
   }
 
+  update {
+    max_parallel = 1
+    stagger = "10s"
+  }
+
   group "op-connect" {
 
     vault {
@@ -72,13 +77,18 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-sync:1.5"
+        image = "1password/connect-sync:1.6"
         ports = ["sync"]
       }
     }
 
     task "api" {
       driver = "docker"
+
+      lifecycle {
+        hook = "prestart"
+        sidecar = true
+      }
 
       resources {
         cpu    = 100
@@ -89,7 +99,6 @@ job "op-connect" {
       env {
         OP_BUS_PORT = "${NOMAD_PORT_api}"
         OP_BUS_PEERS = "${NOMAD_ADDR_sync}"
-        OP_HTTP_PORT = "${NOMAD_PORT_http}"
         XDG_DATA_HOME = "${NOMAD_ALLOC_DIR}"
         OP_SESSION = "${NOMAD_SECRETS_DIR}/1password-credentials.json"
         OP_TLS_KEY_FILE = "${NOMAD_SECRETS_DIR}/tls.key"
@@ -112,7 +121,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-api:1.5"
+        image = "1password/connect-api:1.6"
         ports = ["http", "api"]
       }
 

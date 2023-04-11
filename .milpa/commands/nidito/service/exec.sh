@@ -1,30 +1,36 @@
 #!/usr/bin/env bash
 
 service="$MILPA_ARG_SERVICE"
-shift
 if [[ "$MILPA_OPT_LOCAL" ]]; then
   exec docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
 fi
 
 set -e pipefail
-alloc=$(curl --fail --show-error -s "${NOMAD_ADDR}/v1/job/${service}/allocations" | jq -r '.[0].ID') || @milpa.fail "Unknown job <${service}>"
-echo "asdf $alloc"
+alloc="$(nomad job allocs -json "$service" | jq -r '.[0].ID')" || @milpa.fail "Could not fetch allocation for job $service"
 
-interactive="${MILPA_OPT_INTERACTIVE:-false}"
-passtty="${MILPA_OPT_TTY:-false}"
-
-args=(/bin/sh)
-if [[ ${#@} -gt 1 ]]; then
-  args+=(-c "${MILPA_ARG_COMMAND[*]}")
-fi
-
-if [[ "${#args[@]}" -eq 1 ]] && [[ "${args[0]}" == "/bin/sh" ]]; then
+cmd=(/bin/sh)
+if [[ ${#MILPA_ARG_COMMAND[@]} -gt 0 ]]; then
+  interactive="${MILPA_OPT_INTERACTIVE:-false}"
+  passtty="${MILPA_OPT_TTY:-false}"
+  if [[ ${#MILPA_ARG_COMMAND[@]} -eq 1 ]]; then
+    cmd=("${MILPA_ARG_COMMAND[*]}")
+  else
+    cmd+=(-c "${MILPA_ARG_COMMAND[*]}")
+  fi
+else
   @milpa.log warning "Setting --tty and --interactive since we're invoking a shell"
   interactive=true
   passtty=true
 fi
 
+args=(
+  -i="${interactive}"
+  -t="${passtty}"
+)
+if [[ "${MILPA_OPT_TASK}" != "" ]]; then
+  args+=( -task "$MILPA_OPT_TASK" )
+fi
+
 exec nomad alloc exec \
-  -i="${interactive}" \
-  -t="${passtty}" \
-  "$alloc" "${args[@]}"
+  "${args[@]}" \
+  "$alloc" "${cmd[@]}"

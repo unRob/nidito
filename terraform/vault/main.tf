@@ -6,11 +6,15 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.15.0"
+      version = "~> 2.17.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.7.0"
+      version = "~> 3.14.0"
+    }
+    nomad = {
+      source  = "hashicorp/nomad"
+      version = "~> 1.4.19"
     }
   }
 
@@ -19,7 +23,7 @@ terraform {
 
 variable "admin_password" {
   description = "the password to set for the admin user"
-  sensitive = true
+  sensitive   = true
 }
 
 

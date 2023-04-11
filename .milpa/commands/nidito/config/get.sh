@@ -3,7 +3,9 @@
 
 case "$MILPA_OPT_SOURCE" in
   vault)
-    vault kv get "nidito/config/$MILPA_ARG_FILE/${MILPA_ARG_PATH//.//}"
+    p="${MILPA_ARG_PATH%.}"
+    q=".data${p:+.}${p}"
+    vault kv get -format json "cfg/infra/tree/$MILPA_ARG_FILE" | jq "$q"
   ;;
   op)
     file="$(@config.name_to_path "${MILPA_ARG_FILE}")" || exit 0

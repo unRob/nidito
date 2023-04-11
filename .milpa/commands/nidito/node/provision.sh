@@ -114,13 +114,6 @@ joao get "config/host/${NODE_NAME}.yaml"
 at_root "ansible"
 pipenv run tame -l "role_router" --diff -v --tags coredns --ask-become-pass
 
-if [[ $(@config.get "dc:$dc" dns.authority) == "external" ]]; then
-  @milpa.log info "Creating external dns records"
-  vault kv patch "nidito/config/hosts/$NODE_NAME" dc="$dc" || @milpa.fail "Could not flush node config to vault"
-  @tf.dc "external-dns" "$dc"
-  @milpa.log success "external DNS records created"
-fi
-
 # create consul token
 @milpa.log info "Creating consul token"
 @tf.dc "bootstrap" "$dc" --var new_host "$NODE_NAME"

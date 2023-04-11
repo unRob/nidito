@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -19,14 +22,17 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": 11,
-  "iteration": 1674846956017,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "description": "Basic network info per interface",
       "fieldConfig": {
         "defaults": {
@@ -34,6 +40,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -442,15 +450,21 @@
             "sum"
           ],
           "displayMode": "table",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "rate(node_network_receive_bytes_total{instance=\"10.42.20.1:9100\",device!~\"(npi|loop|lo|itf|imq).*\"}[$__rate_interval])*8",
           "format": "time_series",
@@ -462,6 +476,10 @@
           "step": 240
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "rate(node_network_transmit_bytes_total{instance=\"10.42.20.1:9100\",device!~\"(npi|loop|lo|itf|imq).*\"}[$__rate_interval])*-8",
           "format": "time_series",
@@ -473,15 +491,16 @@
           "step": 240
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Network Traffic",
       "transformations": [],
       "type": "timeseries"
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -490,30 +509,44 @@
       },
       "id": 16,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Güaifai",
       "type": "row"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": -1,
             "drawStyle": "bars",
-            "fillOpacity": 0,
-            "gradientMode": "opacity",
+            "fillOpacity": 100,
+            "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
             "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
+            "lineWidth": 0,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -553,7 +586,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#8f1a4f",
+                  "fixedColor": "#710e3a",
                   "mode": "fixed"
                 }
               }
@@ -568,7 +601,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#cc2671",
+                  "fixedColor": "#b80053",
                   "mode": "fixed"
                 }
               }
@@ -652,15 +685,21 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "unifipoller_device_stations{station_type=\"user\"}",
           "interval": "30s",
@@ -668,6 +707,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "unifipoller_device_stations{station_type=\"guest\"}",
           "hide": false,
@@ -676,14 +719,15 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Clients / UAP",
       "transformations": [],
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -691,7 +735,8 @@
           },
           "custom": {
             "fillOpacity": 100,
-            "lineWidth": 0
+            "lineWidth": 0,
+            "spanNulls": false
           },
           "mappings": [],
           "max": 50,
@@ -723,18 +768,24 @@
         "alignValue": "left",
         "legend": {
           "displayMode": "list",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "mergeValues": false,
         "rowHeight": 0.46,
         "showValue": "never",
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "max by (name) (unifipoller_client_rssi_db{essid!=\"robotitos\"})",
           "format": "time_series",
@@ -750,12 +801,19 @@
           "options": {
             "valueLabel": "name"
           }
+        },
+        {
+          "id": "merge",
+          "options": {}
         }
       ],
       "type": "state-timeline"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "description": "Bandwidth usage per wireless devices as reported by the UAPs. Rx is on the negative axis. Does not include amazon devices.",
       "fieldConfig": {
         "defaults": {
@@ -763,6 +821,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -820,15 +880,21 @@
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "sum by (name) (rate(unifipoller_client_transmit_bytes_total{name!~\".*camera.*|.*cam(era)?$\"}[$__interval]))",
           "instant": false,
@@ -837,6 +903,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "sum by (name) (rate(unifipoller_client_receive_bytes_total{name!~\".*camera.*|.*cam(era)?$\"}[$__interval])*-1)",
           "instant": false,
@@ -845,14 +915,15 @@
           "refId": "C"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "UAP Bandwidth / Wireless Devices",
       "type": "timeseries"
     },
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -861,11 +932,23 @@
       },
       "id": 6,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Uptime",
       "type": "row"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -879,6 +962,14 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 8640000
+              },
+              {
+                "color": "red",
+                "value": 31536010
               }
             ]
           },
@@ -887,14 +978,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 4,
         "w": 7,
         "x": 0,
         "y": 27
       },
       "id": 2,
       "options": {
-        "displayMode": "lcd",
+        "displayMode": "gradient",
+        "minVizHeight": 7,
+        "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -904,11 +997,17 @@
           "values": false
         },
         "showUnfilled": true,
-        "text": {}
+        "text": {
+          "valueSize": 14
+        }
       },
-      "pluginVersion": "8.1.3",
+      "pluginVersion": "9.4.7",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "last_over_time(nomad_client_uptime{service=\"nomad\"}[1h])",
           "interval": "",
@@ -923,18 +1022,136 @@
           "options": {
             "valueLabel": "instance"
           }
+        },
+        {
+          "id": "merge",
+          "options": {}
         }
       ],
       "type": "bargauge"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "fillOpacity": 61,
+            "lineWidth": 0,
+            "spanNulls": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "1": {
+                  "color": "dark-green",
+                  "index": 0,
+                  "text": "healthy"
+                },
+                "2": {
+                  "color": "dark-blue",
+                  "index": 1,
+                  "text": "leader"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              },
+              {
+                "color": "dark-blue",
+                "value": 2
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 7,
+        "x": 7,
+        "y": 27
+      },
+      "id": 20,
+      "options": {
+        "alignValue": "left",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "mergeValues": true,
+        "rowHeight": 0.89,
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "8.1.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "exemplar": true,
+          "expr": "consul_autopilot_healthy + consul_server_isLeader",
+          "format": "time_series",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{ instance }}",
+          "refId": "isHealthy"
+        }
+      ],
+      "title": "Consul server state",
+      "transformations": [],
+      "transparent": true,
+      "type": "state-timeline"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Resource Usage",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -986,24 +1203,30 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 9,
-        "x": 7,
-        "y": 27
+        "w": 7,
+        "x": 0,
+        "y": 32
       },
       "id": 4,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "avg by (instance) (avg_over_time(nomad_client_host_cpu_total[10s]))",
           "format": "time_series",
@@ -1020,19 +1243,126 @@
           "options": {
             "valueLabel": "instance"
           }
+        },
+        {
+          "id": "merge",
+          "options": {}
         }
       ],
       "transparent": true,
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic",
+            "seriesBy": "max"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 9,
+        "x": 7,
+        "y": 32
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by (task, task_group, instance) (avg_over_time(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\", task=~\"$tasks\", task_group=~\"$jobs\", service=\"nomad\"}[15s]))",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{task}}/{{task_group}} @ {{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "cpu usage by nomad task",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1085,22 +1415,28 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 27
+        "y": 32
       },
       "id": 21,
       "options": {
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100)",
           "format": "time_series",
@@ -1110,6 +1446,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
           "exemplar": true,
           "expr": "avg by (name) (avg_over_time(unifipoller_device_cpu_utilization_ratio[1m]))",
           "hide": false,
@@ -1124,51 +1464,64 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
-            "fillOpacity": 61,
-            "lineWidth": 0
-          },
-          "mappings": [
-            {
-              "options": {
-                "1": {
-                  "color": "dark-green",
-                  "index": 0,
-                  "text": "healthy"
-                },
-                "2": {
-                  "color": "dark-blue",
-                  "index": 1,
-                  "text": "leader"
-                }
-              },
-              "type": "value"
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 16,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepBefore",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
             }
-          ],
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "dark-green",
-                "value": 1
-              },
-              {
-                "color": "dark-blue",
-                "value": 2
+                "color": "red",
+                "value": 80
               }
             ]
-          },
-          "unit": "none"
+          }
         },
         "overrides": []
       },
@@ -1176,42 +1529,59 @@
         "h": 8,
         "w": 7,
         "x": 0,
-        "y": 35
+        "y": 40
       },
-      "id": 20,
+      "id": 22,
       "options": {
-        "alignValue": "left",
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "mergeValues": true,
-        "rowHeight": 0.89,
-        "showValue": "never",
         "tooltip": {
-          "mode": "single"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.1.3",
-      "repeat": null,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "consul_autopilot_healthy + consul_server_isLeader",
+          "expr": "(sum by (instance) (nomad_client_host_memory_used{service=\"nomad\"})/ sum by (instance) (nomad_client_host_memory_total{service=\"nomad\"}))*100",
           "format": "time_series",
-          "hide": false,
+          "instant": false,
           "interval": "",
-          "legendFormat": "{{ instance }}",
-          "refId": "isHealthy"
+          "legendFormat": "",
+          "refId": "A"
         }
       ],
-      "title": "Consul server state",
-      "transformations": [],
+      "title": "Memory Usage",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "instance"
+          }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        }
+      ],
       "transparent": true,
-      "type": "state-timeline"
+      "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1219,6 +1589,8 @@
             "seriesBy": "max"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1253,60 +1625,68 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
-          "unit": "percent"
+          "unit": "bytes"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 9,
         "x": 7,
-        "y": 35
+        "y": 40
       },
-      "id": 8,
+      "id": 25,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "calcs": [
+            "max",
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Max",
+          "sortDesc": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "avg by (task, instance) (avg_over_time(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\", task=~\"$jobs\"}[10s]))",
+          "expr": "sum by (task, task_group, instance) (nomad_client_allocs_memory_usage{instance=~\"$nodes\", task=~\"$tasks\", task_group=~\"$jobs\", service=\"nomad\"})",
           "format": "time_series",
           "instant": false,
           "interval": "",
-          "legendFormat": "{{task}} @ {{instance}}",
+          "legendFormat": "{{task}}/{{task_group}} @ {{instance}}",
           "refId": "A"
         }
       ],
-      "title": "cpu usage by nomad task",
+      "title": "mem usage by nomad task",
       "transformations": [],
       "type": "timeseries"
     }
   ],
-  "refresh": "",
-  "schemaVersion": 30,
+  "refresh": "1m",
+  "revision": 1,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1314,13 +1694,13 @@
             "$__all"
           ]
         },
-        "datasource": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "000000001"
+        },
         "definition": "label_values(nomad_client_allocated_cpu, instance)",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": null,
         "multi": true,
         "name": "nodes",
         "options": [],
@@ -1335,9 +1715,8 @@
         "type": "query"
       },
       {
-        "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1345,18 +1724,48 @@
             "$__all"
           ]
         },
-        "datasource": null,
-        "definition": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\"}, task)",
-        "description": null,
-        "error": null,
+        "datasource": {
+          "type": "prometheus",
+          "uid": "000000001"
+        },
+        "definition": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\"}, task_group)",
         "hide": 0,
         "includeAll": true,
-        "label": null,
         "multi": true,
         "name": "jobs",
         "options": [],
         "query": {
-          "query": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\"}, task)",
+          "query": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\"}, task_group)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "000000001"
+        },
+        "definition": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\", task_group=~\"$jobs\"}, task)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "tasks",
+        "options": [],
+        "query": {
+          "query": "label_values(nomad_client_allocs_cpu_total_percent{instance=~\"$nodes\", task_group=~\"$jobs\"}, task)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
@@ -1368,7 +1777,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {
@@ -1388,5 +1797,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "I5dazfrnk",
-  "version": 17
+  "version": 22,
+  "weekStart": ""
 }

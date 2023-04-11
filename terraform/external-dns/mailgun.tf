@@ -6,7 +6,7 @@ locals {
 }
 
 data "vault_generic_secret" "mailgun" {
-  path = "nidito/config/services/mailgun"
+  path = "cfg/infra/tree/provider:mailgun"
 }
 
 resource "digitalocean_record" "txt_smtp_domainkey" {

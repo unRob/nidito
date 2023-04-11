@@ -21,3 +21,7 @@ options:
   tty:
     type: bool
     description: pass tty to the resulting shell
+  task:
+    description: the task of this job to exec the command in
+    values:
+      script: nomad job inspect puerta | jq -r '.Job.TaskGroups | map(.Tasks) | flatten | map(.Name)[]'

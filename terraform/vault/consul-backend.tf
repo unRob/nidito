@@ -4,7 +4,7 @@ resource "vault_mount" "consul" {
 }
 
 data "terraform_remote_state" "consul" {
-  backend = "consul"
+  backend   = "consul"
   workspace = "default"
   config = {
     path = "nidito/state/consul"
@@ -20,11 +20,11 @@ resource "vault_consul_secret_backend" "consul" {
   description = "grants consul tokens"
 
   address = "consul.service.consul:5554"
-  scheme = "https"
+  scheme  = "https"
   token   = data.consul_acl_token_secret_id.vault_backend.secret_id
 }
 
-output consul_backend_name {
+output "consul_backend_name" {
   value = vault_consul_secret_backend.consul.path
 }
 

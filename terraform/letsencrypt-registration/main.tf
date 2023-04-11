@@ -6,11 +6,11 @@ terraform {
   required_providers {
     acme = {
       source  = "vancluever/acme"
-      version = "~> 2.9.0"
+      version = "~> 2.13.1"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.7.0"
+      version = "~> 3.14.0"
     }
   }
 
@@ -26,15 +26,7 @@ locals {
 }
 
 data "vault_generic_secret" "le" {
-  path = "nidito/config/services/letsencrypt"
-}
-
-data "vault_generic_secret" "dns" {
-  path = "nidito/config/datacenters/${local.dc}/dns"
-}
-
-data "vault_generic_secret" "dns_provider" {
-  path = "nidito/config/services/dns/external/provider"
+  path = "cfg/infra/tree/provider:letsencrypt"
 }
 
 resource "acme_registration" "account" {

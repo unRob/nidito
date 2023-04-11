@@ -38,7 +38,7 @@ job "grafana" {
       }
 
       config {
-        image = "grafana/grafana:8.1.3"
+        image = "grafana/grafana:9.4.7"
         ports = ["http"]
         volumes = [
           "/nidito/grafana/data:/var/lib/grafana"
@@ -47,7 +47,8 @@ job "grafana" {
 
       resources {
         cpu    = 100
-        memory = 256
+        memory = 200
+        max_memory = 500
       }
 
       service {
@@ -66,7 +67,7 @@ job "grafana" {
           nidito-acl = "allow altepetl"
           nidito-http-buffering = "off"
           nidito-http-wss = "on"
-          nidito-http-max-body-size = "1m"
+          nidito-http-max-body-size = "10m"
         }
 
         check {
