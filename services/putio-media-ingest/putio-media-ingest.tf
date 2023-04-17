@@ -30,13 +30,14 @@ namespace "default" {
 EOF
 )
 */
-resource "nomad_acl_policy" "icecast" {
+resource "nomad_acl_policy" "putio" {
   name = "putio-media-ingest-triggers-tv-renamer"
   # job = "putio-media-ingest"
   # group = "putio-media-ingest"
   # task = "rclone"
   rules_hcl = <<HCL
 namespace "default" {
+  policy = ["read"]
   capabilities = ["dispatch-job"]
 }
 HCL

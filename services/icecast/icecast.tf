@@ -63,6 +63,7 @@ resource "nomad_acl_policy" "icecast" {
   # task = "radio"
   rules_hcl = <<HCL
 namespace "default" {
+  policy = ["read"]
   capabilities = ["dispatch-job"]
 }
 HCL
