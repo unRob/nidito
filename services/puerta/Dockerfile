@@ -1,6 +1,6 @@
-FROM golang:1.18-alpine as build
+FROM golang:1.20-alpine as build
 RUN apk add --no-cache --virtual .build-deps git gcc cmake build-base make musl-dev && \
-    export GOPATH=/go; go install git.rob.mx/nidito/puerta@038e09b && \
+    export GOPATH=/go; go install git.rob.mx/nidito/puerta@a344574 && \
     apk del .build-deps
 
 FROM registry.nidi.to/base:latest

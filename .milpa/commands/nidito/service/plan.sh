@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
-service="$MILPA_ARG_SERVICE"
-service_folder="$NIDITO_ROOT/services/$service"
-spec="$service_folder/$service.nomad"
-http_spec="$service_folder/$service.http-service"
-
-cd "$service_folder" || @milpa.fail "services folder not found"
+if [[ "$MILPA_OPT_SPEC" ]]; then
+  service="$(basename "${MILPA_ARG_SERVICE%%.nomad}")"
+  service_folder="$(dirname "$MILPA_ARG_SERVICE")"
+  spec="$MILPA_ARG_SERVICE"
+  @milpa.log warning "Reading local nomad file: $spec"
+else
+  service="$MILPA_ARG_SERVICE"
+  service_folder="$NIDITO_ROOT/services/$service"
+  spec="$service_folder/$service.nomad"
+  cd "$service_folder" || @milpa.fail "services folder not found"
+fi
 
 export NOMAD_ADDR="${NOMAD_ADDR/.service.consul/.service.${MILPA_OPT_DC}.consul}"
 

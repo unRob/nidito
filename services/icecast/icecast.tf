@@ -60,6 +60,7 @@ resource "nomad_acl_policy" "icecast" {
   name = "icecast-triggers-radio-processing"
   # job = "radio"
   # group = "radio"
+  # task = "radio"
   rules_hcl = <<HCL
 namespace "default" {
   capabilities = ["dispatch-job"]

@@ -7,7 +7,7 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.14.0"
     }
   }
 
@@ -18,4 +18,26 @@ module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "putio-media-ingest"
   configs = ["provider:putio"]
+}
+
+/*
+TODO: set job and group when https://github.com/hashicorp/terraform-provider-nomad/pull/314 lands
+created with the following command, then imported
+nomad acl policy apply -namespace default -job putio-media-ingest -group putio-media-ingest -task rclone putio-media-ingest-triggers-tv-renamer <(cat <<EOF
+namespace "default" {
+  capabilities = ["dispatch-job"]
+}
+EOF
+)
+*/
+resource "nomad_acl_policy" "icecast" {
+  name = "putio-media-ingest-triggers-tv-renamer"
+  # job = "putio-media-ingest"
+  # group = "putio-media-ingest"
+  # task = "rclone"
+  rules_hcl = <<HCL
+namespace "default" {
+  capabilities = ["dispatch-job"]
+}
+HCL
 }

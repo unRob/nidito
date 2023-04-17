@@ -4,9 +4,19 @@ description: |
 arguments:
   - name: service
     description: The name of the service to plan
-    values: { milpa: nidito service list }
+    values:
+      script: |
+        {{ if (eq (index .Opts "spec") "true") -}}
+        find . -name "*.nomad"
+        {{- else -}}
+        milpa nidito service list
+        {{- end}}
+      suggest-only: true
     required: true
 options:
+  spec:
+    description: provide a nomad spec instead of a service name
+    type: bool
   dc:
     description: the datacenter to deploy to
     default: casa

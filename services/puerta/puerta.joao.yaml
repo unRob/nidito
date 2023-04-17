@@ -7,3 +7,7 @@ storage:
   key: !!secret
   secret: !!secret
   endpoint: !!secret
+push:
+  key:
+    private: !!secret
+    public: !!secret

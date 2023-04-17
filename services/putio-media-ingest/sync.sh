@@ -66,6 +66,10 @@ echo "Sync complete"
 if [[ "$downloaded" -gt 0 ]]; then
   echo "Dispatching tv-renamer"
   set -o xtrace
-  curl \
-    -XPOST https://nomad.nidi.to/v1/job/tv-renamer/dispatch --data "{}"
+  curl --fail --show-error --silent \
+    --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
+    -H "Authorization: Bearer ${NOMAD_TOKEN}" \
+    -XPOST \
+    -v localhost/v1/job/tv-renamer/dispatch \
+    --data "{}"
 fi

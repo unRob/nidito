@@ -6,6 +6,11 @@ resource "vault_identity_oidc_assignment" "admin" {
   group_ids  = [vault_identity_group.admin.id]
 }
 
+output "admin_oidc_assignment" {
+  value = vault_identity_oidc_assignment.admin
+}
+
+
 resource "vault_identity_oidc_key" "infra" {
   name               = "internal"
   allowed_client_ids = ["*"]

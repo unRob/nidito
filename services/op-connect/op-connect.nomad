@@ -134,13 +134,15 @@ job "op-connect" {
           "nidito.http.enabled",
           "nidito.http.public",
           "nidito.ingress.enabled",
-          "nidito.dns.enabled"
+          "nidito.dns.enabled",
+          "nidito.metrics.enabled"
         ]
 
         meta {
           nidito-acl = "allow external"
           nidito-http-max-body-size = "50m"
           nidito-http-backend-proxy = "https://op.query.consul"
+          nidito-metrics-scheme = "https"
         }
       }
     }

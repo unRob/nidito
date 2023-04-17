@@ -104,7 +104,12 @@ job "puerta" {
             device: {{ .Data.hue.device }}
           http:
             listen: :{{ env "NOMAD_PORT_http" }}
+            origin: puerta.nidi.to
             protocol: https
+          push:
+            key:
+              private: {{ .Data.push.key.private }}
+              public: {{ .Data.push.key.public }}
           {{ end }}
           {{- with secret "cfg/infra/tree/service:dns" }}
             origin: puerta.{{ .Data.zone }}
@@ -114,20 +119,17 @@ job "puerta" {
       }
 
       config {
-        image = "registry.nidi.to/puerta:202302111803"
+        image = "registry.nidi.to/puerta:202304162303"
         ports = ["http"]
         network_mode = "host"
-
-        args = [
-          "server",
-          "--config", "/secrets/config.yaml",
-          "--db", "/alloc/puerta.db"
-        ]
+        entrypoint = ["/bin/sh", "-c"]
+        command = "puerta db migrate --config /secrets/config.yaml --db /alloc/puerta.db && puerta server --config /secrets/config.yaml --db /alloc/puerta.db"
       }
 
       resources {
         cpu    = 50
         memory = 128
+        memory_max = 512
       }
 
       service {

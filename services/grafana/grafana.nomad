@@ -35,6 +35,7 @@ job "grafana" {
       env {
         GF_INSTALL_PLUGINS = "grafana-piechart-panel"
         GF_DOMAIN_ROOT_URL = "https://grafana.nidi.to"
+        // GF_PATHS_CONFIG = "/secrets/grafana.ini"
       }
 
       config {
@@ -48,7 +49,7 @@ job "grafana" {
       resources {
         cpu    = 100
         memory = 200
-        max_memory = 500
+        memory_max = 500
       }
 
       service {
@@ -72,7 +73,7 @@ job "grafana" {
 
         check {
           type     = "http"
-          path     = "/health"
+          path     = "/healthz"
           interval = "10s"
           timeout  = "2s"
         }

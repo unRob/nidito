@@ -74,6 +74,10 @@ scrape_configs:
         regex: '.*,nidito\.metrics\.hc-prometheus-hack,.*'
         target_label: __scheme__
         replacement: 'https'
+      - source_labels: ['__meta_consul_service_metadata_nidito_metrics_scheme']
+        regex: '(.+)'
+        target_label: __scheme__
+        replacement: '$1'
       - source_labels: ['__meta_consul_tags']
         regex: '.*,nidito\.metrics\.hc-prometheus-hack,.*'
         target_label: __param_format

@@ -24,6 +24,10 @@ job "putio-media-ingest" {
         value     = "primary"
       }
 
+      identity {
+        env = true
+      }
+
       env {
         TARGET = "/media"
       }
@@ -40,10 +44,8 @@ EOF
       }
 
       config {
-        image = "registry.nidi.to/putio-media-ingest:202201050009"
+        image = "registry.nidi.to/putio-media-ingest:202304132335"
 
-        # needs to be able to talk to nomad to dispatch jobs
-        network_mode = "host"
 
         volumes = [
           "local/rclone.conf:/config/rclone/rclone.conf",
@@ -54,7 +56,7 @@ EOF
       resources {
         cpu = 40
         memory = 100
-        max_memory = 800
+        memory_max = 800
       }
     }
   }
