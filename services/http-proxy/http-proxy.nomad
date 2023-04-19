@@ -1,3 +1,15 @@
+locals {
+  resources = {
+    cpu    = 100
+    memory = 128
+  }
+
+  ports = {
+    http = 80
+    https = 443
+  }
+}
+
 job "http-proxy" {
   datacenters = ["casa", "nyc1"]
   type = "system"
@@ -30,12 +42,12 @@ job "http-proxy" {
 
     network {
       port "http" {
-        static = 80
+        static = local.ports.http
         host_network = "private"
       }
 
       port "https" {
-        static = 443
+        static = local.ports.https
         host_network = "private"
       }
     }
@@ -94,14 +106,141 @@ job "http-proxy" {
       }
 
       resources {
-        cpu    = 100
-        memory = 128
+        cpu    = local.resources.cpu
+        memory = local.resources.memory
       }
 
       service {
         name = "nginx"
         port = "http"
         address_mode = "host"
+
+        tags = [
+          "nidito.infra",
+          "nidito.dns.enabled",
+          "nidito.ingress.enabled",
+        ]
+
+        meta {
+          nidito-acl = "allow external"
+        }
+
+        check {
+          type     = "http"
+          port     = "http"
+          path     = "/status"
+          interval = "60s"
+          timeout  = "2s"
+        }
+      }
+    }
+  }
+
+  group "http-proxy-macos" {
+    restart {
+      # on failure, restart at most
+      attempts = 20
+      # during
+      interval = "20m"
+      # waiting after a crash
+      delay = "5s"
+      # after which, continue waiting `interval` units
+      # before retrying
+      mode = "delay"
+    }
+
+    network {
+      port "http" {
+        static = local.ports.http
+        host_network = "private"
+      }
+
+      port "https" {
+        static = local.ports.https
+        host_network = "private"
+      }
+    }
+
+    task "nginx-macos" {
+      constraint {
+        attribute = "${meta.os_family}"
+        value     = "macos"
+      }
+
+      driver = "raw_exec"
+
+      template {
+        destination = "local/nidito/proxied-services"
+        data = file("proxied-services.json.tpl")
+        change_mode   = "noop"
+      }
+
+      template {
+        destination = "local/conf.d/default.conf"
+        data = replace(
+          replace(
+            file("nginx.conf"),
+            "/ssl",
+            "{{env \"NOMAD_SECRETS_DIR\" }}/ssl"
+          ),
+          "/var/lib/www",
+          "{{ env \"NOMAD_TASK_DIR\" }}/nidito"
+        )
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+        splay = "10s"
+      }
+
+      template {
+        destination = "local/nginx.conf"
+        data = file("macos/nginx.conf")
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+        splay = "10s"
+      }
+
+      template {
+        destination = "local/mime.types"
+        data = file("macos/mime.types")
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+        splay = "10s"
+      }
+
+      template {
+        destination = "secrets/ssl/write-ssl"
+        perms = 0777
+        change_mode   = "signal"
+        data = replace(file("docker-entrypoint.d/05-get-ssl-certs.sh"), "/ssl", "${NOMAD_SECRETS_DIR}/ssl")
+        change_signal = "SIGHUP"
+        splay = "10s"
+      }
+
+
+      template {
+        destination = "local/entrypoint.sh"
+        perms = 0777
+        data = <<-SH
+          #!/usr/bin/env bash
+          set -o errexit
+          ${NOMAD_SECRETS_DIR}/ssl/write-ssl
+          /usr/local/bin/nginx -c {{ env "NOMAD_TASK_DIR" }}/nginx.conf
+        SH
+      }
+
+
+      config {
+        command = "/local/entrypoint.sh"
+      }
+
+      resources {
+        cpu    = local.resources.cpu
+        memory = local.resources.memory
+      }
+
+      service {
+        name = "nginx"
+        port = "http"
 
         tags = [
           "nidito.infra",
