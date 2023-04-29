@@ -34,18 +34,33 @@ esac
 trap 'rm -rf plan.out' ERR EXIT
 @milpa.log warning "Nomad will update allocations:"
 
-function templatesBefore() {
-  while IFS= read -r line; do
-    jq -r --raw-input '. | split("\" => \"") | first + "\"" | fromjson' <<<"$line"
-  done < <(awk -F"EmbeddedTmpl:" '/EmbeddedTmpl:/ {print $2}' plan.out)
+function templateAfter() {
+  awk -F"EmbeddedTmpl: " <<<"$1" '{print $2}' |
+    jq -r --raw-input '. | split("\" => {1,2}\""; "") | ("\"" + last) | fromjson'
 }
 
-function templatesAfter() {
-  while IFS= read -r line; do
-    jq -r --raw-input '. | split("\" => \"") | ("\"" + last) | fromjson' <<<"$line"
-  done < <(awk -F"EmbeddedTmpl:" '/EmbeddedTmpl:/ {print $2}' plan.out)
+function templateBefore() {
+  awk -F"EmbeddedTmpl: " <<<"$1" '{print $2}' |
+    jq -r --raw-input '. | split("\" => +\""; "") | first + "\"" | fromjson'
 }
 
-cat plan.out
-diff -u <(templatesBefore) <(templatesAfter) |
-  delta --syntax-theme=GitHub --features="$(defaults read -globalDomain AppleInterfaceStyle >/dev/null 2>&1 && echo dark-mode || echo light-mode)"
+function prettydiff() {
+  diff -u -L "before" "$1" -L "after" "$2" |
+    delta --syntax-theme=GitHub \
+      --paging=never \
+      --features="$(defaults read -globalDomain AppleInterfaceStyle >/dev/null 2>&1 && echo dark-mode || echo light-mode)"
+}
+
+while IFS='' read -r line; do
+  if ! [[ "$line" =~ ^( *).*\+(/-)?.*( *)EmbeddedTmpl:( *).*$ ]]; then
+    echo "$line"
+    continue
+  fi
+
+  awk -F":" '{print $1 ":"}' <<<"$line"
+  if [[ "$line" =~ ^( *).*\+/-.*( *)EmbeddedTmpl:( *).*$ ]]; then
+    prettydiff <(templateBefore "$line") <(templateAfter "$line")
+  elif [[ "$line" =~ ^( *).*\+.*( *)EmbeddedTmpl:( *).*$ ]]; then
+    prettydiff <(echo "") <(awk -F"EmbeddedTmpl:" '{print $2}' <<<"$line" | jq -r --raw-input "fromjson")
+  fi
+done < plan.out

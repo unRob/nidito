@@ -1,28 +1,104 @@
+- name: Create the dynamic dns update script directory
+  become: true
+  file:
+    path: "/config/dyndns"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
 - name: Install ddclient nsupdate script
   become: true
   copy:
     src: files/dyndns.sh
     mode: u=rwx,g=rwx,o=rx
-    dest: /config/dyndns.sh
+    dest: /config/dyndns/dyndns.sh
 
+- name: configure ddclient (diff)
+  check_mode: false
+  become: true
+  when: ansible_check_mode
+  shell:
+    executable: /bin/vbash
+    cmd: |
+      source /opt/vyatta/etc/functions/script-template
+      configure
+      delete service dns dynamic interface pppoe0
+      set service dns dynamic interface pppoe0 web 'http://ipinfo.io/ip'
+      set service dns dynamic interface pppoe0 service custom-digitalocean host-name {{ config.datacenters[node.dc].dns.zone }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean login /config/dyndns/dyndns.sh
+      set service dns dynamic interface pppoe0 service custom-digitalocean options zone={{ config.datacenters[node.dc].dns.zone }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean password {{ config.providers.digitalocean.token }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean protocol nsupdate
+      set service dns dynamic interface pppoe0 service custom-digitalocean server {{ config.datacenters[node.dc].dns.zone }}
+      show | grep -E '^[>+\-]'
+      discard
+      exit
+  register: ddclient_diff
+
+- debug:
+    var: ddclient_diff.stdout_lines
+  when: ansible_check_mode
+
+
+- name: configure ddclient
+  become: true
+  when: not ansible_check_mode
+  shell:
+    executable: /bin/vbash
+    cmd: |
+      source /opt/vyatta/etc/functions/script-template
+      configure
+      delete service dns dynamic interface pppoe0
+      set service dns dynamic interface pppoe0 web 'http://ipinfo.io/ip'
+      set service dns dynamic interface pppoe0 service custom-digitalocean host-name {{ config.datacenters[node.dc].dns.zone }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean login /config/dyndns/dyndns.sh
+      set service dns dynamic interface pppoe0 service custom-digitalocean options zone={{ config.datacenters[node.dc].dns.zone }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean password {{ config.providers.digitalocean.token }}
+      set service dns dynamic interface pppoe0 service custom-digitalocean protocol nsupdate
+      set service dns dynamic interface pppoe0 service custom-digitalocean server {{ config.datacenters[node.dc].dns.zone }}
+      show | grep -E '^[>+\-]'
+      commit
+      exit
+  register: ddclient_commit
+
+- debug:
+    var: ddclient_commit.stdout_lines
+  when: not ansible_check_mode
+
+- name: Create the firstboot directory
+  become: true
+  file:
+    path: "/config/scripts/firstboot.d"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
+- name: Install certificate loader firstboot.d script
+  become: true
+  template:
+    src: templates/install-certificates.sh.j2
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/firstboot.d/00-install-certificates.sh
+  register: config_install
 
 - name: Update cache
   become: true
+  when: not ansible_check_mode
   apt:
     update_cache: true
     cache_valid_time: 3600
 
-
 - name: Install packages
+  when: not ansible_check_mode
   become: true
   apt:
     pkg:
       - sshguard
       - mtr-tiny
       - jq
-    present: true
-
-# TODO: https://github.com/dippynark/edgerouter-lite/blob/master/node-exporter.sh
+    state: present
 
 # - name: Configure the router
 #   edgeos_config:

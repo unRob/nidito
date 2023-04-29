@@ -34,7 +34,7 @@ firewall:
   familia: [established, related]
   local:
     default: [dns, dhcp]
-range: 10.42.100.0/20
+range: 10.42.96.0/20
 services:
   sonos:
     ports: 3400-3401,3500,136-139,1900-1901,6969

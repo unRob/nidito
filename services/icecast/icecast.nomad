@@ -45,9 +45,11 @@ job "radio" {
         value     = "primary"
       }
 
-      identity {
-        env = true
-      }
+      // workload identity is broken for periodic tasks
+      // https://github.com/hashicorp/nomad/pull/17018
+      // identity {
+      //   env = true
+      // }
 
       template {
         destination = "local/icecast.xml"
@@ -63,7 +65,7 @@ job "radio" {
       }
 
       config {
-        image = "registry.nidi.to/icecast:202304070642"
+        image = "registry.nidi.to/icecast:202304290545"
         ports = ["http"]
 
         volumes = [

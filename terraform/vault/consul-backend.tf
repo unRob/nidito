@@ -27,5 +27,3 @@ resource "vault_consul_secret_backend" "consul" {
 output "consul_backend_name" {
   value = vault_consul_secret_backend.consul.path
 }
-
-// TODO: 1password-op-connect-vault plugin config

@@ -1,0 +1,19 @@
+# - name: Restart docker service
+#   when: ansible_pkg_mgr == "homebrew"
+#   listen: restart docker
+#   become: yes
+#   shell: "launchctl stop io.docker.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.docker.daemon.plist"
+
+- name: Restart docker service
+  when: ansible_pkg_mgr == "pacman"
+  listen: restart docker
+  become: yes
+  systemd:
+    name: docker
+    state: restarted
+
+- name: Restart docker service
+  when: ansible_pkg_mgr == "unknown"
+  listen: restart docker
+  become: yes
+  shell: /usr/syno/bin/synopkg restart docker || /usr/syno/bin/synopkg start docker

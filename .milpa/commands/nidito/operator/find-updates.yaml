@@ -1,0 +1,3 @@
+summary: Finds updated versions of the hashicorp stack
+description: |
+  Reads release notes and prints any new version

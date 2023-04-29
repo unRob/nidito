@@ -46,14 +46,20 @@ Most things these days can and will run great with docker, and some things will 
 
 Power efficiency is the name of the game; I started with a 40 watt/hour budget which has slowly grown along the amount of hardware in my rack. Now we're on a 100 watt/hour budget, which I wanna try to stick to for a long time.
 
-- **edgerouter 12p**: Runs network-y stuff like every other router.
-- **edgeswitch 8-150**
+- **edgerouter 12p**: Runs network-y stuff like every other router
+- **edgeswitch 8-150**: feeds POE to my APs
+- **unifi cloud key 2+**: A glorified access-point manager and network dashboard
 - **synology dsm918+**: NAS with nvidia gpu
 - **pixiepro**: quad-core 32-bit ARM microcomputer
 - **macmini server** _late 2011_: donated by the Rodas Hardware Adoption Agency
 - **macbook pro 15"** _mid 2014_: Old personal laptop
-- **raspberry pi 4** _late 2021_:
-- **digitalocean 2gb droplet**: runs my personal website and projects in _the cloud_.
+- **raspberry pi 4** _late 2021_: 8gb of ram 64-bit arm microcomputer
+- **macmini m2** _early 2023_: Needed something that'll run latest macOS for a while
+- **digitalocean 2gb droplet**: runs my personal website and projects in _the cloud_
+
+#### Previous Hardware
+
+- **macbook pro 13"** _mid 2011_: Broken screen, found on the streets of Brooklyn
 
 ### Services
 

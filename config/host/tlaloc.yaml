@@ -9,9 +9,7 @@ hardware:
   os: macos/11.6
 mac: !!secret
 tags:
-  # can be leader or router
   role: leader
-  # one of: primary, secondary, none
   storage: secondary
 token:
   consul: !!secret

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+echo "sup!"
 export TARGET="${TARGET:-./tmp}"
 
 function fail () {
@@ -64,12 +64,16 @@ rm -rf tmp
 echo "Sync complete"
 
 if [[ "$downloaded" -gt 0 ]]; then
-  echo "Dispatching tv-renamer"
-  set -o xtrace
-  curl --fail --show-error --silent \
-    --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
-    -H "Authorization: Bearer ${NOMAD_TOKEN}" \
-    -XPOST \
-    -v localhost/v1/job/tv-renamer/dispatch \
-    --data "{}"
+echo "Dispatching tv-renamer"
+set -o xtrace
+
+# workload identity is broken for periodic tasks
+# https://github.com/hashicorp/nomad/pull/17018
+# -H "Authorization: Bearer ${NOMAD_TOKEN}" \
+curl --fail-with-body --silent \
+  --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
+  -H "x-nomad-token: ${NOMAD_TOKEN}" \
+  -XPOST \
+  localhost/v1/job/tv-renamer/dispatch \
+  --data-binary "{}"
 fi

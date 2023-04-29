@@ -9,18 +9,18 @@ job "op-connect" {
     value = "primary,secondary"
   }
 
-  constraint {
-    attribute = "${meta.os_family}"
-    operator  = "!="
-    value     = "macos"
-  }
-
   update {
     max_parallel = 1
     stagger = "10s"
   }
 
   group "op-connect" {
+
+    constraint {
+      attribute = "${meta.os_version}"
+      operator  = "!="
+      value     = "11.6"
+    }
 
     vault {
       policies = ["op"]

@@ -36,7 +36,7 @@ dhcp:
     size: 5
     ssid: "␖/␆"
     vlan: 30
-range: 10.42.20.0/20
+range: 10.42.16.0/20
 services:
   http:
     ports: 80,443

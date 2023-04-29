@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 svc="$MILPA_ARG_NAME"
-svc_folder="services/$svc"
+svc_folder="$(dirname "$MILPA_COMMAND_REPO")/services/$svc"
 
 mkdir "$svc_folder"
 cat >"$svc_folder/$svc.nomad" <<HCL

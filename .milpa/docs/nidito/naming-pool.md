@@ -9,7 +9,7 @@ My local hosts are named after mountains, volcanos and hills around México City
 - `huixachtlan`: cerro (estrella/iztapalapan/huizachtepetl)
 - `iztlaccihuatl`: volcán
 - `jálpan`: ?? (from historia sumaria)
-- `popocatepetl`: volcán
+- **`popocatepetl`**: volcán
 - `suchiooc`: volcán
 - `telapon`: cerro
 - `tepetzinco`: cerro (peñón de los baños)

@@ -1,16 +1,16 @@
 - name: Restart coredns service
-  when: ansible_pkg_mgr == "homebrew"
-  listen: restart coredns
-  become: yes
-  shell: "launchctl stop io.coredns.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.coredns.daemon.plist"
-
-- name: Restart coredns service
-  when: ansible_pkg_mgr == "pacman" or node.platform == "linux/edgeos"
+  when: ansible_pkg_mgr is undefined or ansible_pkg_mgr == "pacman"
   listen: restart coredns
   become: yes
   systemd:
     name: coredns
     state: restarted
+
+- name: Restart coredns service
+  when: ansible_pkg_mgr == "homebrew"
+  listen: restart coredns
+  become: yes
+  shell: "launchctl stop io.coredns.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.coredns.daemon.plist"
 
 - name: Restart coredns service
   when: node.platform == "linux/dsm"

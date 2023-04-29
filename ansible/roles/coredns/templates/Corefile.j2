@@ -35,7 +35,7 @@
     # answer with the nginx service addresses
     service_proxy nidito.http.enabled nginx
     # look for additional static entries in this kv path
-    config_kv_path dns/static-entries
+    static_entries_path dns/static-entries
   }
 
   file {{ coredns_config_path }}/zones/main
@@ -78,7 +78,7 @@ consul {
   }
 
   # Forward all requests to all leader nodes of this DC
-  forward . {% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %} {{n.address}}:{{ config.services.consul.ports.dns }}{% endfor %} {
+  forward . {% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc and "provisioning" not in n.tags %} {{n.address}}:{{ config.services.consul.ports.dns }}{% endfor %} {
     policy random
   }
 

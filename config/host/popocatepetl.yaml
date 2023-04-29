@@ -1,0 +1,21 @@
+address: 10.42.20.4
+auth:
+  username: !!secret
+  password: !!secret
+dc: casa
+hardware:
+  arch: arm64
+  model: mac14,3
+  os: macos/13.3
+mac: !!secret
+tags:
+  role: leader
+  storage: secondary
+token:
+  consul: !!secret
+tls:
+  key: !!secret ""
+  consul: !!secret ""
+  nomad: !!secret ""
+  op: !!secret ""
+  vault: !!secret ""

@@ -9,7 +9,7 @@ job "putio-media-ingest" {
     prohibit_overlap = true
   }
 
-   vault {
+  vault {
     policies = ["putio-media-ingest"]
     change_mode = "restart"
   }
@@ -24,30 +24,38 @@ job "putio-media-ingest" {
         value     = "primary"
       }
 
-      identity {
-        env = true
-      }
+      // workload identity is broken for periodic tasks
+      // https://github.com/hashicorp/nomad/pull/17018
+      // identity {
+      //   env = true
+      //   file = false
+      // }
 
-      env {
-        TARGET = "/media"
+      template {
+        destination = "secrets/env"
+        env = true
+        data = <<ENV
+          TARGET="/media"
+          NOMAD_TOKEN="{{ with secret "nomad/creds/service-putio" }}{{ .Data.secret_id }}{{ end }}"
+        ENV
       }
 
       template {
-        data = <<EOF
-[putio]
-type = putio
-{{ with secret "cfg/infra/tree/provider:putio" }}
-token = {"access_token":"{{ .Data.token }}","expiry":"0001-01-01T00:00:00Z"}
-{{ end }}
-EOF
         destination = "local/rclone.conf"
+        data = <<-EOF
+          [putio]
+          type = putio
+          {{ with secret "cfg/infra/tree/provider:putio" }}
+          token = {"access_token":"{{ .Data.token }}","expiry":"0001-01-01T00:00:00Z"}
+          {{ end }}
+        EOF
       }
 
       config {
-        image = "registry.nidi.to/putio-media-ingest:202304132335"
-
+        image = "registry.nidi.to/putio-media-ingest:202304290501"
 
         volumes = [
+          "local/sync.sh:/sync.sh",
           "local/rclone.conf:/config/rclone/rclone.conf",
           "/volume1/media/dropbox/:/media",
         ]

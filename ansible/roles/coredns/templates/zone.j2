@@ -16,7 +16,7 @@ $TTL 1h
 {% endfor %}
 
 ; Cluster leaders
-{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %}
+{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc and "provisioning" not in n.tags %}
 {{ config.datacenters[node.dc].dns.leaders }}		5m		IN	A		{{ n.address }}
 {% endfor %}
 

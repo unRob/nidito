@@ -44,8 +44,8 @@ if [[ -f "$dockerfile" ]]; then
       --tag "$image:$shaTag" \
       --tag "$image:latest" \
       --file "$dockerfile" \
-      --cache-from "type=registry,src=$image:buildcache" \
-      --cache-to "type=registry,src=$image:buildcache" \
+      --cache-from "type=registry,ref=$image:buildcache" \
+      --cache-to "type=registry,ref=$image:buildcache,mode=max" \
       "${build_args[@]}" \
       "$service_folder" --push || @milpa.fail "Could not build image"
 

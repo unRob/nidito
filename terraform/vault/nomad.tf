@@ -75,6 +75,10 @@ output "nomad-server-token" {
 }
 
 
+data "external" "nomad-acl" {
+  program = ["joao", "get", "${dirname(dirname(path.module))}/../../config/service/nomad.yaml", "acl"]
+}
+
 resource "vault_nomad_secret_backend" "nomad-backend" {
   backend                   = "nomad"
   description               = "nomad access for apps"
@@ -82,6 +86,7 @@ resource "vault_nomad_secret_backend" "nomad-backend" {
   max_lease_ttl_seconds     = "86400"
   max_ttl                   = "86400"
   address                   = "https://nomad.service.consul:5560"
+  token = data.external.nomad-acl.result.secret
 }
 
 resource "nomad_acl_policy" "admin" {

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# data is in the nsupdate format
+# dyndns updater for edgerouter 2.x
+# reads stdin nsupdate formatted data,
+# ignores the first argument and uses the second as the DO token
 # requires jq!
-#
+
 function _log() {
   echo "$@" | tee -a /config/dyndns.log >&2
 }
@@ -34,6 +36,7 @@ JSON
 
 
 _log "Starting dns update at $(date -u)"
+# data is in the nsupdate format
 data=$(cat)
 zone="$(awk '/^zone/{sub(/.$/, ""); print $2; exit}' <<<"$data")"
 new_ip=$(awk '/^update add/{print $NF; exit}' <<<"$data")

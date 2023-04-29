@@ -1,9 +1,21 @@
-- name: Get latest version url
+- name: Get installed module version
+  become: true
   shell: |
-    curl --silent https://api.github.com/repos/WireGuard/wireguard-vyatta-ubnt/releases/latest |
-      jq -r '.assets[] | select(.name | contains("e300-v2-")) | .browser_download_url'
-  register: latest_wireguard_download_url
+    modinfo wireguard | awk '/^version/ {print $2}'
+  register: module_installed_version
   check_mode: no
+  ignore_errors: yes
+
+- name: Get installed tools version
+  become: true
+  shell: |
+    /usr/bin/wg --version | awk '{sub("v", ""); print $2}'
+  register: tools_installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ module_installed_version.stdout != edgeos_pkg_version or tools_installed_version.stdout != edgeos_tools_version }}"
 
 - name: Create the wireguard directory
   become: true
@@ -15,22 +27,30 @@
     mode: u=rwx,g=rwx,o=
 
 - name: Get the latest installer
+  when: needs_install
   get_url:
-    url: "{{ latest_wireguard_download_url.stdout }}"
+    url: https://github.com/WireGuard/wireguard-vyatta-ubnt/releases/download/{{edgeos_pkg_version}}-1/e300-v2-v{{edgeos_pkg_version}}-v{{edgeos_tools_version}}.deb
     dest: /config/wireguard/installer.deb
   register: new_installer
 
-- name: Install wireguard
+- name: Create the firstboot directory
   become: true
-  when: new_installer.changed
-  shell:
-    dpkg -i /config/wireguard/installer.deb
+  file:
+    path: "/config/scripts/firstboot.d"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
 
-# - name: Install edgerouter post-config.d script
-#   become: true
-#   copy:
-#     src: files/post-config.sh
-#     mode: u=rwx,g=rwx,o=rx
-#     dest: /config/scripts/post-config.d/wireguard.sh
+- name: Install wireguard firstboot.d script
+  become: true
+  template:
+    src: templates/post-config.sh.j2
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/firstboot.d/wireguard.sh
+  register: config_install
 
-
+- name: Run firstboot script
+  when: config_install.changed or new_installer.changed
+  become: true
+  shell: /config/scripts/firstboot.d/wireguard.sh

@@ -41,6 +41,7 @@ module "vault-policy" {
   name = "icecast"
   services = ["nidi.to:cajon"]
   configs = ["service:dns"]
+  nomad_roles = [nomad_acl_role.icecast.name]
 }
 
 module "external-dns" {
@@ -63,8 +64,24 @@ resource "nomad_acl_policy" "icecast" {
   # task = "radio"
   rules_hcl = <<HCL
 namespace "default" {
-  policy = ["read"]
+  policy = "read"
   capabilities = ["dispatch-job"]
 }
 HCL
+}
+
+resource "vault_nomad_secret_role" "icecast" {
+  backend   = "nomad"
+  role      = nomad_acl_role.icecast.name
+  type      = "client"
+  policies  = [nomad_acl_policy.icecast.name]
+}
+
+resource "nomad_acl_role" "icecast" {
+  name        = "service-icecast"
+  description = "icecast service"
+
+  policy {
+    name = nomad_acl_policy.icecast.name
+  }
 }

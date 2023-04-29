@@ -61,8 +61,6 @@ SSHD
   @milpa.log success "Node ready for paswordless ssh"
 fi
 
-exit
-
 function remote() {
   ssh -q "$NODE_NAME" 'bash -s' 2>/dev/null <<SH
 ${@}
@@ -116,7 +114,7 @@ pipenv run tame -l "role_router" --diff -v --tags coredns --ask-become-pass
 
 # create consul token
 @milpa.log info "Creating consul token"
-@tf.dc "bootstrap" "$dc" --var new_host "$NODE_NAME"
+@tf.dc "bootstrap" "$dc" -var "new_host=$NODE_NAME"
 terraform output -json server-tokens |
   jq -r --arg node_name "$NODE_NAME" '.["\($node_name)"]' |
   @config.write hosts "$NODE_NAME.token.consul"

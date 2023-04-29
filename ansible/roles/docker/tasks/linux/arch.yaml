@@ -1,0 +1,12 @@
+- name: Install docker
+  become: yes
+  pacman:
+    name: docker
+    state: present
+
+- name: Enable docker
+  become: yes
+  notify: restart docker
+  systemd:
+    name: docker
+    enabled: yes

@@ -1,60 +1,13 @@
-- name: Get installed version
+- name: Get installed coredns+consul_catalog plugin version
   become: true
   shell: |
-    /config/coredns/coredns -version | awk -F- '/CoreDNS/ {print $2}'
+    /config/coredns/coredns -version | awk -F@ '/coredns-consul/ {print $2}'
   register: installed_version
   check_mode: no
   ignore_errors: yes
 
 - set_fact:
-    needs_install: "{{ installed_version.stdout != coredns_version }}"
-
-- name: Get coredns repo
-  delegate_to: localhost
-  when: needs_install
-  check_mode: no
-  git:
-    name: https://github.com/coredns/coredns.git
-    dest: /tmp/coredns
-    update: no
-    refspec: "refs/tags/v{{ coredns_version }}"
-
-- name: Add consul plugin
-  delegate_to: localhost
-  check_mode: no
-  when: needs_install
-  lineinfile:
-    path: /tmp/coredns/plugin.cfg
-    state: present
-    insertafter: '^kubernetes:kubernetes'
-    line: consul_catalog:github.com/unRob/coredns-consul
-
-- name: remove unused plugins
-  delegate_to: localhost
-  lineinfile:
-    path: /tmp/coredns/plugin.cfg
-    state: absent
-    line: "{{ item }}"
-  check_mode: no
-  when: needs_install
-  with_items:
-    - route53:route53
-    - azure:azure
-    - clouddns:clouddns
-    - k8s_external:k8s_external
-    - kubernetes:kubernetes
-    - etcd:etcd
-
-- name: Compile coredns
-  delegate_to: localhost
-  check_mode: no
-  when: needs_install
-  shell: |
-    cd /tmp/coredns
-    go get -u github.com/unRob/coredns-consul
-    go generate
-    make coredns SYSTEM="GOARCH=mips64 GOOS=linux" GITCOMMIT="$(git describe --always)-$(date -u "+%Y%m%d-%H%M%S")"
-
+    needs_install: "{{ installed_version.stdout != coredns_consul_plugin_version }}"
 
 - name: Create the coredns directory
   become: true
@@ -65,13 +18,16 @@
     group: vyattacfg
     mode: u=rwx,g=rwx,o=
 
-- name: Install coredns binary
-  become: true
-  # notify: restart coredns
-  copy:
-    src: "/tmp/coredns/coredns"
-    dest: /config/coredns/coredns
+- name: Download a coredns+consul build
+  when: needs_install
+  when: not ansible_check_mode
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns_consul_plugin_version }}/coredns-consul-linux-mips64.tgz"
+    dest: /config/coredns
     mode: u=rwx,g=rwx,o=rw
+  notify: restart coredns
 
 - name: Install coredns systemd config
   become: yes

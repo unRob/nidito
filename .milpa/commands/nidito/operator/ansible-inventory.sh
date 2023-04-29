@@ -29,6 +29,7 @@ jq '{
         networks: $networks,
         nodes: $hosts,
         services: $services,
+        providers: $providers,
       }
     }
   }
@@ -54,4 +55,5 @@ jq '{
   --argjson networks "$(@config.tree net '.')" \
   --argjson services "$(@config.tree service '.')" \
   --argjson datacenters "$(@config.tree dc '.')" \
+  --argjson providers "$(@config.tree provider '.')" \
   --null-input

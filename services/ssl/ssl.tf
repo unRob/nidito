@@ -54,6 +54,8 @@ module "consul-policy" {
     "nidito/state/letsencrypt-env:*/" = "write"
     "nidito/state/letsencrypt-env:*/.tfstate" = "write"
     "nidito/state/letsencrypt-env:*/.lock" = "write"
+    "nidito/state/letsencrypt-env:casa/.lock" = "write"
+    "nidito/state/letsencrypt-env:nyc1/.lock" = "write"
   }
 
   read_consul_data = true

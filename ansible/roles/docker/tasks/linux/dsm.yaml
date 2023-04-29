@@ -1,0 +1,15 @@
+- name: Get installed version
+  shell: /usr/syno/bin/synopkg version Docker | cut -d . -f 1-2
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    # hardcoded version since dsm packages follow their own cycles
+    needs_install: "{{ installed_version.stdout != '20.10' }}"
+
+- name: Install SPK
+  when: needs_install
+  become: true
+  shell: /usr/syno/bin/synopkg install Docker
+  notify: restart docker

@@ -77,16 +77,33 @@ job "http-proxy" {
 
       template {
         destination = "local/docker-entrypoint.d/05-get-ssl-certs.sh"
-        perms = 0777
         data = "#!/bin/sh /secrets/ssl/write-ssl"
+        perms = 0777
+        change_mode   = "restart"
+      }
+
+      template {
+        destination = "local/on-ssl-change"
+        data = <<-SH
+          #!/usr/bin/env sh
+          /secrets/ssl/write-ssl
+          nginx -s reload
+        SH
+        perms = 0777
+        change_mode   = "restart"
+        splay = "10s"
       }
 
       template {
         destination = "secrets/ssl/write-ssl"
-        perms = 0777
-        change_mode   = "signal"
         data = file("docker-entrypoint.d/05-get-ssl-certs.sh")
-        change_signal = "SIGHUP"
+        perms = 0777
+        change_mode   = "script"
+        change_script {
+          command       = "${NOMAD_TASK_DIR}/on-ssl-change"
+          timeout       = "10s"
+          fail_on_error = false
+        }
         splay = "10s"
       }
 
@@ -208,24 +225,40 @@ job "http-proxy" {
       }
 
       template {
-        destination = "secrets/ssl/write-ssl"
+        destination = "local/on-ssl-change"
+        data = <<-SH
+          #!/usr/bin/env bash
+          "${NOMAD_SECRETS_DIR}/secrets/ssl/write-ssl
+          /usr/local/bin/nginx -c  {{ env "NOMAD_TASK_DIR" }}/nginx.conf -s reload
+        SH
         perms = 0777
-        change_mode   = "signal"
+        change_mode   = "restart"
+        splay = "10s"
+      }
+
+      template {
+        destination = "secrets/ssl/write-ssl"
         data = replace(file("docker-entrypoint.d/05-get-ssl-certs.sh"), "/ssl", "${NOMAD_SECRETS_DIR}/ssl")
-        change_signal = "SIGHUP"
+        perms = 0777
+        change_mode   = "script"
+        change_script {
+          command       = "${NOMAD_TASK_DIR}/on-ssl-change"
+          timeout       = "10s"
+          fail_on_error = false
+        }
         splay = "10s"
       }
 
 
       template {
         destination = "local/entrypoint.sh"
-        perms = 0777
         data = <<-SH
           #!/usr/bin/env bash
           set -o errexit
           ${NOMAD_SECRETS_DIR}/ssl/write-ssl
           /usr/local/bin/nginx -c {{ env "NOMAD_TASK_DIR" }}/nginx.conf
         SH
+        perms = 0777
       }
 
 

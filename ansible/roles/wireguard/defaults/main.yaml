@@ -1,0 +1,4 @@
+# see https://github.com/WireGuard/wireguard-vyatta-ubnt/releases
+# curl --silent https://api.github.com/repos/WireGuard/wireguard-vyatta-ubnt/releases/latest | jq -r '.assets[] | select(.name | contains("e300-v2-")) | .name | gsub(".deb"; "") | gsub("v"; "") | split("-") | {edgeos_pkg_version: nth(-2), edgeos_tools_version: last}' | yq --prettyPrint
+edgeos_pkg_version: 1.0.20220627
+edgeos_tools_version: 1.0.20210914

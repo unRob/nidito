@@ -11,11 +11,11 @@ arguments:
           awk -F'[' '/TASK TAGS/ {gsub(", ", "\n"); gsub("]", ""); print $2}' |
           sort | uniq
   - name: hosts
-    description: A list of hosts to
+    description: A list of hosts to apply roles to
     required: true
     variadic: true
     values:
-      milpa: nidito node list
+      milpa: nidito node list --source config
 options:
   dry-run:
     description: don't apply, only show changes

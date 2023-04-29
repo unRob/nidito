@@ -69,7 +69,7 @@ locals {
     { for svc in var.services: ("cfg/svc/tree/${svc}") => ["read"] },
       /* deprecated */
     { for path in var.paths: ("nidito/${path}") => ["read", "list"] },
-    { for role in var.nomad_roles: ("nomad/creds/${role}") => ["write"] },
+    { for role in var.nomad_roles: ("nomad/creds/${role}") => ["read"] },
     { for role in var.consul_creds: ("consul-acl/creds/${role}") => ["create", "update", "delete", "read", "list"] },
   )
 }

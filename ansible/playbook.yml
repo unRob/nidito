@@ -1,10 +1,10 @@
 
 ---
 - hosts: role_router
-  tags: coredns
+  tags: [coredns, wireguard]
   gather_facts: no
   roles:
-    # - gateway
+    - gateway
     - coredns
     - wireguard
 
@@ -38,5 +38,6 @@
   hosts: role_leader
   tags: [base, nomad]
   roles:
+    - docker
     - nomad-server
 

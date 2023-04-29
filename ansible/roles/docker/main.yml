@@ -1,0 +1,22 @@
+- include_vars: "{{ node.hardware.os }}.yml"
+
+- name: Run OS-specific tasks
+- include_tasks: "{{ node.hardware.os }}.yml"
+
+- set_fact:
+    golang_artifact_arch: "arm"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
+- name: install CNI plugins
+  unarchive:
+    remote_src: yes
+    src: https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-linux-{{ golang_artifact_arch }}-v{{ cni_plugins_version }}.tgz
+    dest: /opt/bin/cni
