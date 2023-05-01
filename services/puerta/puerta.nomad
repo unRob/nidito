@@ -121,7 +121,7 @@ job "puerta" {
       config {
         image = "registry.nidi.to/puerta:202304162303"
         ports = ["http"]
-        network_mode = "host"
+        network_mode = "bridge"
         entrypoint = ["/bin/sh", "-c"]
         command = "puerta db migrate --config /secrets/config.yaml --db /alloc/puerta.db && puerta server --config /secrets/config.yaml --db /alloc/puerta.db"
       }
@@ -147,8 +147,8 @@ job "puerta" {
         meta {
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
-          nidito-http-rate-limit = "15r/m"
-          nidito-http-rate-limit-burst = "20r/m"
+          nidito-http-rate-limit = "60r/m"
+          nidito-http-rate-limit-total = "120"
         }
 
         check {

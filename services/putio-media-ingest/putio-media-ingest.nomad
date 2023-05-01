@@ -55,7 +55,6 @@ job "putio-media-ingest" {
         image = "registry.nidi.to/putio-media-ingest:202304290501"
 
         volumes = [
-          "local/sync.sh:/sync.sh",
           "local/rclone.conf:/config/rclone/rclone.conf",
           "/volume1/media/dropbox/:/media",
         ]
