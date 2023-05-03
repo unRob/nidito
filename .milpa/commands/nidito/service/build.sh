@@ -32,7 +32,7 @@ if [[ -f "$dockerfile" ]]; then
 
   if [[ "$testing" ]]; then
     @milpa.log info "Creating $image:testing"
-    docker build "${build_args[@]}" -t "${image}:testing" --file "$dockerfile" "$service_folder" || @milpa.fail "Could not build image"
+    docker build --builder default "${build_args[@]}" -t "${image}:testing" --file "$dockerfile" "$service_folder" || @milpa.fail "Could not build image"
   else
     @milpa.log info "Creating $image:latest with buildx ($dateTag / $shaTag)"
     @milpa.log info "Using dockerfile at $dockerfile"

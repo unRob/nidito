@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+echo "Content-type: text/plain; version=0.0.4"
+echo ""
+# {{ with secret "cfg/svc/tree/nidi.to:prom-hue-exporter" }}
+HUE_BRIDGE_NOMAD="{{ .Data.bridge }}"
+HUE_BRIDGE=${HUE_BRIDGE:-$HUE_BRIDGE_NOMAD}
+HUE_KEY_NOMAD="{{ .Data.key }}"
+HUE_KEY=${HUE_KEY:-$HUE_KEY_NOMAD}
+# {{ end }}
+curl --max-time 5 --silent --fail-with-body --show-error "http://$HUE_BRIDGE/api/$HUE_KEY/sensors" |
+  jq -r '
+  to_entries |
+  map(.value + {id: .key, mac:(""+.value.uniqueid | split("-") | first) }) |
+  group_by(.mac) |
+  values |
+  map({
+    key: (map(select(.name | startswith("Hue") | not)) | first | .name // "Unknown"),
+    value: (. | reduce .[] as $item ({}; .[$item.type] = $item ))
+  }) |
+  map(
+    select(.value.ZLLTemperature) |
+    {
+      key: .key,
+      value: (.value.ZLLTemperature.state.temperature/100)
+    }
+  ) |
+  sort_by(.value) |
+  map("hue_sensor_temperature{name=\"\(.key)\"} \(.value)")[]'

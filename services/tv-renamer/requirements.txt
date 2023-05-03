@@ -1,1 +1,2 @@
-tvnamer==3.0.4
+# mnamer==2.5.4
+git+https://github.com/unRob/mnamer.git@6995a9479a38744deddb88e781b0052951e6a75d

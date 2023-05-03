@@ -1,1 +1,4 @@
 tvdb: !!secret
+tmdb:
+  v3: !!secret
+  v4: !!secret

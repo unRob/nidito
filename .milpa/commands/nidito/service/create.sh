@@ -41,7 +41,7 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.7.0"
+      version = "~> 3.14.0"
     }
   }
 
@@ -51,11 +51,6 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "$svc"
-  paths = [
-    "config/services/minio",
-    "config/services/dns",
-    "config/third-party/$svc",
-  ]
 }
 HCL
 
