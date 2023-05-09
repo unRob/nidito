@@ -17,7 +17,7 @@ My local hosts are named after mountains, volcanos and hills around México City
 - **`tetecon`**: volcán
 - `tetlalmanche`: volcán (volcán de guadalupe/borrego)
 - `teuhtli`: volcán
-- **`tláloc`**: volcán
+- `tláloc`: volcán
 - `xaltepec`: volcán
 - `xitle`: volcán
 - `zacatenco`: cerro

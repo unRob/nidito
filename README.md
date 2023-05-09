@@ -52,14 +52,14 @@ Power efficiency is the name of the game; I started with a 40 watt/hour budget w
 - **synology dsm918+**: NAS with nvidia gpu
 - **pixiepro**: quad-core 32-bit ARM microcomputer
 - **macmini server** _late 2011_: donated by the Rodas Hardware Adoption Agency
-- **macbook pro 15"** _mid 2014_: Old personal laptop
 - **raspberry pi 4** _late 2021_: 8gb of ram 64-bit arm microcomputer
 - **macmini m2** _early 2023_: Needed something that'll run latest macOS for a while
 - **digitalocean 2gb droplet**: runs my personal website and projects in _the cloud_
 
 #### Previous Hardware
 
-- **macbook pro 13"** _mid 2011_: Broken screen, found on the streets of Brooklyn
+- macbook pro 13" _mid 2011_ named `xitle`: Broken screen, found on the streets of Brooklyn.
+- macbook pro 15" _mid 2014_ named `tláloc`: Old personal laptop.
 
 ### Services
 
