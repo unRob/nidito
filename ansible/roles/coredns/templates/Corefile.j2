@@ -31,6 +31,9 @@
     acl_zone {{ name }} {{ net.range }}
     {% endfor %}
 
+    # read aliases from this tag
+    alias_metadata_tag nidito-dns-alias
+
     # when services have the nidito.http.enabled tag
     # answer with the nginx service addresses
     service_proxy nidito.http.enabled nginx

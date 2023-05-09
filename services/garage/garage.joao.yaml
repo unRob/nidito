@@ -1,0 +1,7 @@
+# secrets generated with `openssl rand -hex 32`
+secret: !!secret
+ports:
+  rpc: 6600
+token:
+  admin: !!secret
+  metrics: !!secret

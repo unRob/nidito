@@ -21,6 +21,10 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
+provider "vault" {
+  address = "https://vault.service.${terraform.workspace}.consul:5570"
+}
+
 variable "admin_password" {
   description = "the password to set for the admin user"
   sensitive   = true

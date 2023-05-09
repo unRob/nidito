@@ -1,0 +1,50 @@
+# https://garagehq.deuxfleurs.fr/documentation/reference-manual/configuration/
+{{- $dc := env "node.region" }}
+{{- with secret (printf "cfg/infra/tree/dc:%s" $dc) }}
+{{- $zone := .Data.dns.zone }}
+metadata_dir = "/storage/metadata"
+data_dir = "/storage/data"
+
+db_engine = "lmdb"
+
+replication_mode = "3"
+
+compression_level = 1
+{{ with secret (printf "cfg/svc/tree/%s:garage" .Data.dns.zone) }}
+rpc_secret = "{{ .Data.secret }}"
+rpc_bind_addr = "[::]:{{ .Data.ports.rpc }}"
+rpc_public_addr = "{{ env "NOMAD_ADDR_rpc" }}"
+{{ end }}
+
+
+
+[consul_service_discovery]
+consul_http_addr = "{{ env "CONSUL_HTTP_ADDR" }}"
+{{ with secret "consul-acl/creds/service-garage" -}}
+consul_http_token = "{{ .Data.token }}"
+{{- end }}
+service_name = "garage"
+ca_cert = "/secrets/tls/ca.pem"
+tls_skip_verify = false
+tags = ["nidito.dns.enabled"]
+meta = { nidito-acl = "allow altepetl" }
+
+[s3_api]
+api_bind_addr = "[::]:{{ env "NOMAD_PORT_s3" }}"
+s3_region = "garage"
+# used for buckets, i.e. bucket-name.root_domain instead of
+# root_domain/bucket
+root_domain = ".garage.{{ $zone }}"
+
+[s3_web]
+bind_addr = "[::]:{{ env "NOMAD_PORT_web" }}"
+root_domain = ".web.{{ $zone }}"
+
+[admin]
+{{ with secret (printf "cfg/svc/tree/%s:garage" .Data.dns.zone) }}
+api_bind_addr = "0.0.0.0:{{ env "NOMAD_PORT_api" }}"
+# metrics_token = "{{ .Data.token.metrics }}"
+admin_token = "{{ .Data.token.admin }}"
+# trace_sink = "http://localhost:4317"
+{{ end }}
+{{- end }}
