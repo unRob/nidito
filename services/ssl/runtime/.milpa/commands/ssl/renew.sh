@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -o pipefail
-export VAULT_ADDR="${VAULT_ADDR/service.consul/service.${MILPA_ARG_DC}.consul}"
+export VAULT_ADDR="https://vault.service.${MILPA_ARG_DC}.consul:5570"
 
 function vault_get () {
   curl --max-time 5 --silent --fail --show-error -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
@@ -19,8 +19,8 @@ jq --null-input --arg zone "$main_zone" '{domains: {($zone): "default"}}' >terra
 
 @milpa.log info "Looking for additional SSL certs to renew..."
 while read -r zone; do
-  zone_token=$(vault_get "nidito/service/ssl/domains/$zone" '.token // "token"') || @milpa.fail "no vault config found for zone $zone at nidito/service/ssl/domains/$zone"
-
+  zone_token=$(vault_get "nidito/service/ssl/domains/$zone" '.data.token // "token"') || @milpa.fail "no vault config found for zone $zone at nidito/service/ssl/domains/$zone"
+  @milpa.log info "Zone $zone is using token $zone_token"
   jq --arg zone "$zone" --arg token "$zone_token" '.domains[$zone] = $token' <terraform.tfvars.json > terraform.tfvars.json.tmp || @milpa.fail "could not set token args"
   mv terraform.tfvars.json.tmp terraform.tfvars.json
 done < <(vault_list nidito/service/ssl/domains '(.data.keys // [])[]')

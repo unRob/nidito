@@ -1,2 +1,6 @@
 *
 !runtime
+runtime/.terraform.lock.hcl
+runtime/.terraform
+runtime/.terraform/*
+runtime/terraform.tfvars.json
