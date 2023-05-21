@@ -84,6 +84,14 @@ locals {
   dns_zone = nonsensitive(jsondecode(data.vault_generic_secret.dc.data_json).dns.zone)
 }
 
+resource "digitalocean_record" "service" {
+  domain = local.dns_zone
+  type   = "CNAME"
+  ttl    = 180
+  name   = "garage"
+  value  = "${local.dns_zone}."
+}
+
 resource "digitalocean_record" "s3" {
   domain = local.dns_zone
   type   = "CNAME"
@@ -98,6 +106,14 @@ resource "digitalocean_record" "web" {
   ttl    = 180
   name   = "web.garage"
   value  = "${local.dns_zone}."
+}
+
+resource "vault_generic_secret" "ssl-req" {
+  path = "nidito/service/ssl/domains/garage.nidi.to"
+  data_json = jsonencode({
+    "star": true,
+    "token": "default"
+  })
 }
 
 # resource "consul_keys" "cdn-config" {

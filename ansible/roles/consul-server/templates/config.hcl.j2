@@ -72,8 +72,12 @@ tls {
     ca_file = "{{ consul_config_dir }}/tls/ca.pem"
     cert_file = "{{ consul_config_dir }}/tls/cert.pem"
     key_file = "{{ consul_config_dir }}/tls/key.pem"
-    verify_incoming = false
+    verify_incoming = true
     verify_outgoing = true
+  }
+
+  https {
+    verify_incoming = false
   }
 
   internal_rpc {

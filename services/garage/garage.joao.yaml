@@ -5,3 +5,6 @@ ports:
 token:
   admin: !!secret
   metrics: !!secret
+admin:
+  key: !!secret
+  secret: !!secret

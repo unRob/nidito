@@ -18,10 +18,11 @@ rpc_public_addr = "{{ env "NOMAD_ADDR_rpc" }}"
 
 
 
-[consul_service_discovery]
+[consul_discovery]
+api = "agent"
 consul_http_addr = "{{ env "CONSUL_HTTP_ADDR" }}"
 {{ with secret "consul-acl/creds/service-garage" -}}
-consul_http_token = "{{ .Data.token }}"
+token = "{{ .Data.token }}"
 {{- end }}
 service_name = "garage"
 ca_cert = "/secrets/tls/ca.pem"
@@ -34,7 +35,7 @@ api_bind_addr = "[::]:{{ env "NOMAD_PORT_s3" }}"
 s3_region = "garage"
 # used for buckets, i.e. bucket-name.root_domain instead of
 # root_domain/bucket
-root_domain = ".garage.{{ $zone }}"
+root_domain = "s3.garage.{{ $zone }}"
 
 [s3_web]
 bind_addr = "[::]:{{ env "NOMAD_PORT_web" }}"

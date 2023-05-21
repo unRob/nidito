@@ -87,7 +87,7 @@ job "garage" {
       config {
         // image = "dxflrs/garage:v0.8.2"
         // building from https://git.deuxfleurs.fr/Deuxfleurs/garage/pulls/567
-        image = "registry.nidi.to/garage-testing:202305090115"
+        image = "registry.nidi.to/garage-testing:202305210230"
         command = "/garage"
         args = ["--config", "${NOMAD_SECRETS_DIR}/garage.toml", "server"]
         ports = ["rpc", "s3", "web", "api"]
@@ -101,8 +101,8 @@ job "garage" {
 
       resources {
         cpu = 50
-        memory = 256
-        memory_max = 512
+        memory = 512
+        memory_max = 1024
       }
 
       service {
@@ -118,13 +118,15 @@ job "garage" {
 
         tags = [
           "nidito.dns.enabled",
-          "nidito.metrics.enabled"
+          "nidito.http.enabled",
+          "nidito.metrics.enabled",
         ]
 
         meta {
           nidito-acl = "allow altepetl"
           nidito-http-buffering = "off"
           nidito-dns-alias = "api.garage"
+          nidito-http-tls = "garage.nidi.to"
         }
       }
 
@@ -144,6 +146,7 @@ job "garage" {
           // needs to allow file uploads
           nidito-http-max-body-size = "2048m"
           nidito-dns-alias = "s3.garage; *.s3.garage"
+          nidito-http-tls = "garage.nidi.to"
         }
       }
 
@@ -162,6 +165,7 @@ job "garage" {
           nidito-http-buffering = "off"
           nidito-http-domain = "web.garage"
           nidito-dns-alias = "web.garage; *.web.garage"
+          nidito-http-tls = "garage.nidi.to"
         }
       }
 

@@ -1,5 +1,5 @@
 
-job "putio-media-ingest" {
+job "media-ingest" {
   datacenters = ["casa"]
   type = "batch"
   priority = 10
@@ -10,11 +10,11 @@ job "putio-media-ingest" {
   }
 
   vault {
-    policies = ["putio-media-ingest"]
+    policies = ["media-ingest"]
     change_mode = "restart"
   }
 
-  group "putio-media-ingest" {
+  group "media-ingest" {
 
     task "rclone" {
       driver = "docker"
@@ -24,8 +24,8 @@ job "putio-media-ingest" {
         value     = "primary"
       }
 
-      // workload identity is broken for periodic tasks
-      // https://github.com/hashicorp/nomad/pull/17018
+      // // workload identity is broken for periodic tasks
+      // // https://github.com/hashicorp/nomad/pull/17018
       // identity {
       //   env = true
       //   file = false
@@ -36,7 +36,7 @@ job "putio-media-ingest" {
         env = true
         data = <<ENV
           TARGET="/media"
-          NOMAD_TOKEN="{{ with secret "nomad/creds/service-putio" }}{{ .Data.secret_id }}{{ end }}"
+          NOMAD_TOKEN="{{ with secret "nomad/creds/service-media-ingest" }}{{ .Data.secret_id }}{{ end }}"
         ENV
       }
 
@@ -51,8 +51,15 @@ job "putio-media-ingest" {
         EOF
       }
 
+      // template {
+      //   destination = "local/sync.sh"
+      //   data = file("./sync.sh")
+      //   perms = 0777
+      // }
+
       config {
-        image = "registry.nidi.to/putio-media-ingest:202304290501"
+        image = "registry.nidi.to/media-ingest:202305212142"
+        // command = "${NOMAD_TASK_DIR}/sync.sh"
 
         volumes = [
           "local/rclone.conf:/config/rclone/rclone.conf",

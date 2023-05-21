@@ -1,0 +1,43 @@
+{
+  "api_key_omdb": null,
+  "api_key_tmdb": "{{ with secret "cfg/svc/tree/nidi.to:media-rename" }}{{ .Data.tmdb.v3 }}{{ end }}",
+  "api_key_tvdb": "{{ with secret "cfg/svc/tree/nidi.to:media-rename" }}{{ .Data.tvdb }}{{ end }}",
+  "api_key_tvmaze": null,
+  "batch": true,
+  "episode_api": "tvdb",
+  "episode_directory": "/media/tv-series/{series}/Season {season:02}",
+  "episode_format": "{series} - S{season:02}E{episode:02} - {title}.{extension}",
+  "hits": 5,
+  "ignore": [
+      ".*sample.*",
+      "^RARBG.*"
+  ],
+  "language": null,
+  "lower": false,
+  "mask": [
+      ".avi",
+      ".m4v",
+      ".mp4",
+      ".mkv",
+      ".ts",
+      ".wmv",
+      ".srt",
+      ".idx",
+      ".sub"
+  ],
+  "movie_api": "tmdb",
+  "movie_directory": "/media/movies",
+  "movie_format": "{name} ({year}).{extension}",
+  "no_guess": true,
+  "no_overwrite": true,
+  "no_style": false,
+  "recurse": false,
+  "replace_after": {
+      "&": "and",
+      ";": ",",
+      "@": "at"
+  },
+  "replace_before": {},
+  "scene": false,
+  "verbose": true
+}

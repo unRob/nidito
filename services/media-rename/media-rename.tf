@@ -1,6 +1,6 @@
 terraform {
   backend "consul" {
-    path = "nidito/state/service/tv-renamer"
+    path = "nidito/state/service/media-rename"
   }
 
   required_providers {
@@ -15,5 +15,5 @@ terraform {
 
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
-  name = "tv-renamer"
+  name = "media-rename"
 }
