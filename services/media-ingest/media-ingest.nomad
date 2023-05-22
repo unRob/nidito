@@ -4,10 +4,7 @@ job "media-ingest" {
   type = "batch"
   priority = 10
 
-  periodic {
-    cron             = "*/15 * * * * *"
-    prohibit_overlap = true
-  }
+  parameterized {}
 
   vault {
     policies = ["media-ingest"]

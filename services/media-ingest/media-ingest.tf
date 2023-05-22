@@ -67,3 +67,13 @@ resource "nomad_acl_role" "media-ingest" {
     name = nomad_acl_policy.media-ingest.name
   }
 }
+
+module "event-listener" {
+  source = "../../terraform/_modules/service/event-listener/nomad"
+  job = "media-ingest"
+}
+
+output "url" {
+  description = "The listener url"
+  value = "https://evgw.nidi.to/-/${module.event-listener.key}"
+}
