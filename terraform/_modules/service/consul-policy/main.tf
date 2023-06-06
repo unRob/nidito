@@ -54,7 +54,7 @@ locals {
 
 data "terraform_remote_state" "vault" {
   backend = "consul"
-  workspace = terraform.workspace
+  workspace = terraform.workspace == "default" ? "casa" : terraform.workspace
   config = {
     path = "nidito/state/vault"
   }
@@ -105,6 +105,11 @@ resource "vault_consul_secret_backend_role" "service" {
   policies = [consul_acl_policy.service.name]
   ttl = 600
   max_ttl = 86400
+}
+
+output "vault-role" {
+  value = var.create_vault_role ? vault_consul_secret_backend_role.service[0].name : ""
+  description = "The generated vault role name"
 }
 
 output "name" {

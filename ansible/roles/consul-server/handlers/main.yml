@@ -4,16 +4,18 @@
   become: yes
   shell: "launchctl unload -w io.consul.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.consul.daemon.plist"
 
+- name: Reload systemctl daemons
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  listen: reload systemd daemons
+  become: yes
+  systemd:
+    daemon_reload: true
+
 - name: Restart consul service
-  when: ansible_pkg_mgr == "pacman"
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
   listen: restart consul
   become: yes
   systemd:
     name: consul
     state: restarted
 
-- name: Restart consul service
-  when: ansible_pkg_mgr == "unknown"
-  listen: restart consul
-  become: yes
-  shell: /usr/syno/bin/synopkg restart consul || /usr/syno/bin/synopkg start consul

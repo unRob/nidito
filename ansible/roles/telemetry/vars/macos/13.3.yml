@@ -1,0 +1,2 @@
+node_exporter_config_dir: /nidito/node_exporter
+node_exporter_bin: /opt/homebrew/bin/node_exporter

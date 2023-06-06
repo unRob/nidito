@@ -123,30 +123,24 @@ telemetry {
   disable_hostname = true
 }
 
-{# services {
+service {
   id ="host-telemetry"
   name = "host-telemetry"
-  port = 5540
+  port = 9100
   address = "{{ node.address }}"
 
   tags = [
     "ansible",
-    "nidito.dns.enabled",
     "nidito.metrics.host",
   ]
-
-  meta = {
-    nidito-acl = "allow {% for name, net in config.networks.items() if "core" in net %}{{ name }}{% endfor %}"
-  }
 
   checks = [
     {
       id = "host-telemetry-http-check-{{ node.name }}"
       name = "host-telemetry-http-check-{{ node.name }}"
-      tcp = "localhost:5540"
+      tcp = "{{ node.address }}:9100"
       interval = "30s"
       timeout = "1s"
     }
   ]
-} #}
-# -----------------------------
+}

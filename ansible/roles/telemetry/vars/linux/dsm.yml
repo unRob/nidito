@@ -1,0 +1,2 @@
+node_exporter_config_dir: /volume1/nidito/node_exporter
+node_exporter_bin: /volume1/nidito/node_exporter/node_exporter

@@ -10,16 +10,7 @@
     needs_install: "{{ node_exporter_installed_version.stdout != node_exporter_version }}"
 
 - set_fact:
-    golang_artifact_arch: "armv6"
-  when: node.hardware.arch == 'arm32'
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
     golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
 
 - name: Create the node_exporter directory
   become: true

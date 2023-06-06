@@ -1,7 +1,7 @@
-{{- with secret "cfg/infra/tree/service:consul" }}
-{{- scratch.Set "consulPort" .Data.ports.https }}
-{{- end }}
-{{- with secret "nidito/service/prometheus/consul" }}
+{{- $consulAddr := (env "CONSUL_HTTP_ADDR") -}}
+{{- $consulHost := (index ($consulAddr | trimPrefix "https://" | split ":") 0) -}}
+{{- $consulPort := (index ($consulAddr | trimPrefix "https://" | split ":") 1) -}}
+{{ with secret "consul-acl/creds/service-prometheus" -}}
 {{- scratch.Set "consulToken" .Data.token }}
 {{- end }}
 scrape_configs:
@@ -14,17 +14,19 @@ scrape_configs:
       # claudqui exporter
       - '10.42.0.10:9130'
 
+  # query dns SRV records to find node names
+  # replace RPC port with known https port
   - job_name: consul-server
     scheme: https
     scrape_interval: 15s
     metrics_path: /v1/agent/metrics
     authorization:
-      credentials: "{{ scratch.Get "consulToken" }}"
+      credentials: {{ scratch.Get "consulToken" }}
     params:
       format: ["prometheus"]
     dns_sd_configs:
       - names: ["consul.service.consul"]
-        port: {{ scratch.Get "consulPort" }}
+        port: 5553
     relabel_configs:
       - source_labels: ['__address__']
         regex:         '([^.]+)\.node\..+\.consul:\d+'
@@ -33,14 +35,15 @@ scrape_configs:
       - source_labels: ['__address__']
         regex: '([^:]+):(\d+)'
         target_label: __address__
-        replacement: '$1:{{ scratch.Get "consulPort" }}'
+        replacement: '$1:{{ $consulPort }}'
 
+  # pull host metrics from services tagged
   - job_name: host_metrics
     scrape_interval: 15s
     consul_sd_configs:
-      - server: "https://consul.service.consul:{{ scratch.Get "consulPort" }}"
+      - server: {{ $consulAddr }}
         datacenter: "{{ env "node.region" }}"
-        token: "{{ scratch.Get "consulToken" }}"
+        token: {{ scratch.Get "consulToken" }}
         tags:
           - nidito.metrics.host
     relabel_configs:
@@ -52,7 +55,7 @@ scrape_configs:
   - job_name: consul-services
     scrape_interval: 15s
     consul_sd_configs:
-      - server: "https://consul.service.consul:{{ scratch.Get "consulPort" }}"
+      - server: "{{ $consulAddr }}"
         datacenter: "{{ env "node.region" }}"
         token: "{{ scratch.Get "consulToken" }}"
         tags:

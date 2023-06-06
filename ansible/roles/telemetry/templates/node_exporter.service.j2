@@ -1,0 +1,16 @@
+[Unit]
+Description=node-exporter
+After=network.target {{ node_exporter_systemd_after }}
+{% if node_exporter_systemd_wants != "" %}
+Wants={{ node_exporter_systemd_wants }}
+{% endif %}
+
+[Service]
+TimeoutStartSec=0
+# https://github.com/prometheus/node_exporter/blob/master/collector/systemd_linux.go#L232
+# do not collect systemd unit state, as it's too high cardinality for my needs
+ExecStart={{ node_exporter_bin }} --collector.systemd --collector.systemd.unit-include="" --collector.systemd.enable-restarts-metrics --web.listen-address={{ node.address }}:9100
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,66 +1,56 @@
 - name: Get installed version
-  shell: /usr/syno/bin/synopkg version consul
+  shell: "{{ consul_bin }} --version | head -n 1 | cut -dv -f2"
   register: installed_version
   check_mode: no
   ignore_errors: yes
 
 - set_fact:
     needs_install: "{{ installed_version.stdout != config.services.consul.version }}"
-    # needs_install: false
-    consul_zip: "consul_{{ config.services.consul.version }}_linux_amd64.zip"
 
-- name: Get consul SPK
-  when: needs_install
-  git:
-    name: https://github.com/numkem/consul-spk.git
-    dest: /tmp/consul-spk
-    update: no
+- set_fact:
+    golang_artifact_arch: "amd64"
 
-- name: patch spk
+- name: Download consul
   when: needs_install
-  lineinfile:
-    path: "/tmp/consul-spk/{{ item.path }}"
-    state: present
-    regexp: "{{ item.regex }}"
-    line: "{{ item.line }}"
-    backrefs: yes
-  with_items:
-    - path: 1_create_package/ui/config
-      regex: '^(\s+)"port":"[\d+]"(,?)'
-      line: '\g<1>"port": "{{ config.services.consul.ports.https }}"\g<2>'
-    - path: 2_create_project/INFO
-      regex: '^version="[\d.]+"'
-      line: 'version="{{ config.services.consul.version }}"'
-    - path: 2_create_project/INFO
-      regex: '^adminport="?[\d.]+"?'
-      line: 'adminport={{ config.services.consul.ports.https }}'
-    - path: 2_create_project/scripts/consul.sc
-      regex: '^dst.ports=.+'
-      line: 'dst.ports="{{ config.services.consul.ports.https }}/tcp {{ config.services.consul.ports.serf_lan }},{{ config.services.consul.ports.serf_wan }}/tcp,udp {{ config.services.consul.ports.dns }}/udp"'
-
-- name: Get consul binary
-  when: needs_install
+  become: yes
   get_url:
-    url: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/{{ consul_zip }}"
-    dest: /tmp/
+    url: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip"
+    dest: /tmp
 
-- name: Unzip binary
+- name: Install consul binary
   when: needs_install
+  become: yes
   shell: |
     cd /tmp
-    7z e {{ consul_zip }}
-    mkdir -p /tmp/consul-spk/1_create_package/consul
-    mv -f /tmp/consul /tmp/consul-spk/1_create_package/consul/
-    rm -rf /tmp/{{ consul_zip }}
+    7z e consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip
+    mv -f /tmp/consul {{ consul_bin }}
+    rm -rf /tmp/consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip
 
-- name: Create SPK
-  when: needs_install
-  shell: cd /tmp/consul-spk; sh ./create_spk.sh
+# - name: Create SPK
+#   when: needs_install
+#   shell: cd /tmp/consul-spk; sh ./create_spk.sh
 
-- name: Install SPK
-  when: needs_install
-  become: true
-  shell: /usr/syno/bin/synopkg install /tmp/consul-spk/consul.spk
+# - name: Install SPK
+#   when: needs_install
+#   become: true
+#   shell: /usr/syno/bin/synopkg install /tmp/consul-spk/consul.spk
+
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/consul.service.j2
+    dest: /usr/lib/systemd/system/consul.service
+  notify:
+    - reload systemd daemons
+    - restart consul
+
+- name: Enable consul daemon
+  become: yes
+  systemd:
+    name: consul
+    enabled: yes
+  notify: restart consul
+
 
 - name: Create the consul config directory
   when: needs_install

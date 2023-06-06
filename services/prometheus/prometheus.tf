@@ -19,7 +19,8 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "prometheus"
-  configs = ["service:consul", "service:ca"]
+  configs = [ "service:ca" ]
+  consul_creds = [ module.consul-policy.vault-role ]
 }
 
 module "consul-policy" {
@@ -31,6 +32,5 @@ module "consul-policy" {
   }
 
   read_consul_data = true
-  create_service_token = true
-  create_local_token = false
+  create_vault_role = true
 }

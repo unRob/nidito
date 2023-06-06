@@ -71,6 +71,9 @@ locals {
     { for path in var.paths: ("nidito/${path}") => ["read", "list"] },
     { for role in var.nomad_roles: ("nomad/creds/${role}") => ["read"] },
     { for role in var.consul_creds: ("consul-acl/creds/${role}") => ["create", "update", "delete", "read", "list"] },
+    (length(var.consul_creds) > 0 ? {
+      ("auth/token/create") = ["create", "read", "update", "list"]
+    }: {})
   )
 }
 

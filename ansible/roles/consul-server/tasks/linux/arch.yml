@@ -26,7 +26,7 @@
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 
-- name: Download a more recent consul version
+- name: Install consul
   when: needs_install
   become: yes
   unarchive:
@@ -36,9 +36,12 @@
 
 - name: Install systemd service
   become: yes
-  copy:
-    src: files/consul.service
-    dest: /usr/lib/systemd/system/
+  template:
+    src: templates/consul.service.j2
+    dest: /usr/lib/systemd/system/consul.service
+  notify:
+    - reload systemd daemons
+    - restart consul
 
 - name: Enable consul daemon
   become: yes

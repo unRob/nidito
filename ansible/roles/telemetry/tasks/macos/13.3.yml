@@ -1,0 +1,53 @@
+- name: Get installed version
+  become: true
+  shell: |
+    {{ node_exporter_bin }} --version | awk '/^node_exporter/ {print $3}'
+  register: node_exporter_installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ node_exporter_installed_version.stdout != node_exporter_version }}"
+
+- set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
+# - name: Create the node_exporter directory
+#   become: true
+#   file:
+#     path: "{{ node_exporter_config_dir }}"
+#     state: directory
+#     mode: u=rwx,g=rwx,o=
+
+# node exporter releases are broken on darwin
+# https://github.com/prometheus/node_exporter/issues/2539
+# - name: Download node_exporter
+#   when: needs_install
+#   become: true
+#   unarchive:
+#     remote_src: yes
+#     src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter_version}}/node_exporter-{{node_exporter_version}}.darwin-{{ golang_artifact_arch }}.tar.gz"
+#     dest: "/tmp/"
+
+- name: Download node_exporter
+  when: needs_install
+  homebrew:
+    name: node_exporter
+    state: present
+
+# - name: Install node_exporter
+#   when: needs_install
+#   become: true
+#   shell: |
+#     mv /tmp/node_exporter-{{node_exporter_version}}.darwin-{{ golang_artifact_arch }}/node_exporter {{ node_exporter_bin }}
+
+- name: Install nomad launchd config
+  become: yes
+  template:
+    src: templates/service.plist.j2
+    dest: /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist

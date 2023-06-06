@@ -97,6 +97,7 @@ job "puerta" {
         data = <<-ENV
           {{- with secret "cfg/svc/tree/nidi.to:puerta" }}
           name: Castillo de Chapultebob
+          timezone: America/Mexico_City
           adapter:
             kind: hue
             username: {{ .Data.hue.key }}
@@ -119,7 +120,7 @@ job "puerta" {
       }
 
       config {
-        image = "registry.nidi.to/puerta:202304162303"
+        image = "registry.nidi.to/puerta:202305310111"
         ports = ["http"]
         network_mode = "bridge"
         entrypoint = ["/bin/sh", "-c"]
@@ -148,7 +149,7 @@ job "puerta" {
           nidito-acl = "allow external"
           nidito-http-buffering = "off"
           nidito-http-rate-limit = "60r/m"
-          nidito-http-rate-limit-total = "120"
+          nidito-http-rate-limit-burst = "20"
         }
 
         check {

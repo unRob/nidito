@@ -5,12 +5,3 @@
 # unifi-poller en cloudkey + DPKG_CACHE_UBNT_PKGS en /etc/default/ubnt-dpkg-cache
 # prometheus exporter, fuck you all
 
-
-- name: Configure vector
-  become: true
-  template:
-    src: templates/config.toml.j2
-    dest: "{{ vector_config_dir }}/vector.toml"
-    owner: "{{ vector_user }}"
-    mode: u=rw,g=r,o=
-  notify: restart vector

@@ -9,11 +9,11 @@
     - wireguard
 
 # TODO: figure this shit out... again
-# - name: Telemetry
-#   hosts: role_leader
-#   tags: [base, telemetry]
-#   roles:
-#     - telemetry
+- name: telemetry
+  hosts: role_leader
+  tags: [base, telemetry]
+  roles:
+    - telemetry
 
 - name: macos
   hosts: os_macos*

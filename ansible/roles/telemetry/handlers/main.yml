@@ -1,27 +1,14 @@
-- name: Restart vector service
+- name: Restart node_exporter service
   when: ansible_pkg_mgr == "homebrew"
-  listen: restart vector
+  listen: restart node_exporter
   become: yes
-  shell: "launchctl stop dev.vector.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/dev.vector.daemon.plist"
+  shell: "launchctl stop io.prometheus.node_exporter.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist"
 
-- name: Restart vector service
-  when: ansible_pkg_mgr == "pacman"
-  listen: restart vector
+- name: Restart node_exporter service
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  listen: restart node_exporter
   become: yes
   systemd:
-    name: vector
+    name: node_exporter
     state: restarted
 
-- name: Reload vector service
-  when: ansible_pkg_mgr == "pacman"
-  listen: reload vector
-  become: yes
-  systemd:
-    name: vector
-    state: reloaded
-
-- name: Restart vector service
-  when: ansible_pkg_mgr == "unknown"
-  listen: restart vector
-  become: yes
-  shell: /usr/syno/bin/synopkg restart vector || /usr/syno/bin/synopkg start vector

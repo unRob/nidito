@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>co.elasti.filebeat.daemon</string>
+    <string>io.prometheus.node_exporter.daemon</string>
     <key>Disabled</key>
     <false/>
     <key>RunAtLoad</key>
@@ -11,13 +11,13 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>/nidito/filebeat/log/filebeat.log</string>
+    <string>{{ node_exporter_config_dir }}/out.log</string>
     <key>StandardErrorPath</key>
-    <string>/nidito/filebeat/log/error.log</string>
+    <string>{{ node_exporter_config_dir }}/error.log</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/filebeat</string>
-        <string>-path.config /nidito/filebeat/config</string>
+        <string>{{ node_exporter_bin }}</string>
+        <string>--web.listen-address={{ node.address }}:9100</string>
     </array>
 </dict>
 </plist>
