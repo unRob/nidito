@@ -1,0 +1,10 @@
+# see `milpa help docs command spec` for all the options
+summary: returns information on a bucket
+description: |
+  Uses the api to find a bucket named NAME
+arguments:
+  - name: name
+    description: the bucket's name
+    required: true
+    values:
+      milpa: nidito garage bucket list --name-only

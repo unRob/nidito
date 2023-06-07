@@ -1,0 +1,8 @@
+# see `milpa help docs command spec` for all the options
+summary: creates a bucket
+description: |
+  using the API
+arguments:
+  - name: name
+    description: the bucket's name
+    required: true

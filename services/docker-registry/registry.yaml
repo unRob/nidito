@@ -1,0 +1,50 @@
+{{- with secret "cfg/infra/tree/service:dns" }}
+{{ scratch.Set "zone" .Data.zone }}
+{{- end }}
+version: 0.1
+log:
+  accesslog:
+    disabled: false
+{{- with secret "cfg/svc/tree/nidi.to:docker-registry" }}
+auth:
+  token:
+    realm: https://registry.{{ scratch.Get "zone" }}/auth
+    service: {{ .Data.auth.issuer }}
+    issuer: {{ .Data.auth.issuer }}
+    rootcertbundle: {{ env "NOMAD_ALLOC_DIR" }}/auth.pem
+storage:
+  s3:
+    accesskey: {{ .Data.storage.key }}
+    secretkey: {{ .Data.storage.secret }}
+    region: {{ .Data.storage.region }}
+    regionendpoint: https://s3.garage.{{ scratch.Get "zone" }}
+    forcepathstyle: true
+    # accelerate: false
+    bucket: {{ .Data.storage.bucket }}
+    encrypt: false
+    # keyid: mykeyid
+    secure: true
+    v4auth: true
+    # chunksize: 5242880
+    # multipartcopychunksize: 33554432
+    # multipartcopymaxconcurrency: 100
+    # multipartcopythresholdsize: 33554432
+    rootdirectory: /docker-registry
+  maintenance:
+    uploadpurging:
+      enabled: true
+      age: 672h
+      interval: 12h
+      dryrun: false
+  delete:
+    enabled: true
+
+http:
+  addr: :{{ env "NOMAD_PORT_http" }}
+  host: https://registry.{{ scratch.Get "zone" }}
+  secret: {{ .Data.secret }}
+  debug:
+    addr: :{{ env "NOMAD_PORT_metrics" }}
+  prometheus:
+    enabled: true
+{{- end }}

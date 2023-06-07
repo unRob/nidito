@@ -1,0 +1,15 @@
+auth:
+  # openssl req -new -newkey rsa:4096 -nodes -x509 -subj "/O=Nidito/CN=registry.nidi.to" -keyout server.key -out server.pem
+  certificate: !!secret ""
+  key: !!secret ""
+  issuer: "registry.nidi.to"
+users:
+  # Password must be BCrypt hash. Use `htpasswd -nB USERNAME` to generate.
+  roberto:
+    password: !!secret ""
+    acl: ["*"]
+storage:
+  key: !!secret
+  secret: !!secret
+  region: garage
+  bucket: nidito-container-registry

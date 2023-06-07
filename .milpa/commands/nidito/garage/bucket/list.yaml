@@ -1,0 +1,9 @@
+# see `milpa help docs command spec` for all the options
+summary: lists buckets
+description: |
+  from the API, optionally ignoring ids
+options:
+  name-only:
+    description: return name of buckets only, not ids
+    type: bool
+

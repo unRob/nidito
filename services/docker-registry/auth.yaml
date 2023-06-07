@@ -1,0 +1,26 @@
+server:
+  addr: ":{{ env "NOMAD_PORT_auth" }}"
+  real_ip_header: "X-Forwarded-For"
+
+{{- with secret "cfg/svc/tree/nidi.to:docker-registry" }}
+token:
+  issuer: {{ .Data.auth.issuer }}
+  expiration: 900
+  certificate: {{ env "NOMAD_ALLOC_DIR" }}/auth.pem
+  key: {{ env "NOMAD_SECRETS_DIR" }}/auth.key
+users:
+  {{ range $username, $details := .Data.users }}
+  "{{ $username }}":
+    password: "{{ $details.password }}"
+  {{ end }}
+  # enable anonymous access
+  "" : {}
+acl:
+  {{range  $username, $details := .Data.users }}
+  - match: { account: "{{ $username }}" }
+    actions: {{ $details.acl | toJSON }}
+  {{ end }}
+  - match: {account: ""}
+    actions: ["pull"]
+    comment: "Anonymous users can pull"
+{{- end }}

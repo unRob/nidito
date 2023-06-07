@@ -1,0 +1,10 @@
+# see `milpa help docs command spec` for all the options
+summary: returns information on a key
+description: |
+  Uses the api to find a key named NAME
+arguments:
+  - name: name
+    description: the key's name
+    required: true
+    values:
+      milpa: nidito garage key list --name-only

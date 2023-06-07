@@ -1,0 +1,27 @@
+# see `milpa help docs command spec` for all the options
+summary: updates bucket grants for a key
+description: |
+  Works by doing a thing with another thing until the first thing looks about right
+arguments:
+  - name: operation
+    description: either allow or deny
+    required: true
+    values:
+      static: [allow, deny]
+  - name: key
+    description: the key to set grants for
+    required: true
+    values:
+      milpa: nidito garage key list --name-only
+  - name: bucket
+    description: the bucket to set grants on
+    required: true
+    values:
+      milpa: nidito garage bucket list --name-only
+options:
+  owner:
+    description: grant ownership of bucket
+    type: bool
+  read-only:
+    description: don't allow writes
+    type: bool

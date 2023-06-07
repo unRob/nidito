@@ -88,11 +88,13 @@ tier-2 services provide nicer abstractions for roberto, the power-user, to run s
 - **telemetry**: `prometheus`, `grafana` and `loki` to get an idea of what's happening inside these boxes
 - **op-connect**: for keeping the secrets that are needed to spin up shit
 - **ssl-renewal**: things need certs
+- **consul-backup**: most of the important shit in my lab ends up in consul
+- **event-gateway**: glorified nomad job dispatcher triggered by http webhooks
 
 Finally, there's tier-3 services that actually do stuff for humans in my home:
 
-- **radio**: an icecast instance so I can record and stream _ruiditos_
-- **cajon**: a drawer to put all my bytes in, i.e. `minio`
-- **media-pipeline**: downloads media files from putio, renames them and ships them to plex
+- [**radio**](https://rudi.to): radio pipeline to record and stream _ruiditos_
+- **cajon**: drawer to put all my bytes in, i.e. `minio` (being deprecated) and `garagehq`
+- **media-pipeline**: downloads media files, renames them and ships them to plex
 - **plex**: self-hosted media streaming service, including my personal recordings
-- **access control**: hacked my door so I don't have to open for friends and family
+- [**puerta**](https://git.rob.mx/nidito/puerta): hacked my door so I don't have to open for friends and family
