@@ -1,6 +1,7 @@
 
 ---
-- hosts: role_router
+- name: Gateway
+  hosts: role_router
   tags: [coredns, wireguard]
   gather_facts: no
   roles:
@@ -8,35 +9,36 @@
     - coredns
     - wireguard
 
-# TODO: figure this shit out... again
 - name: telemetry
-  hosts: role_leader
-  tags: [base, telemetry]
+  hosts:
+    - role_leader
+    - role_router
+  tags: [telemetry]
   roles:
     - telemetry
 
-- name: macos
-  hosts: os_macos*
+- name: users
+  hosts: role_leader
   tags: [base]
   roles:
     - server-users
 
 - name: Consul
   hosts: role_leader
-  tags: [base, consul]
+  tags: [consul]
   serial: 1
   roles:
     - role: consul-server
 
 - name: Vault
   hosts: role_leader:!storage_none
-  tags: [base, vault]
+  tags: [vault]
   roles:
     - vault-server
 
 - name: Nomad
   hosts: role_leader
-  tags: [base, nomad]
+  tags: [nomad]
   roles:
     - docker
     - nomad-server

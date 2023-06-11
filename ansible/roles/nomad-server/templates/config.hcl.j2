@@ -1,5 +1,5 @@
 # for log_level, tls, and vault configuration, see: config.hot-reload.hcl
-data_dir = "{{ nomad_data_dir }}"
+data_dir = "{{ nomad.data }}"
 region = "{{ node.dc }}"
 datacenter = "{{ node.dc }}"
 name = "{{ ansible_hostname }}"
@@ -108,7 +108,7 @@ consul {
   address = "https://{{ node.name }}.node.consul:{{ config.services.consul.ports.https }}"
 
   token = "{{ config.services.nomad.consul_token }}"
-  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+  ca_file = "{{ nomad.config }}/tls/ca.pem"
 
   auto_advertise = true
   server_auto_join = true

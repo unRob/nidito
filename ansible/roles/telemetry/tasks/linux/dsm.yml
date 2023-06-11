@@ -1,54 +1,28 @@
-- name: Get installed version
-  become: true
-  shell: |
-    {{ node_exporter_bin }} --version | awk '/^node_exporter/ {print $3}'
-  register: node_exporter_installed_version
-  check_mode: no
-  ignore_errors: yes
-
-- set_fact:
-    needs_install: "{{ node_exporter_installed_version.stdout != node_exporter_version }}"
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-
-- name: Create the node_exporter directory
+- name: Create the node_exporter bin directory
   become: true
   file:
-    path: "{{ node_exporter_config_dir }}"
+    path: "{{ node_exporter.bin | dirname }}"
+    group: "{{ user.group }}"
     state: directory
     mode: u=rwx,g=rwx,o=
+    recurse: true
 
 - name: Download node_exporter
   when: needs_install
   become: true
   unarchive:
     remote_src: yes
-    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter_version}}/node_exporter-{{node_exporter_version}}.linux-{{ golang_artifact_arch }}.tar.gz"
+    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}.tar.gz"
     dest: "/tmp/"
 
 - name: Install node_exporter
   when: needs_install
   become: true
   shell: |
-    mv /tmp/node_exporter-{{node_exporter_version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter_bin }}
+    mv /tmp/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
 
-- name: Install systemd service
-  become: yes
-  template:
-    src: templates/node_exporter.service.j2
-    dest: /usr/lib/systemd/system/node_exporter.service
-  notify: restart node_exporter
-  register: node_exporter_systemd_config_install
+- name: configure systemd
+  include_tasks: _systemd.yml
 
-- name: Enable systemd service
-  become: yes
-  systemd:
-    name: node_exporter
-    enabled: yes
 
-- name: Reload systemctl daemon
-  when: node_exporter_systemd_config_install.changed
-  become: yes
-  systemd:
-    daemon_reload: true
+

@@ -1,0 +1,34 @@
+- name: Add the vault user
+  become: true
+  user:
+    name: "{{ vault.user }}"
+    create_home: no
+    shell: /usr/bin/false
+    groups: "{{ user.group }}"
+    append: yes
+
+- name: Install vault
+  when: installed_vault_version.stdout != config.services.vault.version
+  notify: Restart vault service
+  become: true
+  unarchive:
+    src: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_darwin_{{ golang_artifact_arch }}.zip"
+    remote_src: yes
+    dest: /usr/local/bin
+
+- name: Create the vault log directory
+  become: true
+  file:
+    path: "{{ vault.logs }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+
+- name: Install vault launchd config
+  become: yes
+  template:
+    src: templates/service.plist.j2
+    dest: /Library/LaunchDaemons/io.vault.daemon.plist
+
+

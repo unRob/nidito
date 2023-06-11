@@ -9,9 +9,9 @@ tls {
   rpc = true
   # This allows the agent to accept both TLS and plaintext traffic.
   rpc_upgrade_mode = true
-  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
-  cert_file = "{{ nomad_config_dir }}/tls/cert.pem"
-  key_file = "{{ nomad_config_dir }}/tls/key.pem"
+  ca_file = "{{ nomad.config }}/tls/ca.pem"
+  cert_file = "{{ nomad.config }}/tls/cert.pem"
+  key_file = "{{ nomad.config }}/tls/key.pem"
   verify_server_hostname = false
   # Enabling verify_https_client effectively protects Nomad from unauthorized
   # network access at the cost of **losing Consul HTTPS health checks**...
@@ -23,7 +23,7 @@ vault {
   address = "https://vault.service.consul:{{ config.services.vault.port }}"
 
   token = "{{ dc.vault.nomad_token }}"
-  ca_file = "{{ nomad_config_dir }}/tls/ca.pem"
+  ca_file = "{{ nomad.config }}/tls/ca.pem"
 
   create_from_role = "nomad-cluster"
 }

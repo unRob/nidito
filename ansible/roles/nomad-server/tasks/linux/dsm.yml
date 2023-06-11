@@ -1,68 +1,18 @@
-- name: Get installed version
-  shell: /usr/syno/bin/synopkg version nomad
-  register: installed_version
-  check_mode: no
-  ignore_errors: yes
-
-- set_fact:
-    needs_install: "{{ installed_version.stdout != config.services.nomad.version }}"
-    nomad_zip: "nomad_{{ config.services.nomad.version }}_linux_amd64.zip"
-
-- name: Get nomad SPK
+- name: Download nomad
   when: needs_install
-  git:
-    name: https://github.com/numkem/nomad-spk.git
-    dest: /tmp/nomad-spk
-    update: no
-
-- name: patch spk
-  when: needs_install
-  lineinfile:
-    path: "/tmp/nomad-spk/{{ item.path }}"
-    state: present
-    regexp: "{{ item.regex }}"
-    line: "{{ item.line }}"
-    backrefs: yes
-  with_items:
-    - path: 1_create_package/ui/config
-      regex: '^(\s+)"port":"[\d+]"(,?)'
-      line: '\g<1>"port": "{{ config.services.nomad.ports.http }}"\g<2>'
-    - path: 2_create_project/INFO
-      regex: '^version="[\d.]+"'
-      line: 'version="{{ config.services.nomad.version }}"'
-    - path: 2_create_project/scripts/nomad.sc
-      regex: '^dst.ports=.+'
-      line: 'dst.ports="{{ config.services.nomad.ports.http }}/tcp {{ config.services.nomad.ports.rpc }}/tcp {{ config.services.nomad.ports.serf }}/tcp {{ config.services.nomad.ports.serf }}/udp"'
-
-- name: Get nomad binary
-  when: needs_install
+  become: yes
   get_url:
-    url: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/{{ nomad_zip }}"
-    dest: /tmp/
+    url: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
+    dest: /tmp
 
-- name: Unzip binary
+- name: Install nomad binary
   when: needs_install
+  become: yes
   shell: |
     cd /tmp
-    7z e {{ nomad_zip }}
-    mkdir -p /tmp/nomad-spk/1_create_package/nomad
-    mv -f /tmp/nomad /tmp/nomad-spk/1_create_package/nomad/
-    rm -rf /tmp/{{ nomad_zip }}
+    7z e nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip
+    mv -f /tmp/nomad {{ nomad.bin }}
+    rm -rf /tmp/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip
 
-- name: Create SPK
-  when: needs_install
-  shell: cd /tmp/nomad-spk; sh ./create_spk.sh
-
-- name: Install SPK
-  when: needs_install
-  become: true
-  shell: /usr/syno/bin/synopkg install /tmp/nomad-spk/nomad.spk
-
-- name: Create the nomad config directory
-  when: needs_install
-  become: true
-  file:
-    path: "{{ nomad_config_dir }}"
-    owner: "{{ nomad_user }}"
-    state: directory
-    mode: u=rwx,g=rwx,o=
+- name: configure systemd
+  include_tasks: _systemd.yml

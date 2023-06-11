@@ -1,0 +1,18 @@
+consul:
+  user: consul
+  config: /volume1/nidito/consul/etc
+  bin: /volume1/nidito/consul/bin/consul
+  data: /volume1/nidito/consul/data
+node_exporter:
+  config: /volume1/nidito/node_exporter/etc
+  bin: /volume1/nidito/node_exporter/bin/node_exporter
+nomad:
+  user: root
+  group: root
+  config: /volume1/nidito/nomad/etc
+  bin: /volume1/nidito/nomad/bin/nomad
+  data: /volume1/nidito/nomad/data
+vault:
+  config: /volume1/nidito/vault
+  bin: /volume1/nidito/vault/bin/vault
+  user: vault

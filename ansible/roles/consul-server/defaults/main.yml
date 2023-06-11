@@ -1,4 +1,0 @@
-consul_config_dir: /etc/consul.d
-consul_bin: /usr/bin/consul
-consul_data_dir: /var/lib/consul
-consul_user: consul

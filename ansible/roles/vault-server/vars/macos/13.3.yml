@@ -1,4 +1,0 @@
-vault_config_dir: /usr/local/etc/nidito/vault
-vault_user: _vault
-vault_log_path: /usr/local/var/log/vault
-vault_data_dir: /private/var/lib/vault

@@ -1,14 +1,22 @@
 - name: Restart node_exporter service
   when: ansible_pkg_mgr == "homebrew"
-  listen: restart node_exporter
+  listen: restart node-exporter
   become: yes
-  shell: "launchctl stop io.prometheus.node_exporter.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist"
+  shell: |
+    launchctl unload -w /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist 2>/dev/null
+    launchctl load -w /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist
 
-- name: Restart node_exporter service
+- name: Reload systemd daemons
   when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: restart node_exporter
+  listen: reload systemd daemons
   become: yes
   systemd:
-    name: node_exporter
-    state: restarted
+    daemon_reload: true
 
+- name: Restart node-exporter service
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  listen: restart node-exporter
+  become: yes
+  systemd:
+    name: node-exporter
+    state: restarted

@@ -1,0 +1,15 @@
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/node-exporter.service.j2
+    dest: /usr/lib/systemd/system/node-exporter.service
+  notify:
+    - reload systemd daemons
+    - restart node-exporter
+
+- name: Enable node_exporter daemon
+  become: yes
+  systemd:
+    name: node_exporter
+    enabled: yes
+  notify: restart node-exporter

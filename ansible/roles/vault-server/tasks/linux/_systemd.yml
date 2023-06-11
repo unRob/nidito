@@ -1,0 +1,15 @@
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/vault.service.j2
+    dest: /usr/lib/systemd/system/vault.service
+  notify:
+    - reload systemd daemons
+    - restart vault
+
+- name: Enable vault daemon
+  become: yes
+  systemd:
+    name: vault
+    enabled: yes
+  notify: restart vault

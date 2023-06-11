@@ -1,22 +1,54 @@
-- include_vars: "{{ node.hardware.os }}.yml"
+- name: Get installed version
+  shell: |
+    {{ vault.bin }} --version | awk '{gsub("v", "", $2); print $2}'
+  register: installed_vault_version
+  ignore_errors: yes
+  check_mode: no
 
-- include_tasks: "{{ node.hardware.os }}.yml"
+- set_fact:
+    needs_install: "{{ installed_vault_version.stdout != config.services.vault.version}}"
+  check_mode: no
 
-- name: Create config directory
+- set_fact:
+    golang_artifact_arch: "arm"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
+- name: install vault
+  include_tasks: "{{ node.hardware.os }}.yml"
+
+- name: Create vault directories
   become: true
   file:
-    owner: "{{ vault_user }}"
-    path: "{{ vault_config_dir }}/tls"
+    path: "{{ item }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
     state: directory
-    recurse: yes
+    mode: u=rwx,g=rw,o=
+  with_items:
+    - "{{ vault.config }}"
+    - "{{ vault.config }}/tls"
+    - "{{ vault.config }}/plugins"
+    # make sure the bin prefix is /nidito (not /usr/...)
+    # before enabling this, otherwise risk denying our local user account
+    # permission to execute anything in /usr/(local/)bin!
+    # - "{{ vault.bin | dirname }}"
 
 - name: Install TLS certs
   become: true
   no_log: true
   copy:
     content: "{{ item.content }}"
-    dest: "{{ vault_config_dir }}/tls/{{ item.name }}"
-    owner: "{{ vault_user }}"
+    dest: "{{ vault.config }}/tls/{{ item.name }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=,o=
   with_items:
     - name: ca.pem
@@ -27,36 +59,21 @@
       content: "{{ node.tls.vault }}"
   notify: restart vault
 
-- name: Create plugin directory
-  become: true
-  file:
-    owner: "{{ vault_user }}"
-    path: "{{ vault_config_dir }}/plugins"
-    state: directory
-    recurse: yes
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
-
 - name: Install 1password plugin
   become: true
   unarchive:
-    src: "{{ vault_joao_src }}/joao-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
+    src: "{{ joao.src }}/{{ joao.version }}/joao-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
     remote_src: yes
-    dest: "{{ vault_config_dir }}/plugins"
+    dest: "{{ vault.config }}/plugins"
     mode: u=rwx,g=,o=
-    owner: "{{ vault_user }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
   notify: configure vault plugin
 
 - name: get joao shasum
   become: true
   shell: |
-    openssl dgst -sha256 -hex "{{ vault_config_dir }}/plugins/joao" | awk '{print $2}'
+    openssl dgst -sha256 -hex "{{ vault.config }}/plugins/joao" | awk '{print $2}'
   register: vault_joao_sha
   notify: configure vault plugin
   check_mode: no
@@ -65,7 +82,8 @@
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ vault_config_dir }}/config.hcl"
-    owner: "{{ vault_user }}"
+    dest: "{{ vault.config }}/config.hcl"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   notify: restart vault

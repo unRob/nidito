@@ -1,4 +1,41 @@
-- include_vars: "{{ node.hardware.os }}.yml"
+- name: Get installed version
+  shell: "{{ nomad.bin }} --version | head -n 1 | cut -dv -f2"
+  register: installed_nomad_version
+  ignore_errors: yes
+  check_mode: no
+
+- set_fact:
+    needs_install: "{{ installed_nomad_version.stdout != config.services.nomad.version}}"
+  check_mode: no
+
+- set_fact:
+    golang_artifact_arch: "arm"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
+- name: Create nomad directories
+  become: true
+  file:
+    path: "{{ item }}"
+    owner: "{{ nomad.user }}"
+    group: "{{ user.group }}"
+    state: directory
+    mode: u=rwx,g=rx,o=
+  with_items:
+    - "{{ nomad.config }}"
+    - "{{ nomad.data }}"
+    - "{{ nomad.config }}/tls"
+    # make sure the bin prefix is /nidito (not /usr/...)
+    # before enabling this, otherwise risk denying our local user account
+    # permission to execute anything in /usr/(local/)bin!
+    # - "{{ nomad.bin | dirname }}"
 
 - include_tasks: "{{ node.hardware.os }}.yml"
 
@@ -9,24 +46,17 @@
   template:
     src: templates/peers.json.j2
     dest: "/var/lib/nomad/server/raft/peers.json"
-    owner: "{{ nomad_user }}"
-
-- name: Create config directory
-  become: true
-  file:
-    owner: "{{ nomad_user }}"
-    path: "{{ nomad_config_dir }}/tls"
-    state: directory
-    recurse: yes
+    owner: "{{ nomad.user }}"
 
 - name: Install TLS certs
   become: true
   no_log: true
   copy:
     content: "{{ item.content }}"
-    dest: "{{ nomad_config_dir }}/tls/{{ item.name }}"
-    owner: "{{ nomad_user }}"
-    mode: u=rw,g=,o=
+    dest: "{{ nomad.config }}/tls/{{ item.name }}"
+    owner: "{{ nomad.user }}"
+    group: "{{ user.group }}"
+    mode: u=rwx,g=rx,o=
   with_items:
     - name: ca.pem
       content: "{{ config.services.ca.cert }}"
@@ -40,8 +70,9 @@
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ nomad_config_dir }}/config.hcl"
-    owner: "{{ nomad_user }}"
+    dest: "{{ nomad.config }}/config.hcl"
+    owner: "{{ nomad.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   notify: restart nomad
 
@@ -49,7 +80,8 @@
   become: true
   template:
     src: templates/config.hot-reload.hcl.j2
-    dest: "{{ nomad_config_dir }}/config.hot-reload.hcl"
-    owner: "{{ nomad_user }}"
+    dest: "{{ nomad.config }}/config.hot-reload.hcl"
+    owner: "{{ nomad.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   notify: reload nomad

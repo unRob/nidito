@@ -6,7 +6,7 @@ dc: casa
 hardware:
   arch: arm64
   model: mac14,3
-  os: macos/13.3
+  os: macos/ventura
 mac: !!secret
 tags:
   role: leader

@@ -7,42 +7,34 @@
   ignore_errors: yes
 
 - set_fact:
-    needs_install: "{{ installed_version.stdout != coredns_consul_plugin_version }}"
+    needs_install: "{{ installed_version.stdout != coredns.plugin }}"
 
 - name: Create the coredns directory
   become: true
   file:
-    path: "/config/coredns"
+    path: "{{ coredns.bin | dirname}}"
     state: directory
     owner: root
     group: vyattacfg
     mode: u=rwx,g=rwx,o=
+    recurse: true
 
 - name: Download a coredns+consul build
-  when: needs_install
-  when: not ansible_check_mode
+  when: needs_install and not ansible_check_mode
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns_consul_plugin_version }}/coredns-consul-linux-mips64.tgz"
-    dest: /config/coredns
+    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns.plugin }}/coredns-consul-linux-mips64.tgz"
+    dest: "{{ coredns.bin | dirname }}"
     mode: u=rwx,g=rwx,o=rw
   notify: restart coredns
-
-- name: Install coredns systemd config
-  become: yes
-  # notify: restart coredns
-  template:
-    src: templates/coredns.service.j2
-    mode: u=rwx,g=r,o=r
-    dest: /etc/systemd/system/coredns.service
 
 - name: Install coredns systemd config backup
   become: true
   template:
     src: templates/coredns.service.j2
     mode: u=rwx,g=rw,o=r
-    dest: /config/coredns/coredns.service
+    dest: "{{ coredns.bin | dirname }}/coredns.service"
 
 - name: Create the coredns firstboot directory
   become: true
@@ -55,8 +47,8 @@
 
 - name: Install edgerouter firstboot.d script
   become: true
-  copy:
-    src: files/post-config.sh
+  template:
+    src: templates/post-config.sh
     mode: u=rwx,g=rwx,o=rx
     dest: /config/scripts/firstboot.d/coredns.sh
 

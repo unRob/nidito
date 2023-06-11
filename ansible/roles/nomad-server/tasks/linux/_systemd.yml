@@ -1,0 +1,15 @@
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/nomad.service.j2
+    dest: /usr/lib/systemd/system/nomad.service
+  notify:
+    - reload systemd daemons
+    - restart nomad
+
+- name: Enable nomad daemon
+  become: yes
+  systemd:
+    name: nomad
+    enabled: yes
+  notify: restart nomad

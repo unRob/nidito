@@ -1,0 +1,16 @@
+- name: Install nomad
+  when: installed_nomad_version.stdout != config.services.nomad.version
+  notify: Restart nomad service
+  become: yes
+  unarchive:
+    src: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_darwin_{{ golang_artifact_arch }}.zip"
+    remote_src: yes
+    dest: "{{ nomad.bin | dirname }}"
+
+- name: Install nomad launchd config
+  become: yes
+  template:
+    src: templates/service.plist.j2
+    dest: /Library/LaunchDaemons/io.nomad.daemon.plist
+
+

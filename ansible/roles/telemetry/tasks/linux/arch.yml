@@ -1,63 +1,11 @@
-- name: Get installed version
-  become: true
-  shell: |
-    {{ node_exporter_bin }} --version | awk '/^node_exporter/ {print $3}'
-  register: node_exporter_installed_version
-  check_mode: no
-  ignore_errors: yes
-
-- set_fact:
-    needs_install: "{{ node_exporter_installed_version.stdout != node_exporter_version }}"
-
-- set_fact:
-    golang_artifact_arch: "armv6"
-  when: node.hardware.arch == 'arm32'
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
-
-- name: Create the node_exporter directory
-  become: true
-  file:
-    path: "{{ node_exporter_config_dir }}"
-    state: directory
-    mode: u=rwx,g=rwx,o=
-
-- name: Download node_exporter
+- name: Install node_exporter
   when: needs_install
   become: true
   unarchive:
     remote_src: yes
-    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter_version}}/node_exporter-{{node_exporter_version}}.linux-{{ golang_artifact_arch }}.tar.gz"
-    dest: "/tmp/"
-
-- name: Install node_exporter
-  when: needs_install
-  become: true
-  shell: |
-    mv /tmp/node_exporter-{{node_exporter_version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter_bin }}
-
-- name: Install systemd service
-  become: yes
-  template:
-    src: templates/node_exporter.service.j2
-    dest: /usr/lib/systemd/system/node_exporter.service
+    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}.tar.gz"
+    dest: "{{ node_exporter.bin | dirname }}"
   notify: restart node_exporter
-  register: node_exporter_systemd_config_install
 
-- name: Enable systemd service
-  become: yes
-  systemd:
-    name: node_exporter
-    enabled: yes
-
-- name: Reload systemctl daemon
-  when: node_exporter_systemd_config_install.changed
-  become: yes
-  systemd:
-    daemon_reload: true
+- name: configure systemd
+  include_tasks: _systemd.yml

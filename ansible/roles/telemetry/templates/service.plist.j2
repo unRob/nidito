@@ -11,12 +11,12 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>{{ node_exporter_config_dir }}/out.log</string>
+    <string>{{ node_exporter.logs }}/out.log</string>
     <key>StandardErrorPath</key>
-    <string>{{ node_exporter_config_dir }}/error.log</string>
+    <string>{{ node_exporter.logs }}/error.log</string>
     <key>ProgramArguments</key>
     <array>
-        <string>{{ node_exporter_bin }}</string>
+        <string>{{ node_exporter.bin }}</string>
         <string>--web.listen-address={{ node.address }}:9100</string>
     </array>
 </dict>

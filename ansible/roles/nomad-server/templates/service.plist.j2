@@ -5,9 +5,9 @@
     <key>Label</key>
     <string>io.nomad.daemon</string>
     <key>UserName</key>
-    <string>{{ nomad_user }}</string>
+    <string>{{ nomad.user }}</string>
     <key>GroupName</key>
-    <string>{{ nomad_group }}</string>
+    <string>{{ nomad.group }}</string>
     <key>Disabled</key>
     <false/>
     <key>RunAtLoad</key>
@@ -15,15 +15,15 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>{{ nomad_log_path }}/out.log</string>
+    <string>{{ nomad.logs }}/out.log</string>
     <key>StandardErrorPath</key>
-    <string>{{ nomad_log_path }}/error.log</string>
+    <string>{{ nomad.logs }}/error.log</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/nomad</string>
+        <string>{{ nomad.bin }}</string>
         <string>agent</string>
         <string>-config</string>
-        <string>{{ nomad_config_dir  }}</string>
+        <string>{{ nomad.config }}</string>
     </array>
 </dict>
 </plist>

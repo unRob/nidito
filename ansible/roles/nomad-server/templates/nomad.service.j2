@@ -1,0 +1,21 @@
+[Unit]
+Description=Nomad Agent
+Requires=network-online.target
+After=network-online.target consul.service
+Wants=consul.service
+
+[Service]
+EnvironmentFile=-/etc/default/nomad
+Restart=on-failure
+ExecStart={{ nomad.bin }} agent -config={{ nomad.config }}
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+KillMode=process
+LimitNOFILE=65536
+LimitNPROC=infinity
+
+TasksMax=infinity
+OOMScoreAdjust=-1000
+
+[Install]
+WantedBy=multi-user.target

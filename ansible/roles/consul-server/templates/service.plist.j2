@@ -5,9 +5,9 @@
     <key>Label</key>
     <string>io.consul.daemon</string>
     <key>UserName</key>
-    <string>_consul</string>
+    <string>{{ consul.user }}</string>
     <key>GroupName</key>
-    <string>{{ consul_group_name }}</string>
+    <string>{{ user.group }}</string>
     <key>Disabled</key>
     <false/>
     <key>RunAtLoad</key>
@@ -15,15 +15,15 @@
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>{{ consul_log_path }}/out.log</string>
+    <string>{{ consul.logs }}/out.log</string>
     <key>StandardErrorPath</key>
-    <string>{{ consul_log_path }}/error.log</string>
+    <string>{{ consul.logs }}/error.log</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/consul</string>
+        <string>{{ consul.bin }}</string>
         <string>agent</string>
         <string>-config-dir</string>
-        <string>{{ consul_config_dir  }}</string>
+        <string>{{ consul.config  }}</string>
     </array>
 </dict>
 </plist>

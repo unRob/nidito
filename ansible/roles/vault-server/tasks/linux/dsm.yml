@@ -1,71 +1,60 @@
-- name: Get installed version
-  shell: /usr/syno/bin/synopkg version vault
-  register: installed_version
-  check_mode: no
+- name: lookup user database
+  become: true
+  shell: "/usr/syno/sbin/synouser --get '{{ vault.user }}'"
+  register: dsm_user_exists
   ignore_errors: yes
+  check_mode: no
+
+- name: lookup group membership
+  become: true
+  shell: |
+    /usr/syno/sbin/synogroup --get '{{ user.group }}' | grep '\[{{ vault.user }}\]'
+  register: dsm_user_in_group
+  ignore_errors: yes
+  check_mode: no
 
 - set_fact:
-    needs_install: "{{ installed_version.stdout != config.services.vault.version }}"
-    vault_zip: "vault_{{ config.services.vault.version }}_linux_amd64.zip"
+    dsm_add_user: "{{ dsm_user_exists.rc != 0 }}"
+    dsm_add_member: "{{ dsm_user_in_group.rc != 0 }}"
+  check_mode: no
 
-- name: Get vault SPK
-  when: needs_install
-  git:
-    name: https://github.com/numkem/vault-spk.git
-    dest: /tmp/vault-spk
-    update: no
-
-- name: patch spk
-  when: needs_install
-  lineinfile:
-    path: "/tmp/vault-spk/{{ item.path }}"
-    state: present
-    regexp: "{{ item.regex }}"
-    line: "{{ item.line }}"
-    backrefs: yes
-  with_items:
-    - path: 1_create_package/ui/config
-      regex: '^(\s+)"port":"[\d+]"(,?)'
-      line: '\g<1>"port": "{{ config.services.vault.port }}"\g<2>'
-    - path: 2_create_project/INFO
-      regex: '^version="[\d.]+"'
-      line: 'version="{{ config.services.vault.version }}"'
-    - path: 2_create_project/INFO
-      regex: '^adminport="?[\d.]+"?'
-      line: 'adminport={{ config.services.vault.port }}'
-    - path: 2_create_project/scripts/consul.sc
-      regex: '^dst.ports=.+'
-      line: 'dst.ports="{{ config.services.vault.port }}/tcp {{ config.services.vault.port + 1 }}/tcp"'
-
-- name: Get vault binary
-  when: needs_install
-  get_url:
-    url: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/{{ vault_zip }}"
-    dest: /tmp/
-
-- name: Unzip binary
-  when: needs_install
-  shell: |
-    cd /tmp
-    7z e {{ vault_zip }}
-    mkdir -p /tmp/vault-spk/1_create_package/vault
-    mv -f /tmp/vault /tmp/vault-spk/1_create_package/vault/
-    rm -rf /tmp/{{ vault_zip }}
-
-- name: Create SPK
-  when: needs_install
-  shell: cd /tmp/vault-spk; sh ./create_spk.sh
-
-- name: Install SPK
-  when: needs_install
+- name: "Add the {{ vault.user }} user"
   become: true
-  shell: /usr/syno/bin/synopkg install /tmp/vault-spk/vault.spk
+  when: dsm_add_user
+  no_log: true
+  shell: |
+    /usr/syno/sbin/synouser --add "{{ vault.user }}" "{{ node.auth.password }}" "vault user" 0 "vault@nidi.to" 0
 
-- name: Create the vault config directory
+- name: "Add the {{ vault.user }} user to the {{ user.group }} group"
+  become: true
+  when: dsm_add_member
+  shell: "/usr/syno/sbin/synogroup --memberadd '{{ user.group }}' '{{ vault.user }}'"
+
+- name: Download vault
   when: needs_install
+  become: yes
+  get_url:
+    url: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip"
+    dest: /tmp
+
+- name: Create the vault bin directory
   become: true
   file:
-    path: "{{ vault_config_dir }}"
-    owner: "{{ vault_user }}"
+    path: "{{ vault.bin | dirname }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
     state: directory
-    mode: u=rwx,g=rwx,o=
+    mode: u=rwx,g=rwx,o=rx
+
+- name: Install vault binary
+  when: needs_install
+  become: yes
+  shell: |
+    cd /tmp
+    7z e vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip
+    mv -f /tmp/vault {{ vault.bin }}
+    chown "{{ vault.user }}:{{ user.group }}" "{{ consul.bin }}"
+    rm -rf /tmp/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip
+
+- name: configure systemd
+  include_tasks: _systemd.yml

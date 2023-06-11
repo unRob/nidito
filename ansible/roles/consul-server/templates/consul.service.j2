@@ -4,11 +4,11 @@ Requires=network-online.target
 After=network-online.target
 
 [Service]
-User={{ consul_user }}
-Group={{ consul_user }}
+User={{ consul.user }}
+Group={{ user.group }}
 EnvironmentFile=-/etc/default/consul
 Restart=on-failure
-ExecStart={{ consul_bin }} agent $CONSUL_FLAGS -config-dir={{ consul_config_dir }}
+ExecStart={{ consul.bin }} agent $CONSUL_FLAGS -config-dir={{ consul.config }}
 ExecReload=/usr/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 

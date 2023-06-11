@@ -1,37 +1,39 @@
-#!/bin/vbash
+#!/bin/bash
 
 dpkg -i /config/wireguard/installer.deb
+cfg=/opt/vyatta/sbin/vyatta-cfg-cmd-wrapper
 
-
-source /opt/vyatta/etc/functions/script-template
-set interfaces wireguard wg0 address {{ config.datacenters[node.dc].peering.address }}
-set interfaces wireguard wg0 description '{{ node.dc }} vpn'
-set interfaces wireguard wg0 listen-port {{ config.services.wireguard.port }}
-set interfaces wireguard wg0 mtu 1420
+{# source /opt/vyatta/etc/functions/script-template #}
+$cfg begin
+$cfg set interfaces wireguard wg0 address {{ config.datacenters[node.dc].peering.address }}
+$cfg set interfaces wireguard wg0 description '{{ node.dc }} vpn'
+$cfg set interfaces wireguard wg0 listen-port {{ config.services.wireguard.port }}
+$cfg set interfaces wireguard wg0 mtu 1420
 
 {% for name, peer in config.datacenters[node.dc].peering.peers.items() %}
 {% if "dc" in peer %}
 {% set _dc = config.datacenters[peer.dc] %}
-set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.peering.address }}
-set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.subnet }}
-set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} description '{{ peer.dc }} tunnel'
-set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} endpoint '{{ _dc.peering.endpoint }}'
-set protocols static interface-route {{ _dc.subnet }} next-hop-interface wg0 description '{{ peer.dc }} tunnel'
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.peering.address }}
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.subnet }}
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} description '{{ peer.dc }} tunnel'
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} endpoint '{{ _dc.peering.endpoint }}'
+$cfg set protocols static interface-route {{ _dc.subnet }} next-hop-interface wg0 description '{{ peer.dc }} tunnel'
 {% else %}
 {% set peer = config.datacenters[node.dc].peering.peers[name] %}
 {% for ip in peer.allowed_ips %}
-set interfaces wireguard wg0 peer {{ peer.public_key }} allowed-ips {{ ip }}
+$cfg set interfaces wireguard wg0 peer {{ peer.public_key }} allowed-ips {{ ip }}
 {% endfor %}
-set interfaces wireguard wg0 peer {{ peer.public_key }} description '{{ name }}'
+$cfg set interfaces wireguard wg0 peer {{ peer.public_key }} description '{{ name }}'
 {% if "endpoint" in peer %}
-set interfaces wireguard wg0 peer {{ peer.public_key }} endpoint '{{ peer.endpoint }}'
+$cfg set interfaces wireguard wg0 peer {{ peer.public_key }} endpoint '{{ peer.endpoint }}'
 {% endif %}
 {% endif %}
 {% endfor %}
 
-set interfaces wireguard wg0 private-key {{ config.datacenters[node.dc].peering.key.private }}
+$cfg set interfaces wireguard wg0 private-key {{ config.datacenters[node.dc].peering.key.private }}
 
-set interfaces wireguard wg0 route-allowed-ips false
+$cfg set interfaces wireguard wg0 route-allowed-ips false
 
-commit
-exit
+$cfg compare
+$cfg commit
+$cfg end

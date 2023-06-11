@@ -1,0 +1,15 @@
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/consul.service.j2
+    dest: /usr/lib/systemd/system/consul.service
+  notify:
+    - reload systemd daemons
+    - restart consul
+
+- name: Enable consul daemon
+  become: yes
+  systemd:
+    name: consul
+    enabled: yes
+  notify: restart consul

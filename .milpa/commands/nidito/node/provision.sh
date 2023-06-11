@@ -55,7 +55,9 @@ Host $NODE_NAME $next_addr $NODE_NAME $NODE_NAME.$dns_zone
   User $node_username
   Port 22
   IdentityFile $our_ssh_key
-
+  ControlMaster     auto
+  ControlPath       ~/.ssh/control-%C
+  ControlPersist    yes
 SSHD
 
   @milpa.log success "Node ready for paswordless ssh"

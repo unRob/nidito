@@ -1,0 +1,46 @@
+
+- name: Create the node_exporter bin directory
+  become: true
+  file:
+    path: "{{ node_exporter.bin | dirname }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+    recurse: true
+
+- name: Download node_exporter
+  when: needs_install
+  become: true
+  unarchive:
+    remote_src: yes
+    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.linux-mips64.tar.gz"
+    dest: "{{ node_exporter.bin | dirname }}"
+
+- name: Install systemd service backup
+  become: yes
+  template:
+    src: templates/node-exporter.service.j2
+    dest: "{{ node_exporter.bin | dirname }}/node-exporter.service"
+  notify:
+    - reload systemd daemons
+    - restart node-exporter
+
+- name: Create the node_exporter firstboot directory
+  become: true
+  file:
+    path: "/config/scripts/firstboot.d"
+    state: directory
+    owner: root
+    group: vyattacfg
+    mode: u=rwx,g=rwx,o=
+
+- name: Install edgerouter firstboot.d script
+  become: true
+  template:
+    src: templates/post-config.sh
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/firstboot.d/node_exporter.sh
+
+- name: Run firstboot script
+  when: needs_install
+  become: true
+  shell: /config/scripts/firstboot.d/node_exporter.sh

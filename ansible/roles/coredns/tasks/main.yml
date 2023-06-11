@@ -1,11 +1,9 @@
-- include_vars: "{{ node.hardware.os }}.yml"
-
 - include_tasks: "{{ node.hardware.os }}.yml"
 
 - name: Create config directory
   become: true
   file:
-    path: "{{ coredns_config_path }}/zones"
+    path: "{{ coredns.config }}/zones"
     state: directory
     recurse: yes
 
@@ -15,9 +13,9 @@
     src: templates/Corefile.j2
     owner: coredns
     group: users
-    dest: "{{ coredns_config_path }}/Corefile"
+    dest: "{{ coredns.config }}/Corefile"
     mode: u=rw,g=r,o=
-  # notify: restart coredns
+  notify: restart coredns
 
 - name: Install zones
   become: true
@@ -25,6 +23,6 @@
     src: templates/zone.j2
     owner: coredns
     group: users
-    dest: "{{ coredns_config_path }}/zones/main"
+    dest: "{{ coredns.config }}/zones/main"
     mode: u=rw,g=r,o=
-  # notify: restart coredns
+  notify: restart coredns

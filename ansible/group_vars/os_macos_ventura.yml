@@ -1,0 +1,28 @@
+consul:
+  user: _consul
+  config: /usr/local/etc/nidito/consul
+  bin: /usr/local/bin/consul
+  data: /var/lib/consul
+  logs: /usr/local/var/log/consul
+docker:
+  engine: 20.10
+  cni_plugins: 1.2.0
+user:
+  group: _nidito
+node_exporter:
+  config: /nidito/node_exporter/etc
+  bin: /opt/homebrew/bin/node_exporter
+  logs: /nidito/node_exporter/logs
+nomad:
+  user: root
+  group: wheel
+  config: /usr/local/etc/nidito/nomad
+  data: /private/var/lib/nomad
+  logs: /usr/local/var/log/nomad
+  bin: /usr/local/bin/nomad
+vault:
+  config: /usr/local/etc/nidito/vault
+  bin: /usr/local/bin/vault
+  user: _vault
+  logs: /usr/local/var/log/vault
+  data: /private/var/lib/vault

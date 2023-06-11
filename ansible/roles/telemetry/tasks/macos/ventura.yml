@@ -1,0 +1,38 @@
+# node exporter releases are broken on darwin
+# https://github.com/prometheus/node_exporter/issues/2539
+# - name: Download node_exporter
+#   when: needs_install
+#   become: true
+#   unarchive:
+#     remote_src: yes
+#     src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}.tar.gz"
+#     dest: "/tmp/"
+
+- name: Download node_exporter
+  when: needs_install
+  homebrew:
+    name: node_exporter
+    state: present
+  notify: restart node_exporter
+
+- name: Create the node_exporter logs directory
+  become: true
+  file:
+    path: "{{ node_exporter.logs }}"
+    group: "{{ user.group }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+    recurse: true
+
+# - name: Install node_exporter
+#   when: needs_install
+#   become: true
+#   shell: |
+#     mv /tmp/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
+
+- name: Install nomad launchd config
+  become: yes
+  template:
+    src: templates/service.plist.j2
+    dest: /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist
+  notify: restart node_exporter

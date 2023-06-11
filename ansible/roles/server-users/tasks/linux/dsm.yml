@@ -1,0 +1,29 @@
+- name: lookup group database
+  become: true
+  shell: "/usr/syno/sbin/synogroup --get '{{ user.group }}'"
+  register: dsm_group_exists
+  ignore_errors: yes
+  check_mode: no
+
+- name: lookup group membership
+  become: true
+  shell: |
+    /usr/syno/sbin/synogroup --get '{{ user.group }}' | grep '\[{{ node.auth.username }}\]'
+  register: dsm_user_in_group
+  ignore_errors: yes
+  check_mode: no
+
+- set_fact:
+    dsm_add_group: "{{ dsm_group_exists.rc != 0 }}"
+    dsm_add_member: "{{ dsm_user_in_group.rc != 0 }}"
+  check_mode: no
+
+- name: Add the nidito group
+  become: true
+  when: dsm_add_group
+  shell: "/usr/syno/sbin/synogroup --add {{ user.group }}"
+
+- name: Add my user to nidito group
+  become: true
+  when: dsm_add_member
+  shell: "/usr/syno/sbin/synogroup --memberadd '{{ user.group }}' '{{ node.auth.username }}'"

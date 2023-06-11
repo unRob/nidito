@@ -6,7 +6,7 @@ log_level = "warn"
 log_json = true
 
 enable_syslog = true
-data_dir = "{{ consul_data_dir }}"
+data_dir = "{{ consul.data }}"
 server = true
 ui_config {
   enabled = true
@@ -69,9 +69,9 @@ encrypt_verify_outgoing = true
 
 tls {
   defaults {
-    ca_file = "{{ consul_config_dir }}/tls/ca.pem"
-    cert_file = "{{ consul_config_dir }}/tls/cert.pem"
-    key_file = "{{ consul_config_dir }}/tls/key.pem"
+    ca_file = "{{ consul.config }}/tls/ca.pem"
+    cert_file = "{{ consul.config }}/tls/cert.pem"
+    key_file = "{{ consul.config }}/tls/key.pem"
     verify_incoming = true
     verify_outgoing = true
   }
@@ -123,6 +123,7 @@ telemetry {
   disable_hostname = true
 }
 
+{% if dc.primary %}
 service {
   id ="host-telemetry"
   name = "host-telemetry"
@@ -144,3 +145,4 @@ service {
     }
   ]
 }
+{% endif %}

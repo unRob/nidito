@@ -5,22 +5,21 @@
   shell: "launchctl unload -w /Library/LaunchDaemons/io.nomad.daemon.plist 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.nomad.daemon.plist"
   register: restarted_nomad
 
-- name: Reload nomad service
+- name: Reload nomad config
   when: ansible_pkg_mgr == "homebrew" and not restarted_nomad.changed
   listen: restart nomad
   become: yes
   shell: kill -HUP "$(ps x | awk '/\/usr\/local\/bin\/nomad agent/ {print $1; exit}')"
 
-
-- name: Reload systemctl daemons
-  when: ansible_pkg_mgr == "pacman"
-  listen: reload systemctl daemons
+- name: Reload systemd daemons
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  listen: reload systemd daemons
   become: yes
   systemd:
     daemon_reload: true
 
 - name: Restart nomad service
-  when: ansible_pkg_mgr == "pacman"
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
   listen: restart nomad
   become: yes
   systemd:
@@ -28,23 +27,10 @@
     state: restarted
   register: restarted_nomad
 
-- name: Reload nomad service
+- name: Reload nomad config
   when: ansible_pkg_mgr == "pacman" and not restarted_nomad.changed
   listen: reload nomad
   become: yes
   systemd:
     name: nomad
     state: reloaded
-
-- name: Restart nomad service
-  when: ansible_pkg_mgr == "unknown"
-  listen: restart nomad
-  become: yes
-  shell: /usr/syno/bin/synopkg restart nomad || /usr/syno/bin/synopkg start nomad
-  register: restarted_nomad
-
-- name: Reload nomad service
-  when: ansible_pkg_mgr == "unknown" and not restarted_nomad.changed
-  listen: restart nomad
-  become: yes
-  shell: kill -HUP "$(pidof $(which nomad) | awk '{print $NF}')"

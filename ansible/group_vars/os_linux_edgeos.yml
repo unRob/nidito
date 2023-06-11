@@ -1,0 +1,9 @@
+node_exporter:
+  bin: /config/nidito/node_exporter/node_exporter
+  address: 10.42.20.1
+  systemd:
+    wants: vyatta-router.service
+    after: auditd.service vyatta-router.service
+coredns:
+  config: /config/nidito/coredns/config
+  bin: /config/nidito/coredns/coredns

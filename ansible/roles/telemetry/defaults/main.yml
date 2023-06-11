@@ -1,5 +1,0 @@
-node_exporter_config_dir: /etc/node_exporter
-node_exporter_bin: /usr/local/bin/node_exporter
-node_exporter_version: 1.6.0
-node_exporter_systemd_wants:
-node_exporter_systemd_after:

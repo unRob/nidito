@@ -1,0 +1,20 @@
+[Unit]
+Description=Vault server
+Requires=network-online.target
+After=network-online.target consul.service
+Wants=consul.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+EnvironmentFile=-/etc/default/vault
+Restart=on-failure
+ExecStart={{ vault.bin }} server -config={{ vault.config }}/config.hcl
+ExecReload=/usr/bin/kill -HUP $MAINPID
+User={{ vault.user }}
+KillSignal=SIGINT
+# https://www.vaultproject.io/docs/configuration#disable_mlock
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target

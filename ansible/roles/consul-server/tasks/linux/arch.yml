@@ -1,30 +1,9 @@
 - name: Add the consul user
   become: true
   user:
-    name: "{{ consul_user }}"
+    name: "{{ consul.user }}"
     create_home: no
     shell: /usr/bin/false
-
-- name: Get installed version
-  shell: consul --version | head -n 1 | cut -dv -f2
-  register: installed_consul_version
-  check_mode: no
-
-- set_fact:
-    needs_install: "{{ installed_consul_version.stdout != config.services.consul.version}}"
-  check_mode: no
-
-- set_fact:
-    golang_artifact_arch: "arm"
-  when: node.hardware.arch == 'arm32'
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
 
 - name: Install consul
   when: needs_install
@@ -32,19 +11,7 @@
   unarchive:
     remote_src: yes
     src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip"
-    dest: /usr/bin
+    dest: "{{ consul.bin | dirname }}"
 
-- name: Install systemd service
-  become: yes
-  template:
-    src: templates/consul.service.j2
-    dest: /usr/lib/systemd/system/consul.service
-  notify:
-    - reload systemd daemons
-    - restart consul
-
-- name: Enable consul daemon
-  become: yes
-  systemd:
-    name: consul
-    enabled: yes
+- name: configure systemd
+  include_tasks: _systemd.yml

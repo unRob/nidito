@@ -1,23 +1,54 @@
-- include_vars: "{{ node.hardware.os }}.yml"
+- name: Get installed version
+  shell: "{{ consul.bin }} --version | head -n 1 | cut -dv -f2"
+  register: installed_consul_version
+  ignore_errors: yes
+  check_mode: no
 
-- include_tasks: "{{ node.hardware.os }}.yml"
+- set_fact:
+    needs_install: "{{ installed_consul_version.stdout != config.services.consul.version}}"
+  check_mode: no
 
-- name: Create config directory
+- set_fact:
+    golang_artifact_arch: "arm"
+  when: node.hardware.arch == 'arm32'
+
+- set_fact:
+    golang_artifact_arch: "arm64"
+  when: node.hardware.arch == 'arm64'
+
+- set_fact:
+    golang_artifact_arch: "amd64"
+  when: node.hardware.arch == 'x86_64'
+
+- name: install consul
+  include_tasks: "{{ node.hardware.os }}.yml"
+
+- name: Create consul directories
   become: true
   file:
-    owner: "{{ consul_user }}"
-    path: "{{ consul_config_dir }}/tls"
+    path: "{{ item }}"
+    owner: "{{ consul.user }}"
+    group: "{{ user.group }}"
     state: directory
-    recurse: yes
+    mode: u=rwx,g=rx,o=
+  with_items:
+    - "{{ consul.config }}"
+    - "{{ consul.config }}/tls"
+    - "{{ consul.data }}"
+    # make sure the bin prefix is /nidito (not /usr/...)
+    # before enabling this, otherwise risk denying our local user account
+    # permission to execute anything in /usr/(local/)bin!
+    # - "{{ consul.bin | dirname }}"
 
 - name: Install TLS certs
   no_log: true
   become: true
   copy:
     content: "{{ item.content }}"
-    dest: "{{ consul_config_dir }}/tls/{{ item.name }}"
-    owner: "{{ consul_user }}"
-    mode: u=rw,g=,o=
+    dest: "{{ consul.config }}/tls/{{ item.name }}"
+    owner: "{{ consul.user }}"
+    group: "{{ user.group }}"
+    mode: u=rw,g=r,o=
   with_items:
     - name: ca.pem
       content: "{{ config.services.ca.cert }}"
@@ -31,17 +62,19 @@
   become: true
   template:
     src: templates/config.hcl.j2
-    dest: "{{ consul_config_dir }}/config.hcl"
-    owner: "{{ consul_user }}"
+    dest: "{{ consul.config }}/config.hcl"
+    owner: "{{ consul.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   notify: restart consul
 
-- name: Configure consul
+- name: Configure consul services
   become: true
   template:
     src: templates/service.hcl.j2
-    dest: "{{ consul_config_dir }}/{{ item.key }}.hcl"
-    owner: "{{ consul_user }}"
+    dest: "{{ consul.config }}/{{ item.key }}.hcl"
+    owner: "{{ consul.user }}"
+    group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   loop: "{{ node.builtin_services | default({}) | dict2items }}"
   notify: restart consul

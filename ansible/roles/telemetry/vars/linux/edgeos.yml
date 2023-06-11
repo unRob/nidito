@@ -1,4 +1,0 @@
-node_exporter_config_dir: /config/node-exporter
-node_exporter_bin: /config/node-exporter/node_exporter
-systemd_wants: vyatta-router.service
-systemd_after: auditd.service vyatta-router.service

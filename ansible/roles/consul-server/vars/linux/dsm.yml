@@ -1,4 +1,0 @@
-# sigh, sinology
-consul_user: root
-consul_config_dir: /etc/consul
-consul_bin: /usr/local/bin/consul

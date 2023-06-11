@@ -1,64 +1,28 @@
-- name: Get installed version
-  shell: vault --version | head -n 1 | cut -dv -f2
-  register: installed_vault_version
-  ignore_errors: yes
-  check_mode: no
-
-- name: Add the vault user
-  # https://www.vaultproject.io/docs/configuration#disable_mlock
+- name: "Add the {{ vault.user }} user"
   become: true
   user:
     create_home: no
     system: yes
     shell: /sbin/nologin
-    name: "{{ vault_user }}"
+    name: "{{ vault.user }}"
     state: present
 
-- name: Add the vault user
+- name: "Add {{ vault.user }} user to {{ user.group }} group"
   become: true
   user:
-    create_home: no
-    system: yes
-    shell: /sbin/nologin
-    name: "{{ vault_user }}"
-    state: present
-
-- set_fact:
-    golang_artifact_arch: "armhfv6"
-  when: node.hardware.arch == 'arm32'
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
+    name: "{{ vault.user }}"
+    groups: "{{ user.group }}"
+    append: yes
 
 - name: Install vault
-  when: installed_vault_version.stdout != config.services.vault.version
+  when: needs_install
   become: yes
   unarchive:
     remote_src: yes
     src: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip"
-    dest: /usr/bin
+    dest: "{{ vault.bin | dirname }}"
+    owner: "{{ vault.user }}"
+    group: "{{ user.group }}"
 
-- name: Install systemd service
-  become: yes
-  copy:
-    src: files/vault.service
-    dest: /usr/lib/systemd/system/
-
-- name: Create the vault config directory
-  become: true
-  file:
-    path: "{{ vault_config_dir }}"
-    owner: "{{ vault_user }}"
-    state: directory
-    mode: u=rwx,g=rwx,o=
-
-- name: Enable vault daemon
-  become: yes
-  systemd:
-    name: vault
-    enabled: yes
+- name: configure systemd
+  include_tasks: _systemd.yml

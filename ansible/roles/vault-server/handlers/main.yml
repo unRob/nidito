@@ -4,19 +4,20 @@
   become: yes
   shell: "launchctl unload -w /Library/LaunchDaemons/io.vault.daemon.plist; launchctl load -w /Library/LaunchDaemons/io.vault.daemon.plist"
 
+- name: Reload systemctl daemons
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  listen: reload systemd daemons
+  become: yes
+  systemd:
+    daemon_reload: true
+
 - name: Restart vault service
-  when: ansible_pkg_mgr == "pacman"
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
   listen: restart vault
   become: yes
   systemd:
     name: vault
     state: restarted
-
-- name: Restart vault service
-  when: ansible_pkg_mgr == "unknown"
-  listen: restart vault
-  become: yes
-  shell: /usr/syno/bin/synopkg restart vault || /usr/syno/bin/synopkg start vault
 
 - name: Unseal vault
   listen: restart vault
@@ -33,7 +34,7 @@
     export VAULT_ADDR="https://{{ node.address }}:5570"
     export VAULT_TOKEN="{{ config.datacenters[node.dc].vault.root_token }}"
     export PLUGIN_SHA="{{ vault_joao_sha.stdout }}"
-    export VERSION="{{ vault_joao_version }}"
+    export VERSION="{{ joao.version }}"
 
     set -x
     vault plugin register \

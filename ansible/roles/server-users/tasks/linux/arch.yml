@@ -1,0 +1,12 @@
+- name: Add the nidito group
+  become: true
+  group:
+    name: "{{ user.group }}"
+    state: present
+
+- name: Add my user to nidito group
+  become: true
+  user:
+    name: "{{ node.auth.username }}"
+    groups: "{{ user.group }}"
+    append: yes

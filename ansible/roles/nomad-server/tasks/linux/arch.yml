@@ -1,21 +1,3 @@
-- name: Get installed version
-  shell: nomad --version | head -n 1 | sed -E 's/.*v(.*) .*/\1/'
-  register: installed_nomad_version
-  ignore_errors: yes
-  check_mode: no
-
-- set_fact:
-    golang_artifact_arch: "arm"
-  when: node.hardware.arch == 'arm32'
-
-- set_fact:
-    golang_artifact_arch: "arm64"
-  when: node.hardware.arch == 'arm64'
-
-- set_fact:
-    golang_artifact_arch: "amd64"
-  when: node.hardware.arch == 'x86_64'
-
 - name: Install nomad
   when: installed_nomad_version.stdout != config.services.nomad.version
   become: yes
@@ -23,25 +5,7 @@
   unarchive:
     remote_src: yes
     src: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
-    dest: /usr/bin
+    dest: "{{ nomad.bin | dirname }}"
 
-- name: Install systemd service
-  become: yes
-  copy:
-    src: files/nomad.service
-    dest: /usr/lib/systemd/system/
-  notify: reload systemctl daemons
-
-- name: Create the nomad config directory
-  become: true
-  file:
-    path: "{{ nomad_config_dir }}"
-    owner: "{{ nomad_user }}"
-    state: directory
-    mode: u=rwx,g=rwx,o=
-
-- name: Enable nomad daemon
-  become: yes
-  systemd:
-    name: nomad
-    enabled: yes
+- name: configure systemd
+  include_tasks: _systemd.yml

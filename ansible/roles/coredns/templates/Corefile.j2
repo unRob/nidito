@@ -41,7 +41,7 @@
     static_entries_path dns/static-entries
   }
 
-  file {{ coredns_config_path }}/zones/main
+  file {{ coredns.config }}/zones/main
 
   log {
     class denial error

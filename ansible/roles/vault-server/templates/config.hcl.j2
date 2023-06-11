@@ -1,12 +1,12 @@
 cluster_name = "{{ node.dc }}"
 log_format = "json"
-plugin_directory = "{{ vault_config_dir }}/plugins"
+plugin_directory = "{{ vault.config }}/plugins"
 
 storage "consul" {
-  address = "https://{{ ansible_hostname }}.node.consul:{{ config.services.consul.ports.https }}"
+  address = "https://{{ node.name }}.node.consul:{{ config.services.consul.ports.https }}"
   token = "{{ config.services.vault.consul_token }}"
 
-  tls_ca_file = "{{ vault_config_dir }}/tls/ca.pem"
+  tls_ca_file = "{{ vault.config }}/tls/ca.pem"
   path    = "vault/"
 
   service_tags = "infra,nidito.metrics.enabled,nidito.metrics.path=/v1/sys/metrics,nidito.metrics.hc-prometheus-hack"
@@ -15,8 +15,8 @@ storage "consul" {
 ui = true
 listener "tcp" {
   address = "{{ node.address }}:{{ config.services.vault.port }}"
-  tls_cert_file = "{{ vault_config_dir }}/tls/cert.pem"
-  tls_key_file = "{{ vault_config_dir }}/tls/key.pem"
+  tls_cert_file = "{{ vault.config }}/tls/cert.pem"
+  tls_key_file = "{{ vault.config }}/tls/key.pem"
 
   telemetry {
     unauthenticated_metrics_access = "true"
