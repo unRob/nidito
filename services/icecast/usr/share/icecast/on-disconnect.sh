@@ -18,12 +18,9 @@ if mc --config-dir /home/icecast mirror /recordings/ cajon/ruiditos; then
   rm -rfv /recordings/*.mp3
   log "dispatching processing job"
 
-  # workload identity is broken for periodic tasks
-  # https://github.com/hashicorp/nomad/pull/17018
-  # -H "Authorization: Bearer ${NOMAD_TOKEN}" \
   if curl --fail --show-error --silent \
     --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
-    -H "x-nomad-token: ${NOMAD_TOKEN}" \
+    -H "Authorization: Bearer ${NOMAD_TOKEN}" \
     -XPOST \
     -v localhost/v1/job/radio-processing/dispatch \
     --data "{}"; then

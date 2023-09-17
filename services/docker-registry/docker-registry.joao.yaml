@@ -13,3 +13,5 @@ storage:
   secret: !!secret
   region: garage
   bucket: nidito-container-registry
+http:
+  key: !!secret

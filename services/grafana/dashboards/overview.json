@@ -2246,7 +2246,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg by(instance, disk) (nomad_client_host_disk_used_percent{service=\"nomad\", disk!~\".*(devfs|cachedev_0|disk1s|disk3s[^16]s?|auto_home).*\", instance=~\"$nodes\"})",
+          "expr": "avg by(instance, disk) (nomad_client_host_disk_used_percent{service=\"nomad\", disk!~\".*(devfs|disk1s|disk3s[^16]s?|auto_home).*\", instance=~\"$nodes\"})",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2444,32 +2444,7 @@
           },
           "unit": "celsius"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "tepeyac"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -2526,7 +2501,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -2556,7 +2531,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -2586,7 +2561,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -2617,7 +2592,7 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -2637,6 +2612,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "I5dazfrnk",
-  "version": 35,
+  "version": 36,
   "weekStart": ""
 }

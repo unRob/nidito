@@ -1,10 +1,10 @@
 job "media-rename" {
   datacenters = ["casa"]
-  type = "batch"
+  type        = "batch"
 
   vault {
-    policies = ["media-rename"]
-    change_mode   = "restart"
+    policies    = ["media-rename"]
+    change_mode = "restart"
   }
 
   parameterized {}
@@ -21,7 +21,7 @@ job "media-rename" {
 
       template {
         destination = "local/.mnamer-v2.json"
-        data = file("./.mnamer-v2.json")
+        data        = file("./.mnamer-v2.json")
       }
 
       config {
@@ -34,8 +34,8 @@ job "media-rename" {
       }
 
       resources {
-        cpu = 100
-        memory = 300
+        cpu        = 100
+        memory     = 300
         memory_max = 800
       }
     }

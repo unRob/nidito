@@ -7,4 +7,4 @@ export MC_HOST_cajon="https://{{ .Data.key }}:{{ .Data.secret }}@cajon.{{ scratc
 {{- end }}
 export MC_CONFIG_DIR="/home/icecast/.mc"
 
-export NOMAD_TOKEN="{{ with secret "nomad/creds/service-icecast" }}{{ .Data.secret_id }}{{ end }}"
+export NOMAD_TOKEN="$(cat "${NOMAD_SECRETS_DIR:-/secrets}/nomad_token")"

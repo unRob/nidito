@@ -6,22 +6,27 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.14.0"
+      version = "~> 3.18.0"
     }
 
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.17.0"
+      version = "~> 2.18.0"
     }
 
     nomad = {
       source  = "hashicorp/nomad"
-      version = "~> 1.4.19"
+      version = "~> 2.0.0"
     }
 
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.25.2"
+      version = "~> 2.29.0"
+    }
+
+    garage = {
+      source = "prologin/garage"
+      version = "0.0.1"
     }
   }
 
@@ -49,19 +54,13 @@ module "external-dns" {
   name = "radio"
 }
 
-# TODO: set job and group when https://github.com/hashicorp/terraform-provider-nomad/pull/314 lands
-# created with the following command, then imported
-# nomad acl policy apply -namespace default -job radio -group radio -task radio icecast-triggers-radio-processing <(cat <<EOF
-# namespace "default" {
-#   capabilities = ["dispatch-job"]
-# }
-# EOF
-# )
 resource "nomad_acl_policy" "icecast" {
   name = "icecast-triggers-radio-processing"
-  # job = "radio"
-  # group = "radio"
-  # task = "radio"
+  job_acl {
+    job_id = "radio"
+    group = "radio"
+    task = "radio"
+  }
   rules_hcl = <<HCL
 namespace "default" {
   policy = "read"
@@ -84,4 +83,35 @@ resource "nomad_acl_role" "icecast" {
   policy {
     name = nomad_acl_policy.icecast.name
   }
+}
+
+data "terraform_remote_state" "ruidi_to" {
+  backend = "consul"
+  config = {
+    path = "nidito/state/service/ruidi.to"
+  }
+}
+
+provider "garage" {
+  host = "api.garage.nidi.to"
+  scheme = "https"
+  token = jsondecode(data.vault_generic_secret.garage.data.token).admin
+}
+
+data "vault_generic_secret" "garage" {
+  path = "cfg/svc/tree/nidi.to:garage"
+}
+
+resource "garage_key" "key" {
+  name = "icecast"
+  permissions = {
+    create_bucket = false
+  }
+}
+
+resource "garage_bucket_key" "bucket_grant" {
+  bucket_id     = data.terraform_remote_state.ruidi_to.outputs.bucket
+  access_key_id = garage_key.key.access_key_id
+  read          = true
+  write = true
 }

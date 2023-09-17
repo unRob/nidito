@@ -1,12 +1,24 @@
+/*
+An open-source distributed object storage service tailored for self-hosting
+
+docs: https://garagehq.deuxfleurs.fr/
+code: https://git.deuxfleurs.fr/Deuxfleurs/garage
+*/
+
+locals {
+  version = "0.8.4"
+  image = "dxflrs/garage:v${local.version}"
+}
+
 job "garage" {
   datacenters = ["casa"]
-  region = "casa"
-  priority = 70
+  region      = "casa"
+  priority    = 70
 
   constraint {
     attribute = "${meta.storage}"
-    operator = "set_contains_any"
-    value = "primary,secondary"
+    operator  = "set_contains_any"
+    value     = "primary,secondary"
   }
 
   constraint {
@@ -29,7 +41,7 @@ job "garage" {
       max_parallel = 1
     }
 
-     reschedule {
+    reschedule {
       delay          = "5s"
       delay_function = "fibonacci"
       max_delay      = "1h"
@@ -37,21 +49,18 @@ job "garage" {
     }
 
     restart {
-      delay = "5s"
-      // # delay_function = "fibonacci"
-      # max_delay = "1h"
-      # unlimited = true
+      delay    = "5s"
       attempts = 20
       interval = "1h"
-      mode = "delay"
+      mode     = "delay"
     }
 
 
     network {
       port "rpc" {
         host_network = "private"
-        to = 6600
-        static = 6600
+        to           = 6600
+        static       = 6600
       }
       port "api" {
         host_network = "private"
@@ -70,12 +79,12 @@ job "garage" {
 
       template {
         destination = "secrets/garage.toml"
-        data = file("./garage.toml")
+        data        = file("./garage.toml")
       }
 
       template {
-        destination = "secrets/tls/ca.pem"
-        data = <<-PEM
+        destination   = "secrets/tls/ca.pem"
+        data          = <<-PEM
         {{- with secret "cfg/infra/tree/service:ca" }}
         {{ .Data.cert }}
         {{- end }}
@@ -85,12 +94,10 @@ job "garage" {
       }
 
       config {
-        // image = "dxflrs/garage:v0.8.2"
-        // building from https://git.deuxfleurs.fr/Deuxfleurs/garage/pulls/567
-        image = "registry.nidi.to/garage-testing:202305210230"
-        command = "/garage"
-        args = ["--config", "${NOMAD_SECRETS_DIR}/garage.toml", "server"]
-        ports = ["rpc", "s3", "web", "api"]
+        image = "${local.image}"
+        command  = "/garage"
+        args     = ["--config", "${NOMAD_SECRETS_DIR}/garage.toml", "server"]
+        ports    = ["rpc", "s3", "web", "api"]
         hostname = "${node.unique.name}"
 
         volumes = [
@@ -100,8 +107,8 @@ job "garage" {
       }
 
       resources {
-        cpu = 50
-        memory = 512
+        cpu        = 50
+        memory     = 512
         memory_max = 1024
       }
 
@@ -123,10 +130,10 @@ job "garage" {
         ]
 
         meta {
-          nidito-acl = "allow altepetl"
+          nidito-acl            = "allow altepetl"
           nidito-http-buffering = "off"
-          nidito-dns-alias = "api.garage"
-          nidito-http-tls = "garage.nidi.to"
+          nidito-dns-alias      = "api.garage"
+          nidito-http-tls       = "garage.nidi.to"
         }
       }
 
@@ -141,12 +148,11 @@ job "garage" {
         ]
 
         meta {
-          nidito-acl = "allow external"
-          nidito-http-buffering = "off"
-          // needs to allow file uploads
+          nidito-acl                = "allow external"
+          nidito-http-buffering     = "off"
           nidito-http-max-body-size = "2048m"
-          nidito-dns-alias = "s3.garage; *.s3.garage"
-          nidito-http-tls = "garage.nidi.to"
+          nidito-dns-alias          = "s3.garage; *.s3.garage"
+          nidito-http-tls           = "garage.nidi.to"
         }
       }
 
@@ -161,11 +167,12 @@ job "garage" {
         ]
 
         meta {
-          nidito-acl = "allow external"
+          nidito-acl            = "allow external"
           nidito-http-buffering = "off"
-          nidito-http-domain = "web.garage"
-          nidito-dns-alias = "web.garage; *.web.garage"
-          nidito-http-tls = "garage.nidi.to"
+          # TODO: drop suffix after minio is phased out
+          nidito-http-domain    = "cajon"
+          nidito-dns-alias      = "*.cajon"
+          nidito-http-tls       = "cajon.nidi.to"
         }
       }
 

@@ -1,6 +1,8 @@
 . {
   forward . {{ config.services.dns.forwarders | join(" ") }}
   cache
+
+  prometheus 10.42.20.1:9153
 }
 
 # Main zone
@@ -48,6 +50,7 @@
   }
 
   errors
+  prometheus 10.42.20.1:9153
 }
 
 # resolve other DCs names with tunneled addresses
@@ -64,6 +67,7 @@
 
   forward . {{ config.services.dns.forwarders | join(" ") }}
   cache
+  prometheus 10.42.20.1:9153
 }
 {% endfor %}
 
@@ -94,4 +98,5 @@ consul {
     class denial error
   }
   errors
+  prometheus 10.42.20.1:9153
 }

@@ -10,6 +10,6 @@
 - name: Enable node_exporter daemon
   become: yes
   systemd:
-    name: node_exporter
+    name: node-exporter
     enabled: yes
   notify: restart node-exporter

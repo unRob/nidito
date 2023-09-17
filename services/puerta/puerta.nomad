@@ -1,7 +1,7 @@
 job "puerta" {
   datacenters = ["casa"]
-  region = "casa"
-  priority = 10
+  region      = "casa"
+  priority    = 10
 
   vault {
     policies = ["puerta"]
@@ -25,8 +25,8 @@ job "puerta" {
     restart {
       attempts = 10
       interval = "10m"
-      delay = "10s"
-      mode = "delay"
+      delay    = "10s"
+      mode     = "delay"
     }
 
     network {
@@ -41,60 +41,60 @@ job "puerta" {
       }
 
       driver = "docker"
-      user = "nobody"
+      user   = "nobody"
 
       resources {
-        cpu    = 128
-        memory = 64
+        cpu        = 128
+        memory     = 64
         memory_max = 512
       }
 
       config {
-        image = "litestream/litestream:0.3.9"
-        args = ["restore", "/alloc/puerta.db"]
+        image   = "litestream/litestream:0.3.9"
+        args    = ["restore", "/alloc/puerta.db"]
         volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
       }
 
       template {
-        data = file("litestream.yaml")
+        data        = file("litestream.yaml")
         destination = "secrets/litestream.yaml"
       }
     }
 
     task "db-replicate" {
       lifecycle {
-        hook = "prestart"
+        hook    = "prestart"
         sidecar = true
       }
 
       driver = "docker"
-      user = "nobody"
+      user   = "nobody"
 
       resources {
-        cpu    = 256
-        memory = 128
+        cpu        = 256
+        memory     = 128
         memory_max = 512
       }
 
       config {
-        image = "litestream/litestream:0.3.9"
-        args = ["replicate"]
+        image   = "litestream/litestream:0.3.9"
+        args    = ["replicate"]
         volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
       }
 
       template {
-        data = file("litestream.yaml")
+        data        = file("litestream.yaml")
         destination = "secrets/litestream.yaml"
       }
     }
 
     task "puerta" {
       driver = "docker"
-      user = "nobody"
+      user   = "nobody"
 
       template {
         destination = "secrets/config.yaml"
-        data = <<-ENV
+        data        = <<-ENV
           {{- with secret "cfg/svc/tree/nidi.to:puerta" }}
           name: Castillo de Chapultebob
           timezone: America/Mexico_City
@@ -120,16 +120,16 @@ job "puerta" {
       }
 
       config {
-        image = "registry.nidi.to/puerta:202305310111"
-        ports = ["http"]
+        image        = "registry.nidi.to/puerta:202306161610"
+        ports        = ["http"]
         network_mode = "bridge"
-        entrypoint = ["/bin/sh", "-c"]
-        command = "puerta db migrate --config /secrets/config.yaml --db /alloc/puerta.db && puerta server --config /secrets/config.yaml --db /alloc/puerta.db"
+        entrypoint   = ["/bin/sh", "-c"]
+        command      = "puerta db migrate --config /secrets/config.yaml --db /alloc/puerta.db && puerta server --config /secrets/config.yaml --db /alloc/puerta.db"
       }
 
       resources {
-        cpu    = 50
-        memory = 128
+        cpu        = 50
+        memory     = 128
         memory_max = 512
       }
 
@@ -146,10 +146,10 @@ job "puerta" {
         ]
 
         meta {
-          nidito-acl = "allow external"
-          nidito-http-buffering = "off"
-          nidito-http-rate-limit = "60r/m"
-          nidito-http-rate-limit-burst = "20"
+          nidito-acl                   = "allow external"
+          nidito-http-buffering        = "off"
+          nidito-http-rate-limit       = "60r/m"
+          nidito-http-rate-limit-burst = "120"
         }
 
         check {
@@ -158,8 +158,8 @@ job "puerta" {
           timeout  = "2s"
 
           check_restart {
-            limit = 10
-            grace = "15s"
+            limit           = 10
+            grace           = "15s"
             ignore_warnings = false
           }
         }

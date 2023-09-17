@@ -9,12 +9,13 @@
 
 - name: Install consul
   when: installed_consul_version.stdout != config.services.consul.version
-  notify: Restart consul service
   become: true
   unarchive:
     src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_darwin_{{ golang_artifact_arch }}.zip"
     remote_src: yes
     dest: "{{ consul.bin | dirname }}"
+  notify: restart consul
+
 
 - name: Create the consul log directory
   become: true

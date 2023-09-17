@@ -1,5 +1,5 @@
 FROM registry.nidi.to/base-operator:latest
-ENV TF_VERSION=1.4.6
+ENV TF_VERSION=1.5.4
 ARG TARGETARCH
 
 RUN export TARGETARCH=${TARGETARCH} && \

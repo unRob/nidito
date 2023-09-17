@@ -8,7 +8,9 @@ consul:
     wants:
     after:
 coredns:
-  plugin: v0.1.0
+  user: coredns
+  group: users
+  plugin: v0.1.2
   config: /etc/coredns.d
   bin: /usr/bin/coredns
 docker:
@@ -20,7 +22,7 @@ node_exporter:
   bin: /usr/local/bin/node_exporter
   address: "{{ node.address }}"
   logs: # journald
-  version: 1.6.0
+  version: 1.6.1
   systemd:
     wants:
     after:

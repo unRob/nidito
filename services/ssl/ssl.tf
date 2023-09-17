@@ -6,11 +6,11 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.15.0"
+      version = "~> 2.18.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.15.2"
+      version = "~> 3.18.0"
     }
   }
 
@@ -51,6 +51,8 @@ module "consul-policy" {
     "nidito/state/letsencrypt" = "read"
     "nidito/state/letsencrypt-env:" = "list"
     "nidito/state/letsencrypt-env:*" = "write"
+    "nidito/state/letsencrypt-env:casa" = "write"
+    "nidito/state/letsencrypt-env:nyc1" = "write"
     "nidito/state/letsencrypt-env:*/" = "write"
     "nidito/state/letsencrypt-env:*/.tfstate" = "write"
     "nidito/state/letsencrypt-env:*/.lock" = "write"

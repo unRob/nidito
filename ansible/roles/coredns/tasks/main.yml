@@ -1,18 +1,34 @@
+- name: Get installed coredns+consul_catalog plugin version
+  become: true
+  shell: |
+    {{ coredns.bin }} -version | awk -F@ '/coredns-consul/ {print $2}'
+  register: installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ installed_version.stdout != coredns.plugin }}"
+
 - include_tasks: "{{ node.hardware.os }}.yml"
 
-- name: Create config directory
+- name: Create directories
   become: true
   file:
-    path: "{{ coredns.config }}/zones"
+    path: "{{ item }}"
+    owner: "{{ coredns.user }}"
+    group: "{{ coredns.group }}"
     state: directory
-    recurse: yes
+    mode: u=rwx,g=rwx,o=
+  with_items:
+    - "{{ coredns.config }}"
+    - "{{ coredns.config }}/zones"
 
 - name: Configure coredns
   become: true
   template:
     src: templates/Corefile.j2
-    owner: coredns
-    group: users
+    owner: "{{ coredns.user }}"
+    group: "{{ coredns.group }}"
     dest: "{{ coredns.config }}/Corefile"
     mode: u=rw,g=r,o=
   notify: restart coredns
@@ -21,8 +37,8 @@
   become: true
   template:
     src: templates/zone.j2
-    owner: coredns
-    group: users
+    owner: "{{ coredns.user }}"
+    group: "{{ coredns.group }}"
     dest: "{{ coredns.config }}/zones/main"
     mode: u=rw,g=r,o=
   notify: restart coredns

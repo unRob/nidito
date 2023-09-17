@@ -1,6 +1,6 @@
 job "radio-processing" {
   datacenters = ["casa"]
-  type = "batch"
+  type        = "batch"
 
   parameterized {}
 
@@ -23,20 +23,20 @@ job "radio-processing" {
 
       template {
         destination = "local/database-init.sql"
-        perms = 750
-        data = file("database.sql")
+        perms       = 750
+        data        = file("database.sql")
       }
 
       template {
         destination = "local/entrypoint.sh"
-        perms = 750
-        data = file("entrypoint.sh")
+        perms       = 750
+        data        = file("entrypoint.sh")
       }
 
       template {
         destination = "secrets/file.env"
-        env = true
-        data = <<EOF
+        env         = true
+        data        = <<EOF
         SOURCE=/recordings
         {{- with secret "cfg/infra/tree/service:cdn" }}
         MC_HOST_cdn="https://{{ .Data.key }}:{{ .Data.secret }}@{{ .Data.endpoint }}/"
@@ -45,17 +45,16 @@ job "radio-processing" {
       }
 
       config {
-        image = "registry.nidi.to/radio-processing:202201140554"
+        image   = "registry.nidi.to/radio-processing:202201140554"
         command = "./local/entrypoint.sh"
 
         volumes = [
           "local/entrypoint.sh:/entrypoint.sh",
-          "/volume1/nidito/cajon/ruiditos:/recordings"
         ]
       }
 
       resources {
-        cpu = 1000
+        cpu    = 1000
         memory = 1000
       }
 

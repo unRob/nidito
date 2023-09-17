@@ -1,17 +1,8 @@
 # see `milpa help docs command spec` for all the options
 summary: creates a key
 description: |
-  Works by doing a thing with another thing until the first thing looks about right
-# arguments:
-#   - name: something
-#     description: Sets SOMETHING
-#     required: true
-#     variadic: false
-#     values:
-#       script: whoami
-# options:
-#   option:
-#     description: sets OPTION
-#     default: fourty-two
-#     values:
-#       static: [one, two, fourty-two]
+  using the API
+arguments:
+  - name: name
+    description: the key's name
+    required: true

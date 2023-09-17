@@ -14,9 +14,14 @@ for product in consul vault nomad; do
     continue
   fi
 
-  @milpa.log warning "$product has an update: $current => $latest"
-  curl --fail --silent "https://raw.githubusercontent.com/hashicorp/${product}/main/CHANGELOG.md" |
-    awk '1;/^## .*/{if (NR>1) exit}' |
-    sed \$d |
-    glow -
+  @milpa.log warning "$product has an update: $current => $latest (https://github.com/hashicorp/${product}/releases)"
+  # curl --fail --silent "https://raw.githubusercontent.com/hashicorp/${product}/main/CHANGELOG.md" |
+  #   awk '1;/^## .*/{if (NR>1) exit}' |
+  #   sed \$d |
+  #   glow -
 done
+
+
+# curl --silent https://git.deuxfleurs.fr/api/v1/repos/deuxfleurs/garage/releases | jq 'map(select(.prerelease | not) | .tag_name) | first' -r
+# curl --silent https://git.rob.mx/api/v1/repos/nidito/joao/tags | jq 'map(.name) | first' -r
+# curl --silent https://api.github.com/repos/go-gitea/gitea/releases | jq 'map(select(.prerelease | not) | .tag_name) | first' -r

@@ -39,12 +39,13 @@ storage:
   delete:
     enabled: true
 
+# https://docs.docker.com/registry/configuration/#http
 http:
   addr: :{{ env "NOMAD_PORT_http" }}
   host: https://registry.{{ scratch.Get "zone" }}
-  secret: {{ .Data.secret }}
+  secret: {{ .Data.http.key }}
   debug:
     addr: :{{ env "NOMAD_PORT_metrics" }}
-  prometheus:
-    enabled: true
+    prometheus:
+      enabled: true
 {{- end }}

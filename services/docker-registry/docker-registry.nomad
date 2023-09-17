@@ -21,11 +21,11 @@ job "docker-registry" {
     }
 
     vault {
-        policies = ["docker-registry"]
+      policies = ["docker-registry"]
 
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
-      }
+      change_mode   = "signal"
+      change_signal = "SIGHUP"
+    }
 
     network {
       port "http" {
@@ -41,7 +41,7 @@ job "docker-registry" {
 
     task "auth" {
       lifecycle {
-        hook = "prestart"
+        hook    = "prestart"
         sidecar = true
       }
 
@@ -131,6 +131,7 @@ job "docker-registry" {
       resources {
         cpu    = 100
         memory = 128
+        memory_max = 512
       }
 
       service {

@@ -1,13 +1,13 @@
 
 job "media-ingest" {
   datacenters = ["casa"]
-  type = "batch"
-  priority = 10
+  type        = "batch"
+  priority    = 10
 
   parameterized {}
 
   vault {
-    policies = ["media-ingest"]
+    policies    = ["media-ingest"]
     change_mode = "restart"
   }
 
@@ -30,8 +30,8 @@ job "media-ingest" {
 
       template {
         destination = "secrets/env"
-        env = true
-        data = <<ENV
+        env         = true
+        data        = <<ENV
           TARGET="/media"
           NOMAD_TOKEN="{{ with secret "nomad/creds/service-media-ingest" }}{{ .Data.secret_id }}{{ end }}"
         ENV
@@ -39,7 +39,7 @@ job "media-ingest" {
 
       template {
         destination = "local/rclone.conf"
-        data = <<-EOF
+        data        = <<-EOF
           [putio]
           type = putio
           {{ with secret "cfg/infra/tree/provider:putio" }}
@@ -65,8 +65,8 @@ job "media-ingest" {
       }
 
       resources {
-        cpu = 40
-        memory = 100
+        cpu        = 40
+        memory     = 100
         memory_max = 800
       }
     }

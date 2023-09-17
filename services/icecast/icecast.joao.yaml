@@ -12,3 +12,7 @@ mounts:
   presenta:
     pattern: /presenta.*
     record: true
+storage:
+  bucket: ruiditos
+  key: !!secret
+  secret: !!secret

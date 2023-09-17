@@ -1,6 +1,6 @@
 job "event-gateway" {
   datacenters = ["casa"]
-  region = "casa"
+  region      = "casa"
 
   vault {
     policies = ["event-gateway"]
@@ -24,8 +24,8 @@ job "event-gateway" {
     restart {
       attempts = 10
       interval = "10m"
-      delay = "10s"
-      mode = "delay"
+      delay    = "10s"
+      mode     = "delay"
     }
 
     network {
@@ -38,16 +38,16 @@ job "event-gateway" {
       driver = "docker"
 
       template {
-        destination = "local/listeners.json"
-        data = file("./listeners.json.tpl")
+        destination   = "local/listeners.json"
+        data          = file("./listeners.json.tpl")
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }
 
       template {
         destination = "secrets/env"
-        env = true
-        data = <<ENV
+        env         = true
+        data        = <<ENV
           LOG_LEVEL="debug"
           LISTENERS_PATH="{{ env "NOMAD_TASK_DIR" }}/listeners.json"
           PORT="{{ env "NOMAD_PORT_http" }}"
@@ -57,19 +57,19 @@ job "event-gateway" {
       }
 
       identity {
-        env = false
+        env  = false
         file = true
       }
 
       config {
-        image = "registry.nidi.to/event-gateway:202305220457"
-        ports = ["http"]
+        image        = "registry.nidi.to/event-gateway:202305220457"
+        ports        = ["http"]
         network_mode = "bridge"
       }
 
       resources {
-        cpu    = 50
-        memory = 128
+        cpu        = 50
+        memory     = 128
         memory_max = 512
       }
 
@@ -86,9 +86,9 @@ job "event-gateway" {
         ]
 
         meta {
-          nidito-acl = "allow external"
+          nidito-acl            = "allow external"
           nidito-http-buffering = "off"
-          nidito-dns-alias = "evgw"
+          nidito-dns-alias      = "evgw"
           // nidito-http-rate-limit = "60r/m"
           // nidito-http-rate-limit-total = "120"
         }
@@ -99,8 +99,8 @@ job "event-gateway" {
           timeout  = "2s"
 
           check_restart {
-            limit = 10
-            grace = "15s"
+            limit           = 10
+            grace           = "15s"
             ignore_warnings = false
           }
         }

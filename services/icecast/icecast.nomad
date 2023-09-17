@@ -1,6 +1,6 @@
 job "radio" {
   datacenters = ["casa"]
-  priority = 50
+  priority    = 50
 
   group "radio" {
     update {
@@ -17,21 +17,21 @@ job "radio" {
     restart {
       attempts = 10
       interval = "10m"
-      delay = "10s"
-      mode = "delay"
+      delay    = "10s"
+      mode     = "delay"
     }
 
     network {
       port "http" {
-        to = 8000
-        static = 8000
+        to           = 8000
+        static       = 8000
         host_network = "private"
       }
     }
 
     task "radio" {
       driver = "docker"
-      user = "icecast"
+      user   = "icecast"
 
       vault {
         policies = ["icecast"]
@@ -45,27 +45,25 @@ job "radio" {
         value     = "primary"
       }
 
-      // workload identity is broken for periodic tasks
-      // https://github.com/hashicorp/nomad/pull/17018
-      // identity {
-      //   env = true
-      // }
+      identity {
+        file = true
+      }
 
       template {
-        destination = "local/icecast.xml"
-        data = file("icecast.xml")
+        destination   = "local/icecast.xml"
+        data          = file("icecast.xml")
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }
 
       template {
         destination = "secrets/minio-env.sh"
-        data = file("minio-env.sh")
-        perms = 0777
+        data        = file("minio-env.sh")
+        perms       = 0777
       }
 
       config {
-        image = "registry.nidi.to/icecast:202304290545"
+        image = "registry.nidi.to/icecast:202309122357"
         ports = ["http"]
 
         volumes = [
@@ -93,7 +91,7 @@ job "radio" {
         ]
 
         meta {
-          nidito-acl = "allow external"
+          nidito-acl            = "allow external"
           nidito-http-buffering = "off"
         }
 
@@ -104,8 +102,8 @@ job "radio" {
           timeout  = "2s"
 
           check_restart {
-            limit = 10
-            grace = "15s"
+            limit           = 10
+            grace           = "15s"
             ignore_warnings = false
           }
         }

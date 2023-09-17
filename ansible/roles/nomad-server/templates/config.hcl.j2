@@ -57,6 +57,28 @@ client {
     driver.whitelist = "docker,exec,raw_exec"
   }
 
+  template {
+    # https://developer.hashicorp.com/nomad/docs/configuration/client#template-parameters
+    # *_retry prevents tasks from dying when vault, consul or nomad go away
+    # at 250ms of backoff time, and max_backoff of 1m, growing (2^n) every retry,
+    # it'll give up after (2 minutes before backoff reaches 1m), and for the next 12 hours
+    vault_retry {
+      backoff = "250ms"
+      max_backoff = "1m"
+      attempts = 728
+    }
+    consul_retry {
+      backoff = "250ms"
+      max_backoff = "1m"
+      attempts = 728
+    }
+    nomad_retry {
+      backoff = "250ms"
+      max_backoff = "1m"
+      attempts = 728
+    }
+  }
+
   meta {
     arch = "{{ node.hardware.arch }}"
     model = "{{ node.hardware.model }}"

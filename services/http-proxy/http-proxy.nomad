@@ -5,15 +5,15 @@ locals {
   }
 
   ports = {
-    http = 80
+    http  = 80
     https = 443
   }
 }
 
 job "http-proxy" {
   datacenters = ["casa", "nyc1"]
-  type = "system"
-  priority = 80
+  type        = "system"
+  priority    = 80
 
   vault {
     policies = ["http-proxy"]
@@ -24,13 +24,13 @@ job "http-proxy" {
 
   update {
     max_parallel = 2
-    stagger = "10s"
+    stagger      = "10s"
   }
 
   group "http-proxy" {
     restart {
       # on failure, restart at most
-      attempts = 20
+      attempts = 100
       # during
       interval = "20m"
       # waiting after a crash
@@ -42,12 +42,12 @@ job "http-proxy" {
 
     network {
       port "http" {
-        static = local.ports.http
+        static       = local.ports.http
         host_network = "private"
       }
 
       port "https" {
-        static = local.ports.https
+        static       = local.ports.https
         host_network = "private"
       }
     }
@@ -63,42 +63,42 @@ job "http-proxy" {
 
       template {
         destination = "local/nidito/proxied-services"
-        data = file("proxied-services.json.tpl")
-        change_mode   = "noop"
+        data        = file("proxied-services.json.tpl")
+        change_mode = "noop"
       }
 
       template {
-        destination = "local/conf.d/default.conf"
-        data = file("nginx.conf")
+        destination   = "local/conf.d/default.conf"
+        data          = file("nginx.conf")
         change_mode   = "signal"
         change_signal = "SIGHUP"
-        splay = "10s"
+        splay         = "10s"
       }
 
       template {
         destination = "local/docker-entrypoint.d/05-get-ssl-certs.sh"
-        data = "#!/bin/sh /secrets/ssl/write-ssl"
-        perms = 0777
-        change_mode   = "restart"
+        data        = "#!/bin/sh /secrets/ssl/write-ssl"
+        perms       = 0777
+        change_mode = "restart"
       }
 
       template {
         destination = "local/on-ssl-change"
-        data = <<-SH
+        data        = <<-SH
           #!/usr/bin/env sh
           /secrets/ssl/write-ssl
           nginx -s reload
         SH
-        perms = 0777
-        change_mode   = "restart"
-        splay = "10s"
+        perms       = 0777
+        change_mode = "restart"
+        splay       = "10s"
       }
 
       template {
         destination = "secrets/ssl/write-ssl"
-        data = file("docker-entrypoint.d/05-get-ssl-certs.sh")
-        perms = 0777
-        change_mode   = "script"
+        data        = file("docker-entrypoint.d/05-get-ssl-certs.sh")
+        perms       = 0777
+        change_mode = "script"
         change_script {
           command       = "${NOMAD_TASK_DIR}/on-ssl-change"
           timeout       = "10s"
@@ -108,7 +108,7 @@ job "http-proxy" {
       }
 
       config {
-        image = "nginx:stable-alpine"
+        image        = "nginx:stable-alpine"
         network_mode = "host"
 
         ports = ["http", "https"]
@@ -128,8 +128,8 @@ job "http-proxy" {
       }
 
       service {
-        name = "nginx"
-        port = "http"
+        name         = "nginx"
+        port         = "http"
         address_mode = "host"
 
         tags = [
@@ -156,7 +156,7 @@ job "http-proxy" {
   group "http-proxy-macos" {
     restart {
       # on failure, restart at most
-      attempts = 20
+      attempts = 100
       # during
       interval = "20m"
       # waiting after a crash
@@ -168,12 +168,12 @@ job "http-proxy" {
 
     network {
       port "http" {
-        static = local.ports.http
+        static       = local.ports.http
         host_network = "private"
       }
 
       port "https" {
-        static = local.ports.https
+        static       = local.ports.https
         host_network = "private"
       }
     }
@@ -188,8 +188,8 @@ job "http-proxy" {
 
       template {
         destination = "local/nidito/proxied-services"
-        data = file("proxied-services.json.tpl")
-        change_mode   = "noop"
+        data        = file("proxied-services.json.tpl")
+        change_mode = "noop"
       }
 
       template {
@@ -205,42 +205,43 @@ job "http-proxy" {
         )
         change_mode   = "signal"
         change_signal = "SIGHUP"
-        splay = "10s"
+        splay         = "10s"
       }
 
       template {
-        destination = "local/nginx.conf"
-        data = file("macos/nginx.conf")
+        destination   = "local/nginx.conf"
+        data          = file("macos/nginx.conf")
         change_mode   = "signal"
         change_signal = "SIGHUP"
-        splay = "10s"
+        splay         = "10s"
       }
 
       template {
-        destination = "local/mime.types"
-        data = file("macos/mime.types")
+        destination   = "local/mime.types"
+        data          = file("macos/mime.types")
         change_mode   = "signal"
         change_signal = "SIGHUP"
-        splay = "10s"
+        splay         = "10s"
       }
 
       template {
         destination = "local/on-ssl-change"
-        data = <<-SH
+        data        = <<-SH
           #!/usr/bin/env bash
           "${NOMAD_SECRETS_DIR}/secrets/ssl/write-ssl
-          /usr/local/bin/nginx -c  {{ env "NOMAD_TASK_DIR" }}/nginx.conf -s reload
+          # for some reason this returns exit code 129 and this makes nomad restart the whole thing
+          /usr/local/bin/nginx -c  {{ env "NOMAD_TASK_DIR" }}/nginx.conf -s reload || true
         SH
-        perms = 0777
-        change_mode   = "restart"
-        splay = "10s"
+        perms       = 0777
+        change_mode = "restart"
+        splay       = "10s"
       }
 
       template {
         destination = "secrets/ssl/write-ssl"
-        data = replace(file("docker-entrypoint.d/05-get-ssl-certs.sh"), "/ssl", "${NOMAD_SECRETS_DIR}/ssl")
-        perms = 0777
-        change_mode   = "script"
+        data        = replace(file("docker-entrypoint.d/05-get-ssl-certs.sh"), "/ssl", "${NOMAD_SECRETS_DIR}/ssl")
+        perms       = 0777
+        change_mode = "script"
         change_script {
           command       = "${NOMAD_TASK_DIR}/on-ssl-change"
           timeout       = "10s"
@@ -252,13 +253,13 @@ job "http-proxy" {
 
       template {
         destination = "local/entrypoint.sh"
-        data = <<-SH
+        data        = <<-SH
           #!/usr/bin/env bash
           set -o errexit
           ${NOMAD_SECRETS_DIR}/ssl/write-ssl
-          /usr/local/bin/nginx -c {{ env "NOMAD_TASK_DIR" }}/nginx.conf
+          exec /usr/local/bin/nginx -c {{ env "NOMAD_TASK_DIR" }}/nginx.conf
         SH
-        perms = 0777
+        perms       = 0777
       }
 
 

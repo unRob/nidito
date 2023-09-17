@@ -100,6 +100,7 @@ acl {
   down_policy = "extend-cache"
   tokens {
     agent = "{{ node.token.consul }}"
+    config_file_service_registration = "{{ node.token.consul }}"
     {% if "consul_replication" in node.token %}
     replication = "{{ node.token.consul_replication }}"
     {% endif %}

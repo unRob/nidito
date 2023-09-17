@@ -75,7 +75,6 @@
   shell: |
     openssl dgst -sha256 -hex "{{ vault.config }}/plugins/joao" | awk '{print $2}'
   register: vault_joao_sha
-  notify: configure vault plugin
   check_mode: no
 
 - name: Configure vault

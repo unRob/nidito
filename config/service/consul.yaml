@@ -10,6 +10,6 @@ ports:
   serf_lan: 5551
   serf_wan: 5552
   server: 5550
-version: 1.15.3
+version: 1.16.0
 # this is the global management token
 token: !!secret

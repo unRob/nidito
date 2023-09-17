@@ -1,2 +1,6 @@
 key: !!secret
 bridge: !!secret
+snmp:
+  username: !!secret
+  password: !!secret
+  encryption: !!secret

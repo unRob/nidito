@@ -22,7 +22,7 @@ job "loki" {
 
     network {
       port "http" {
-        to = 3100
+        to           = 3100
         host_network = "private"
       }
     }
@@ -49,7 +49,7 @@ job "loki" {
       }
 
       template {
-        data = <<EOH
+        data        = <<EOH
 auth_enabled: false
 
 server:
@@ -121,9 +121,9 @@ EOH
         ]
 
         meta {
-          nidito-acl = "allow altepetl"
+          nidito-acl            = "allow altepetl"
           nidito-http-buffering = "off"
-          nidito-http-wss = "on"
+          nidito-http-wss       = "on"
         }
 
         check {

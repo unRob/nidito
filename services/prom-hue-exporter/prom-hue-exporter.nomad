@@ -1,11 +1,11 @@
 job "prom-hue-exporter" {
   datacenters = ["casa"]
-  region = "casa"
-  priority = 10
+  region      = "casa"
+  priority    = 10
 
   vault {
-    policies = ["prom-hue-exporter"]
-    change_mode   = "restart"
+    policies    = ["prom-hue-exporter"]
+    change_mode = "restart"
   }
 
   group "prom-hue-exporter" {
@@ -19,8 +19,8 @@ job "prom-hue-exporter" {
     restart {
       attempts = 10
       interval = "10m"
-      delay = "10s"
-      mode = "delay"
+      delay    = "10s"
+      mode     = "delay"
     }
 
     network {
@@ -38,23 +38,23 @@ job "prom-hue-exporter" {
 
     task "prom-hue-exporter" {
       driver = "docker"
-      user = "nobody"
+      user   = "nobody"
 
       template {
         destination = "/local/metrics"
-        perms = 0777
-        data = file("./metrics")
+        perms       = 0777
+        data        = file("./metrics")
       }
 
       resources {
-        cpu    = 50
-        memory = 128
+        cpu        = 50
+        memory     = 128
         memory_max = 512
       }
 
       config {
-        image = "registry.nidi.to/prom-hue-exporter:202305030550"
-        ports = ["http"]
+        image        = "registry.nidi.to/prom-hue-exporter:202305030550"
+        ports        = ["http"]
         network_mode = "host"
         args = [
           "-d", "${NOMAD_TASK_DIR}",

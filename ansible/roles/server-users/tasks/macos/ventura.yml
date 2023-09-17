@@ -7,6 +7,6 @@
 - name: Add my user to nidito group
   become: true
   user:
-    name: "{{ ansible_user }}"
+    name: "{{ node.auth.username }}"
     groups: "{{ user.group }}"
     append: yes

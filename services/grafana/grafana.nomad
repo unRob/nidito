@@ -10,7 +10,7 @@ job "grafana" {
       unlimited      = true
     }
 
-     restart {
+    restart {
       attempts = 10
       interval = "5m"
       delay    = "25s"
@@ -19,7 +19,7 @@ job "grafana" {
 
     network {
       port "http" {
-        to = 3000
+        to           = 3000
         host_network = "private"
       }
     }
@@ -47,8 +47,8 @@ job "grafana" {
       }
 
       resources {
-        cpu    = 100
-        memory = 200
+        cpu        = 100
+        memory     = 200
         memory_max = 500
       }
 
@@ -65,9 +65,9 @@ job "grafana" {
         ]
 
         meta {
-          nidito-acl = "allow altepetl"
-          nidito-http-buffering = "off"
-          nidito-http-wss = "on"
+          nidito-acl                = "allow altepetl"
+          nidito-http-buffering     = "off"
+          nidito-http-wss           = "on"
           nidito-http-max-body-size = "10m"
         }
 

@@ -1,0 +1,11 @@
+# see `milpa help docs command spec` for all the options
+summary: Deletes a bucket
+description: |
+  regardless of what is inside it
+arguments:
+  - name: bucket
+    description: the bucket to update
+    required: true
+    values:
+      milpa: nidito garage bucket list --name-only
+

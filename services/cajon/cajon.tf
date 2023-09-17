@@ -6,15 +6,15 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.13.0"
+      version = "~> 2.18.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.18.0"
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.25.2"
+      version = "~> 2.29.0"
     }
   }
 
@@ -32,8 +32,12 @@ module "external-dns" {
   name = "cajon"
 }
 
+data "vault_generic_secret" "do" {
+  path = "cfg/infra/tree/provider:digitalocean"
+}
+
 provider "digitalocean" {
-  token = data.vault_generic_secret.dns.data.token
+  token = data.vault_generic_secret.do.data.token
   spaces_access_id = data.vault_generic_secret.cdn.data.key
   spaces_secret_key = data.vault_generic_secret.cdn.data.secret
 }

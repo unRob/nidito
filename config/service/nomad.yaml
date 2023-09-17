@@ -7,7 +7,7 @@ ports:
   serf: 5562
 # set this to initiate a cluster recovery after shit ineveitably hits the fan
 recover_cluster: false
-version: 1.5.6
+version: 1.6.1
 acl:
   accessor: !!secret
   secret: !!secret

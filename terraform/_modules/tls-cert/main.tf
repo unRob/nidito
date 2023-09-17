@@ -2,11 +2,11 @@ terraform {
   required_providers {
     acme = {
       source  = "vancluever/acme"
-      version = "~> 2.5.3"
+      version = "~> 2.15.1"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 2.23.0"
+      version = "~> 3.18.0"
     }
   }
 

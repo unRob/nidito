@@ -55,6 +55,7 @@
     mv -f /tmp/vault {{ vault.bin }}
     chown "{{ vault.user }}:{{ user.group }}" "{{ consul.bin }}"
     rm -rf /tmp/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip
+  notify: restart vault
 
 - name: configure systemd
   include_tasks: _systemd.yml

@@ -173,11 +173,7 @@ resource consul_acl_policy nomad {
       policy = "write"
     }
 
-    key_prefix "dns" {
-      policy = "read"
-    }
-
-    key_prefix "cdn" {
+    key_prefix "" {
       policy = "read"
     }
 

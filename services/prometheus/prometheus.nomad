@@ -1,10 +1,10 @@
 job "prometheus" {
   datacenters = ["casa"]
-  type = "service"
+  type        = "service"
 
   vault {
-    policies = ["prometheus"]
-    change_mode   = "restart"
+    policies    = ["prometheus"]
+    change_mode = "restart"
   }
 
   group "prometheus" {
@@ -15,7 +15,7 @@ job "prometheus" {
       unlimited      = true
     }
 
-     restart {
+    restart {
       attempts = 10
       interval = "5m"
       delay    = "25s"
@@ -24,7 +24,7 @@ job "prometheus" {
 
     network {
       port "http" {
-        static = 9090
+        static       = 9090
         host_network = "private"
       }
     }
@@ -38,8 +38,8 @@ job "prometheus" {
       }
 
       template {
-        destination = "secrets/tls/ca.pem"
-        data = <<-PEM
+        destination   = "secrets/tls/ca.pem"
+        data          = <<-PEM
         {{- with secret "cfg/infra/tree/service:ca" }}
         {{ .Data.cert }}
         {{- end }}
@@ -50,13 +50,13 @@ job "prometheus" {
 
       template {
         change_mode = "restart"
-        data = file("config.yaml.tpl")
+        data        = file("config.yaml.tpl")
         destination = "local/prometheus.yml"
       }
 
       config {
-        image = "prom/prometheus:v2.44.0"
-        ports = ["http"]
+        image        = "prom/prometheus:v2.44.0"
+        ports        = ["http"]
         network_mode = "host"
 
         volumes = [
@@ -67,6 +67,7 @@ job "prometheus" {
         args = [
           "--config.file=/local/prometheus.yml",
           "--storage.tsdb.path=/var/lib/prometheus/fresh",
+          "--storage.tsdb.retention.time=90d",
           "--web.console.libraries=/usr/share/prometheus/console_libraries",
           "--web.console.templates=/usr/share/prometheus/consoles",
           "--web.enable-admin-api",
@@ -94,11 +95,11 @@ job "prometheus" {
         }
 
         check {
-          type = "http"
-          port = "http"
-          path = "/targets"
+          type     = "http"
+          port     = "http"
+          path     = "/targets"
           interval = "10s"
-          timeout = "2s"
+          timeout  = "2s"
         }
       }
 

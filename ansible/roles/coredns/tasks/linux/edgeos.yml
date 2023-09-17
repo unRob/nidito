@@ -1,23 +1,11 @@
-- name: Get installed coredns+consul_catalog plugin version
-  become: true
-  shell: |
-    /config/coredns/coredns -version | awk -F@ '/coredns-consul/ {print $2}'
-  register: installed_version
-  check_mode: no
-  ignore_errors: yes
-
-- set_fact:
-    needs_install: "{{ installed_version.stdout != coredns.plugin }}"
-
 - name: Create the coredns directory
   become: true
   file:
     path: "{{ coredns.bin | dirname}}"
     state: directory
-    owner: root
-    group: vyattacfg
+    owner: "{{ coredns.user }}"
+    group: "{{ coredns.group }}"
     mode: u=rwx,g=rwx,o=
-    recurse: true
 
 - name: Download a coredns+consul build
   when: needs_install and not ansible_check_mode
@@ -34,6 +22,7 @@
   template:
     src: templates/coredns.service.j2
     mode: u=rwx,g=rw,o=r
+    owner: root
     dest: "{{ coredns.bin | dirname }}/coredns.service"
 
 - name: Create the coredns firstboot directory
@@ -50,6 +39,7 @@
   template:
     src: templates/post-config.sh
     mode: u=rwx,g=rwx,o=rx
+    owner: root
     dest: /config/scripts/firstboot.d/coredns.sh
 
 - name: Run firstboot script

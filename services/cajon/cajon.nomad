@@ -1,13 +1,13 @@
 job "cajon" {
   datacenters = ["casa"]
-  priority = 80
+  priority    = 80
 
   group "cajon" {
     restart {
       attempts = 20
       interval = "20m"
-      delay = "5s"
-      mode = "delay"
+      delay    = "5s"
+      mode     = "delay"
     }
 
     network {
@@ -23,7 +23,7 @@ job "cajon" {
       driver = "docker"
 
       vault {
-        policies = ["minio"]
+        policies = ["cajon"]
 
         change_mode   = "signal"
         change_signal = "SIGHUP"
@@ -36,8 +36,8 @@ job "cajon" {
 
       template {
         destination = "secrets/environment"
-        env = true
-        data = <<ENV
+        env         = true
+        data        = <<ENV
 {{- with secret "cfg/svc/tree/nidi.to:cajon" }}
 MINIO_ACCESS_KEY={{ .Data.key }}
 MINIO_SECRET_KEY={{ .Data.secret }}
@@ -80,7 +80,7 @@ ENV
         ]
 
         meta {
-          nidito-acl = "allow external"
+          nidito-acl            = "allow external"
           nidito-http-buffering = "off"
           // needs to allow file uploads
           nidito-http-max-body-size = "500m"
@@ -104,7 +104,7 @@ ENV
         ]
 
         meta {
-          nidito-acl = "allow altepetl"
+          nidito-acl            = "allow altepetl"
           nidito-http-buffering = "off"
         }
 

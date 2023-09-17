@@ -39,7 +39,7 @@ root_domain = "s3.garage.{{ $zone }}"
 
 [s3_web]
 bind_addr = "[::]:{{ env "NOMAD_PORT_web" }}"
-root_domain = ".web.{{ $zone }}"
+root_domain = "cajon.{{ $zone }}"
 
 [admin]
 {{ with secret (printf "cfg/svc/tree/%s:garage" .Data.dns.zone) }}

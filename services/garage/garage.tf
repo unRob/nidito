@@ -6,15 +6,15 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.14.0"
+      version = "~> 3.18.0"
     }
     consul = {
       source = "hashicorp/consul"
-      version = "~> 2.17.0"
+      version = "~> 2.18.0"
     }
     digitalocean = {
       source = "digitalocean/digitalocean"
-      version = "~> 2.27.1"
+      version = "~> 2.29.0"
     }
 
   }
@@ -110,6 +110,22 @@ resource "digitalocean_record" "web" {
 
 resource "vault_generic_secret" "ssl-req" {
   path = "nidito/service/ssl/domains/garage.nidi.to"
+  data_json = jsonencode({
+    "star": true,
+    "token": "default"
+  })
+}
+
+resource "vault_generic_secret" "s3-ssl-req" {
+  path = "nidito/service/ssl/domains/s3.garage.nidi.to"
+  data_json = jsonencode({
+    "star": true,
+    "token": "default"
+  })
+}
+
+resource "vault_generic_secret" "cajon-ssl-req" {
+  path = "nidito/service/ssl/domains/cajon.nidi.to"
   data_json = jsonencode({
     "star": true,
     "token": "default"
