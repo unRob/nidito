@@ -10,6 +10,7 @@ hardware:
 tags:
   reachability: public
   role: leader
+  storage: secondary
 tls:
   consul: !!secret ""
   key: !!secret ""

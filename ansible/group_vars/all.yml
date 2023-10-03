@@ -10,7 +10,7 @@ consul:
 coredns:
   user: coredns
   group: users
-  plugin: v0.1.2
+  plugin: v0.2.1
   config: /etc/coredns.d
   bin: /usr/bin/coredns
 docker:

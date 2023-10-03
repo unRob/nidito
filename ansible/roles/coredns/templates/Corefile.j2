@@ -41,6 +41,7 @@
     service_proxy nidito.http.enabled nginx
     # look for additional static entries in this kv path
     static_entries_path dns/static-entries
+    static_entries_prefix dns/static-entries
   }
 
   file {{ coredns.config }}/zones/main
@@ -100,3 +101,4 @@ consul {
   errors
   prometheus 10.42.20.1:9153
 }
+
