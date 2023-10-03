@@ -1,0 +1,27 @@
+summary: Spins up an https proxy for a locally running http server
+description: |
+  Spins up a caddy server listening terminating TLS with certificates for the DC's dns zone. Useful to when debugging a service that runs locally through remote clients, i.e. `puerta` requires https for webauthn and push notifications to work (and to test properly).
+arguments:
+  - name: service
+    description: The name of the service to plan
+    values:
+      milpa: nidito service list
+      suggest-only: true
+    required: true
+  - name: port
+    description: the local TCP port to proxy to
+    default: "8000"
+options:
+  dc:
+    description: the datacenter to proxy within
+    default: casa
+    values: {milpa: nidito dc list}
+  acl:
+    description: The ACL to apply to the DNS record
+    default: "allow external"
+  listen:
+    description: Port proxy will listen to
+    default: "8443"
+  subdomain:
+    description: The subdomain to use, by default `debug-$SERVICE`
+    default: ""

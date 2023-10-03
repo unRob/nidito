@@ -4,6 +4,7 @@ brew "nomad"
 brew "consul-template"
 brew "terraform"
 brew "jq"
+brew "caddy"
 brew "brew install unrob/formulas/joao"
 
 cask "1password-cli"
