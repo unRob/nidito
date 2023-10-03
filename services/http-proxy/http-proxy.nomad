@@ -30,11 +30,11 @@ job "http-proxy" {
   group "http-proxy" {
     restart {
       # on failure, restart at most
-      attempts = 100
+      attempts = 4
       # during
-      interval = "20m"
+      interval = "1m"
       # waiting after a crash
-      delay = "5s"
+      delay = "15s"
       # after which, continue waiting `interval` units
       # before retrying
       mode = "delay"
