@@ -120,7 +120,7 @@ job "puerta" {
       }
 
       config {
-        image        = "registry.nidi.to/puerta:202306161610"
+        image        = "registry.nidi.to/puerta:202310030148"
         ports        = ["http"]
         network_mode = "bridge"
         entrypoint   = ["/bin/sh", "-c"]
