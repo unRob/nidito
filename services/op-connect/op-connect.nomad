@@ -82,7 +82,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-sync:${version}"
+        image = "1password/connect-sync:${local.version}"
         ports = ["sync"]
       }
     }
@@ -126,7 +126,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-api:${version}"
+        image = "1password/connect-api:${local.version}"
         ports = ["http", "api"]
       }
 

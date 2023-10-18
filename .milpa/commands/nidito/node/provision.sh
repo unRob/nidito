@@ -53,7 +53,7 @@ if ! grep -c "^Host.*$NODE_NAME" ~/.ssh/config.d/nidito.conf >/dev/null; then
 Host $NODE_NAME $next_addr $NODE_NAME $NODE_NAME.$dns_zone
   Hostname $next_addr
   User $node_username
-  Port 22
+  Port 2222
   IdentityFile $our_ssh_key
   ControlMaster     auto
   ControlPath       ~/.ssh/control-%C
