@@ -1,6 +1,6 @@
 My local hosts are named after mountains, volcanos and hills around México City, mostly. I don't think I'll ever want to manage more computers than there's mountains in the Anahuac valley. Bold means the name is in use.
 
-- **`ajusco`**: volcán
+- `ajusco`: volcán
 - **`chapultepec`**: cerro
 - `chichinautzin`: volcán
 - `chiquihuite`: cerro

@@ -1,6 +1,6 @@
-summary: Retrieves configuration
+summary: Retrieves configuration values
 description: |
-  From vault or local files
+  Reads local files, using `joao` or queries the `cfg/infra` vault (again, using `joao` as a vault-plugin) and outputs configuration values.
 arguments:
   - name: file
     description: the config file to read from

@@ -1,0 +1,20 @@
+summary: Ensures a node has our ssh key installed
+description: |
+  Looks for a key to add to `$NODE`'s `~/.ssh/authorized_keys` from the locally added agent keys (`ssh-add -L`), prompting to select a key from a list if more than one is available.
+
+  Won't offer keys for selection that don't have a comment
+arguments:
+  - name: node
+    description: The node name or an IP Address to setup
+    required: true
+    values:
+      milpa: nidito node list
+      suggest-only: true
+  - name: key
+    description: The path to a public ssh key file
+    values:
+      files: []
+options:
+  port:
+    description: The port to connect to
+    default: "2222"

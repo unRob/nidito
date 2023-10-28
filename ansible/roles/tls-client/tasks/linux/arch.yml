@@ -1,0 +1,14 @@
+- name: Install certificate
+  no_log: true
+  become: true
+  copy:
+    content: "{{ config.services.ca.cert }}"
+    dest: "/etc/ca-certificates/trust-source/anchors/nidito.pem"
+    group: "{{ user.group }}"
+    mode: u=rw,g=r,o=
+  register: added_tls_cert
+
+- name: Rebuild TLS cert store
+  become: true
+  when: added_tls_cert.changed
+  shell: update-ca-trust

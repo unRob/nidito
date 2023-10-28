@@ -65,7 +65,8 @@ job "docker-registry" {
       template {
         destination = "secrets/auth.key"
         data        = <<-PEM
-        {{- with secret "cfg/svc/tree/nidi.to:docker-registry" -}}
+        {{- $zone := env "meta.dns_zone" -}}
+        {{- with secret (printf "cfg/svc/tree/%s:docker-registry" $zone) -}}
         {{ .Data.auth.key }}
         {{ end }}
         PEM
@@ -74,7 +75,8 @@ job "docker-registry" {
       template {
         destination = "${NOMAD_ALLOC_DIR}/auth.pem"
         data        = <<-PEM
-        {{- with secret "cfg/svc/tree/nidi.to:docker-registry" -}}
+        {{- $zone := env "meta.dns_zone" -}}
+        {{- with secret (printf "cfg/svc/tree/%s:docker-registry" $zone) -}}
         {{ .Data.auth.certificate }}
         {{ end }}
         PEM

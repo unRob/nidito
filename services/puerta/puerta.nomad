@@ -95,7 +95,8 @@ job "puerta" {
       template {
         destination = "secrets/config.yaml"
         data        = <<-ENV
-          {{- with secret "cfg/svc/tree/nidi.to:puerta" }}
+          {{- $zone := env "meta.dns_zone" -}}
+          {{- with secret (printf "cfg/svc/tree/%s:puerta" $zone) }}
           name: Castillo de Chapultebob
           timezone: America/Mexico_City
           adapter:
@@ -105,16 +106,14 @@ job "puerta" {
             device: {{ .Data.hue.device }}
           http:
             listen: :{{ env "NOMAD_PORT_http" }}
-            origin: puerta.nidi.to
+            origin: puerta.{{ $zone }}
             protocol: https
           push:
+            origin: puerta.{{ $zone }}
             key:
               private: {{ .Data.push.key.private }}
               public: {{ .Data.push.key.public }}
           {{ end }}
-          {{- with secret "cfg/infra/tree/service:dns" }}
-            origin: puerta.{{ .Data.zone }}
-          {{- end -}}
         ENV
         change_mode = "noop"
       }

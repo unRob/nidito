@@ -28,29 +28,15 @@ fi
 
 @milpa.log info "Provisioning node $NODE_NAME.$dns_zone IN A $next_addr"
 node_username=$(@milpa.ask "Enter the username of $NODE_NAME")
-node_password=$(@milpa.ask "Enter the password for ${node_username}@$NODE_NAME")
-using_key=$(ssh-add -L | head -n 1 | awk '{print $1,$2}')
-
-@milpa.log info "Connecting over ssh to setup auth, enter ssh password"
-function ensure_ssh_key() {
-  # shellcheck disable=2087
-  ssh "$node_username@$next_addr" <<SH
-mkdir -p ~/.ssh
-if grep "$using_key" ~/.ssh/authorized_keys >/dev/null; then
-  echo "Key already present in ~/.ssh/authorized_keys"
-else
-  echo "Adding key to ~/.ssh/authorized_keys"
-  echo "$using_key" >> ~/.ssh/authorized_keys
-fi
-SH
-}
-ensure_ssh_key || @milpa.fail "Could not ensure ssh key got added to host"
+echo -n "Enter the password for ${node_username}@$NODE_NAME: "
+read -rs node_password || @milpa.fail "Could not read password"
+echo
 
 if ! grep -c "^Host.*$NODE_NAME" ~/.ssh/config.d/nidito.conf >/dev/null; then
   @milpa.log info "Adding host config to ssh"
   cat >>~/.ssh/config.d/nidito.conf <<SSHD
 
-Host $NODE_NAME $next_addr $NODE_NAME $NODE_NAME.$dns_zone
+Host $NODE_NAME $next_addr $NODE_NAME.$dns_zone
   Hostname $next_addr
   User $node_username
   Port 2222
@@ -63,34 +49,15 @@ SSHD
   @milpa.log success "Node ready for paswordless ssh"
 fi
 
-function remote() {
-  ssh -q "$NODE_NAME" 'bash -s' 2>/dev/null <<SH
-${@}
-SH
-}
 
 @milpa.log info "Gathering information on $NODE_NAME"
-os=$(remote uname -s)
-arch=$(remote uname -m)
+scp "$MILPA_COMMAND_REPO/remote/gather-info.sh" "$NODE_NAME:gather-info.sh"
 
-if [[ "$os" == "Linux" ]]; then
-  # todo: finish this shit
-  distro=$(remote cat /etc/issue)
-  os="linux/$distro"
-  model=$(remote cat /sys/devices/virtual/dmi/id/product_name) || model=$(remote cat /proc/device-tree/model)
-else
-  # hw.model: MacBookPro18,4
-  model="$(remote 'sysctl hw.model' | awk '{print tolower($2)}')"
-  # 16.1
-  version="$(remote 'sw_vers -productVersion | cut -d. -f1,2')"
-  os="macos/$version"
-  iface=$(remote route -n get default | awk '/interface/ {print $2}')
-  mac_address=$(remote networksetup -getmacaddress "$iface" | awk '{print $3}')
-  @milpa.log success "Detected $model ($os) at $mac_address"
-fi
+IFS='|' read -r model os arch mac_address < <(ssh -q "$NODE_NAME" '~/gather-info.sh')
 
 @milpa.log info "Storing node metadata"
-cat >"config/host/${NODE_NAME}.yaml" <<YAML
+cfg="$(@config.dir)/host/${NODE_NAME}.yaml"
+cat >"$cfg" <<YAML
 address: $next_addr
 auth:
   username: !!secret $node_username
@@ -106,20 +73,21 @@ tags:
   role: leader
   # one of: primary, secondary, none
   storage: none
+  provisioning: true
 YAML
-@milpa.log success "Node metadata stored in $CONFIG_DIR/hosts.yaml"
-joao get "config/host/${NODE_NAME}.yaml"
+@milpa.log success "Node metadata stored in $$cfg"
 
 # add dns records
-at_root "ansible"
-pipenv run tame -l "role_router" --diff -v --tags coredns --ask-become-pass
+@milpa.log info "adding DNS records"
+nidito operator ansible coredns || @milpa.fail "Could not add dns records"
+@milpa.log success "added DNS records for $NODE_NAME"
 
 # create consul token
 @milpa.log info "Creating consul token"
 @tf.dc "bootstrap" "$dc" -var "new_host=$NODE_NAME"
 terraform output -json server-tokens |
   jq -r --arg node_name "$NODE_NAME" '.["\($node_name)"]' |
-  @config.write hosts "$NODE_NAME.token.consul"
+  joao set --secret "$(@config.dir)/hosts/$NODE_NAME.yaml" "token.consul"
 @milpa.log success "Consul token created and stored in config"
 
 # create CA certs

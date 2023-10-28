@@ -1,9 +1,7 @@
-{{- with secret "cfg/infra/tree/service:dns" }}
-{{- scratch.Set "zone" .Data.zone }}
-{{- end }}
+{{- $zone := env "meta.dns_zone" -}}
 <icecast>
     <location>Earth</location>
-    <admin>icecast@{{ scratch.Get "zone" }}</admin>
+    <admin>icecast@{{ $zone }}</admin>
 
     <limits>
         <clients>300</clients>
@@ -16,7 +14,7 @@
     </limits>
 
     <authentication>
-        {{- with secret "cfg/svc/tree/nidi.to:icecast" }}
+        {{- with secret (printf "cfg/svc/tree/%s:icecast" $zone) }}
         <source-password>{{ .Data.auth.source }}</source-password>
         <relay-password>{{ .Data.auth.source }}</relay-password>
 
@@ -25,11 +23,11 @@
         {{- end }}
     </authentication>
 
-    <hostname>{{ env "NOMAD_TASK_NAME" }}.{{ scratch.Get "zone" }}</hostname>
+    <hostname>{{ env "NOMAD_TASK_NAME" }}.{{ $zone }}</hostname>
 
     <listen-socket><port>8000</port></listen-socket>
 
-    {{- with secret "cfg/svc/tree/nidi.to:icecast" }}
+    {{- with secret (printf "cfg/svc/tree/%s:icecast" $zone) }}
     {{ range $name, $mount := .Data.mounts }}
     <mount type="normal">
       <mount-name>{{ $mount.pattern }}</mount-name>

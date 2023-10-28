@@ -36,9 +36,12 @@
 - name: Install zones
   become: true
   template:
-    src: templates/zone.j2
+    src: "templates/{{ item }}.zone.j2"
     owner: "{{ coredns.user }}"
     group: "{{ coredns.group }}"
-    dest: "{{ coredns.config }}/zones/main"
+    dest: "{{ coredns.config }}/zones/{{ item }}"
     mode: u=rw,g=r,o=
   notify: restart coredns
+  with_items:
+    - main
+    - tepetl

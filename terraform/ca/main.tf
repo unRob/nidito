@@ -6,11 +6,11 @@ terraform {
    required_providers {
     tls = {
       source  = "hashicorp/tls"
-      version = "4.0.2"
+      version = "4.0.4"
     }
     consul = {
       source = "hashicorp/consul"
-      version = "2.18.0
+      version = "2.18.0"
     }
    }
 }

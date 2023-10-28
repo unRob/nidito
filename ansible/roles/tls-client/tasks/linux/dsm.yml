@@ -1,0 +1,14 @@
+- name: Install certificate
+  become: true
+  copy:
+    content: "{{ config.services.ca.cert }}"
+    dest: /var/db/ca-certificates/Nidito_CA.pem
+    owner: root
+    mode: u=rwx,g=rwx,o=
+  register: added_tls_cert
+  no_log: true
+
+- name: Rebuild TLS cert store
+  become: true
+  when: added_tls_cert.changed
+  shell: /usr/syno/bin/update-ca-certificates.sh

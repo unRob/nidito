@@ -1,0 +1,12 @@
+- name: Install certificate loader firstboot.d script
+  become: true
+  template:
+    src: templates/install-certificates.sh.j2
+    mode: u=rwx,g=rwx,o=rx
+    dest: /config/scripts/firstboot.d/00-install-certificates.sh
+  register: added_tls_cert
+
+- name: Run certificate installer script
+  become: true
+  when: added_tls_cert.changed
+  shell: /config/scripts/firstboot.d/00-install-certificates.sh

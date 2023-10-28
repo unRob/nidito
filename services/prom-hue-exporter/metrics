@@ -2,7 +2,7 @@
 
 echo "Content-type: text/plain; version=0.0.4"
 echo ""
-# {{ with secret "cfg/svc/tree/nidi.to:prom-hue-exporter" }}
+# {{ with secret (printf "cfg/svc/tree/%s:prom-hue-exporter" (env "meta.dns_zone")) }}
 HUE_BRIDGE_NOMAD="{{ .Data.bridge }}"
 HUE_BRIDGE=${HUE_BRIDGE:-$HUE_BRIDGE_NOMAD}
 HUE_KEY_NOMAD="{{ .Data.key }}"

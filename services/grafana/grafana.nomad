@@ -34,7 +34,7 @@ job "grafana" {
 
       env {
         GF_INSTALL_PLUGINS = "grafana-piechart-panel"
-        GF_DOMAIN_ROOT_URL = "https://grafana.nidi.to"
+        GF_DOMAIN_ROOT_URL = "https://grafana.${meta.dns_zone}"
         // GF_PATHS_CONFIG = "/secrets/grafana.ini"
       }
 

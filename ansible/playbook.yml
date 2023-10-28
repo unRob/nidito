@@ -6,6 +6,7 @@
   gather_facts: no
   roles:
     - gateway
+    - tls-client
     - coredns
     - wireguard
 
@@ -17,11 +18,12 @@
   roles:
     - telemetry
 
-- name: users
+- name: Leader node configuration
   hosts: role_leader
   tags: [base]
   roles:
     - server-users
+    - tls-client
 
 - name: Consul
   hosts: role_leader

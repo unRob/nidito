@@ -2,7 +2,7 @@
 
 case "$MILPA_OPT_SOURCE" in
   vault)
-    vault kv list -format json "config/vaults/$NIDITO_OP_VAULT/items" | jq -r 'map(split(" ") | first)[]'
+    vault kv list -format json "cfg/infra/trees" | jq -r 'map(split(" ") | first) | sort[]'
   ;;
   files)
     @milpa.load_util config

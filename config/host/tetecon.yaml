@@ -1,22 +1,21 @@
-address: 10.42.20.3
+address: 10.42.20.7
 auth:
   username: !!secret
   password: !!secret
 dc: casa
 hardware:
-  arch: arm32
-  model: pixiepro
+  arch: arm64
+  model: raspberry-pi-4b
   os: linux/arch
 mac: !!secret
 tags:
-  reachability: public
   role: leader
   storage: none
-tls:
-  consul: !!secret ""
-  key: !!secret ""
-  nomad: !!secret ""
-  vault: !!secret ""
-  op: !!secret ""
 token:
   consul: !!secret
+tls:
+  key: !!secret ""
+  consul: !!secret ""
+  nomad: !!secret ""
+  op: !!secret ""
+  vault: !!secret ""

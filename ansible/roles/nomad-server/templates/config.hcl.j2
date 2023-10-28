@@ -15,6 +15,12 @@ server {
   # needs to be incremented gradually as servers boot
   bootstrap_expect = {% if dc.primary %}3{% else %}1{% endif %}
 
+  # 7-day retention
+  job_gc_threshold = "168h"
+  eval_gc_threshold = "168h"
+  batch_eval_gc_threshold = "168h"
+  deployment_gc_threshold = "168h"
+
   # gossip encryption
   # https://developer.hashicorp.com/nomad/tutorials/transport-security/security-gossip-encryption
   encrypt = "{{ config.services.nomad.encryption_key }}"
@@ -80,6 +86,9 @@ client {
   }
 
   meta {
+    # set dns_zone to avoid consul-template choking on `secret (printf 'a/%s')`
+    # https://github.com/hashicorp/consul-template/issues/1423
+    dns_zone = "{{ config.datacenters[node.dc].dns.zone }}"
     arch = "{{ node.hardware.arch }}"
     model = "{{ node.hardware.model }}"
     os_family = "{{ node.hardware.os | split('/') | first }}"

@@ -826,10 +826,12 @@
             "type": "prometheus",
             "uid": "000000001"
           },
+          "editorMode": "code",
           "exemplar": true,
           "expr": "unifipoller_device_stations{station_type=\"user\"}",
           "interval": "30s",
           "legendFormat": "{{name}} {{station_type}}s",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1478,8 +1480,8 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "points",
+            "fillOpacity": 80,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -1537,7 +1539,7 @@
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "none"
+          "sort": "desc"
         }
       },
       "targets": [
@@ -2083,7 +2085,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\",job!=\"host_metrics\"}[1m])) * 100)",
+          "expr": "100 * (1 - avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\", job!=\"host_metrics\"}[1m])))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2095,12 +2097,12 @@
             "type": "prometheus",
             "uid": "000000001"
           },
-          "exemplar": true,
-          "expr": "avg by (name) (avg_over_time(unifipoller_device_cpu_utilization_ratio[1m]))",
+          "editorMode": "code",
+          "expr": "avg by (name) (avg_over_time(unifipoller_device_cpu_utilization_ratio[1m])) * 100",
           "hide": false,
-          "interval": "",
-          "legendFormat": "{{ name }}",
-          "refId": "B"
+          "legendFormat": "{{name}}",
+          "range": true,
+          "refId": "C"
         }
       ],
       "title": "Network CPU Usage",
@@ -2169,50 +2171,7 @@
           },
           "unit": "percent"
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "popocatepetl:/dev/disk1s1",
-                  "popocatepetl:/dev/disk1s2",
-                  "popocatepetl:/dev/disk1s3",
-                  "popocatepetl:/dev/disk3s1",
-                  "popocatepetl:/dev/disk3s1s1",
-                  "popocatepetl:/dev/disk3s2",
-                  "popocatepetl:/dev/disk3s4",
-                  "popocatepetl:/dev/disk3s5",
-                  "popocatepetl:/dev/disk3s6",
-                  "popocatepetl:/dev/disk3s7",
-                  "chapultepec:/dev/mapper/cachedev_0",
-                  "ajusco:/dev/mmcblk2p1",
-                  "ajusco:/dev/mmcblk2p2",
-                  "guerrero:/dev/sda1",
-                  "tepeyac:/dev/sda1",
-                  "guerrero:/dev/sda2",
-                  "tepeyac:/dev/sdb2",
-                  "popocatepetl:map auto_home",
-                  "chapultepec:/dev/md0"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -2267,8 +2226,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "dark-purple",
-            "mode": "thresholds",
+            "fixedColor": "#a3a3a3",
+            "mode": "continuous-BlPu",
             "seriesBy": "last"
           },
           "custom": {
@@ -2280,7 +2239,7 @@
             "axisSoftMin": 20,
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 1,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -2288,7 +2247,7 @@
               "viz": false
             },
             "lineInterpolation": "smooth",
-            "lineWidth": 2,
+            "lineWidth": 1,
             "pointSize": 6,
             "scaleDistribution": {
               "type": "linear"
@@ -2328,7 +2287,32 @@
           },
           "unit": "celsius"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Biblioteca rack"
+            },
+            "properties": [
+              {
+                "id": "custom.drawStyle",
+                "value": "line"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF7383",
+                  "mode": "fixed",
+                  "seriesBy": "last"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 3
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 8,
@@ -2351,8 +2335,8 @@
           "showLegend": true
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "pluginVersion": "9.4.7",
@@ -2368,7 +2352,19 @@
           "key": "Q-73029a79-43b4-4a52-866e-b062bf4c3b3c-0",
           "legendFormat": "{{name}}",
           "range": true,
-          "refId": "A"
+          "refId": "rack"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "editorMode": "code",
+          "expr": "max by (name) (hue_sensor_temperature{name=~\"(Escaleras arriba|Escaleras caracol arriba|Entrada pasillo)\"})",
+          "hide": false,
+          "legendFormat": "{{ name }}",
+          "range": true,
+          "refId": "ambient"
         }
       ],
       "title": "Rack Temp",
@@ -2449,7 +2445,7 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
+        "x": 16,
         "y": 63
       },
       "id": 34,
@@ -2500,8 +2496,9 @@
   "templating": {
     "list": [
       {
+        "allValue": ".+",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2530,8 +2527,9 @@
         "type": "query"
       },
       {
+        "allValue": ".+",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2560,8 +2558,9 @@
         "type": "query"
       },
       {
+        "allValue": ".+",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -2592,7 +2591,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -2612,6 +2611,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "I5dazfrnk",
-  "version": 36,
+  "version": 44,
   "weekStart": ""
 }

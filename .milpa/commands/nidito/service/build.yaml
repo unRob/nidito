@@ -9,8 +9,8 @@ arguments:
     description: platforms to build for
     variadic: true
     values:
-      static: [linux/amd64, linux/arm64, linux/arm]
-    default: [linux/amd64, linux/arm64, linux/arm]
+      static: [linux/amd64, linux/arm64]
+    default: [linux/amd64, linux/arm64]
 options:
   local:
     type: bool

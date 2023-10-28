@@ -1,6 +1,6 @@
 - name: Restart node_exporter service
   when: ansible_pkg_mgr == "homebrew"
-  listen: restart node-exporter
+  listen: restart node_exporter
   become: yes
   shell: |
     launchctl unload -w /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist 2>/dev/null
@@ -13,9 +13,9 @@
   systemd:
     daemon_reload: true
 
-- name: Restart node-exporter service
+- name: Restart node_exporter service
   when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: restart node-exporter
+  listen: restart node_exporter
   become: yes
   systemd:
     name: node-exporter

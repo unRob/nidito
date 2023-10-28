@@ -75,14 +75,6 @@
     group: vyattacfg
     mode: u=rwx,g=rwx,o=
 
-- name: Install certificate loader firstboot.d script
-  become: true
-  template:
-    src: templates/install-certificates.sh.j2
-    mode: u=rwx,g=rwx,o=rx
-    dest: /config/scripts/firstboot.d/00-install-certificates.sh
-  register: config_install
-
 - name: Update cache
   become: true
   when: not ansible_check_mode

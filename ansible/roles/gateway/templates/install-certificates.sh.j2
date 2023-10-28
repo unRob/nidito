@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-cat >/etc/ssl/certs/nidito.pem <<PEM
-{{ config.services.ca.key }}
-PEM
-
-cat /etc/ssl/certs/nidito.pem >> /etc/ssl/certs/ca-certificates.crt

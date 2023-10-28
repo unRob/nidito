@@ -2,6 +2,7 @@
   become: true
   user:
     name: "{{ consul.user }}"
+    groups: "{{ user.group }}"
     create_home: no
     shell: /usr/bin/false
 

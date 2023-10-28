@@ -5,12 +5,21 @@
   prometheus 10.42.20.1:9153
 }
 
+# tepetl
+{{ node.dc }}.tepetl.net {
+  rewrite name exact consul.{{ node.dc }}.tepetl.net consul.service.{{ node.dc }}.consul answer auto
+  rewrite name exact vault.{{ node.dc }}.tepetl.net active.vault.service.{{ node.dc }}.consul answer auto
+  rewrite name exact nomad.{{ node.dc }}.tepetl.net nomad.service.{{ node.dc }}.consul answer auto
+
+  file {{ coredns.config }}/zones/tepetl
+}
+
 # Main zone
-{{ config.services.dns.zone }} {
+{{ config.datacenters[node.dc].dns.zone }} {
   hosts {
     {% set gateway_name = "unknown" -%}
     {% for name, n in config.nodes.items() if n.dc == node.dc -%}
-    {{ n.address }} {{ name }}.{{ config.services.dns.zone }}
+    {{ n.address }} {{ name }}.{{ config.datacenters[node.dc].dns.zone }}
     {% endfor %}
 
     fallthrough
@@ -41,7 +50,7 @@
     service_proxy nidito.http.enabled nginx
     # look for additional static entries in this kv path
     static_entries_path dns/static-entries
-    static_entries_prefix dns/static-entries
+    static_entries_prefix dns/dynamic
   }
 
   file {{ coredns.config }}/zones/main

@@ -15,6 +15,5 @@
 - name: Route main dns zone over vpn
   become: true
   shell: |
-    resolvectl domain wg0 '~{{ config.services.dns.zone }}' '~42.10.in-addr.arpa'
+    resolvectl domain wg0 '~{{ config.datacenters[node.dc].dns.zone }}' '~42.10.in-addr.arpa'
     resolvectl default-route wg0 false
-    resolvectl dns {{ config.datacenters._peering.wireguard.dns }}

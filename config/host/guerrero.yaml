@@ -5,7 +5,7 @@ auth:
 dc: casa
 hardware:
   arch: arm64
-  model: raspberrypi-4b
+  model: raspberry-pi-4b
   os: linux/arch
 mac: !!secret
 tags:

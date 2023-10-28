@@ -22,7 +22,7 @@
     dest: "{{ node_exporter.bin | dirname }}/node-exporter.service"
   notify:
     - reload systemd daemons
-    - restart node-exporter
+    - restart node_exporter
 
 - name: Create the node_exporter firstboot directory
   become: true

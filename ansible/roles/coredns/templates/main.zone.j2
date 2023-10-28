@@ -1,7 +1,7 @@
-$ORIGIN {{ config.services.dns.zone }}.
+$ORIGIN {{ config.datacenters[node.dc].dns.zone }}.
 $TTL 1h
 
-@	IN	SOA	{{ node.name }}.{{ config.services.dns.zone }}.	admin	(
+@	IN	SOA	{{ node.name }}.{{ config.datacenters[node.dc].dns.zone }}.	admin	(
 	42	; serial
 	12h	; refresh
 	3m	; retry
@@ -21,4 +21,4 @@ $TTL 1h
 {% endfor %}
 
 ; Let clients pass letsencrypt's dns challenge
-_acme-challenge		5m		IN	NS		{{ config.services.dns.acme_resolver }}
+_acme-challenge		5m		IN	NS		{{ config.services.dns.acme_resolver }}.

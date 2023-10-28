@@ -57,14 +57,6 @@ function @config.tree () {
   done < <(@config.all_files) | jq --slurp 'reduce .[] as $i ({}; . * $i) | '"${2:-.}"
 }
 
-function @config.write_secret () {
-  printf "%s\n" "$3" | joao set --secret "$(@config.name_to_path "$1")" "$2"
-}
-
-function @config.write () {
-  printf "%s\n" "$3" | joao set "$(@config.name_to_path "$1")" "$2"
-}
-
 function @config.remote_items () {
   op_v item list --format json | jq -r 'map(.title) | sort[]'
 }

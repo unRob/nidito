@@ -1,11 +1,17 @@
-- name: Install node_exporter
+- name: Download node_exporter
   when: needs_install
   become: true
   unarchive:
     remote_src: yes
     src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}.tar.gz"
-    dest: "{{ node_exporter.bin | dirname }}"
+    dest: "/tmp/"
   notify: restart node_exporter
+
+- name: Install node_exporter
+  when: needs_install
+  become: true
+  shell: |
+    mv /tmp/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
 
 - name: configure systemd
   include_tasks: _systemd.yml

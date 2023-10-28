@@ -1,0 +1,31 @@
+$ORIGIN {{ node.dc }}.tepetl.net.
+$TTL 1h
+
+@ IN	SOA {{ node.name }}.tepetl.net. admin (
+	42	; serial
+	12h	; refresh
+	3m	; retry
+	2w	; expire
+	3h	; minimum
+	)
+	IN NS		{{ node.name }}
+
+{% set dc = config.datacenters[node.dc] %}
+; Nameservers
+{{ node.name }}			5m	IN	A	{{ node.address }}
+
+; apex record
+@			30m	IN	A	{{ node.address }}
+
+; hosts
+{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %}
+{{ name }}			5m	IN	A	{{ n.address }}
+{% endfor %}
+
+; Cluster leaders
+{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc and "provisioning" not in n.tags %}
+{{ config.datacenters[node.dc].dns.leaders }}			5m	IN	A	{{ n.address }}
+{% endfor %}
+
+; Let clients pass letsencrypt's dns challenge
+_acme-challenge	5m	IN	NS	{{ config.services.dns.acme_resolver }}.

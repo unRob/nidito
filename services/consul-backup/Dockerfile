@@ -4,8 +4,7 @@ ARG CONSUL_VERSION=1.15.2
 
 WORKDIR /unpack
 RUN \
-  export TARCH="$(printf '%s' "${TARGETARCH}" | sed 's/arm32/arm/g')" \
-  && wget -O consul.zip "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_$TARCH.zip" \
+  wget -O consul.zip "https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_$TARGETARCH.zip" \
   && ls -lah consul.zip \
   && unzip -d /usr/bin/ ./consul.zip \
   && rm -rf consul.zip

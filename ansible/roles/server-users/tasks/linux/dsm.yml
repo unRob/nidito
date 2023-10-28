@@ -1,3 +1,10 @@
+# https://github.com/ansible/ansible/issues/75832
+- name: fix /usr/bin/capsh permissions
+  become: true
+  file:
+    path: /usr/bin/capsh
+    mode: 0755
+
 - name: lookup group database
   become: true
   shell: "/usr/syno/sbin/synogroup --get '{{ user.group }}'"

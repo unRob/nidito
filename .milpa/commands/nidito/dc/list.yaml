@@ -6,4 +6,9 @@ options:
     default: local
     description: where to get values from
     values:
-      static: [local,consul]
+      static: [local, consul]
+  format:
+    default: text
+    description: the format to output the list in
+    values:
+      static: [text, json]

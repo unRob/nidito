@@ -1,8 +1,8 @@
 summary: Retrieves configuration keys
 description: |
-  From vault or local files
+  Lists the names (`dc:casa`), files (`dc/casa.yaml`) or 1Password item names where config is available.
 options:
   source:
     default: names
     description: the source to query config from
-    values: {static: [vault, files, names, op]}
+    values: {static: [files, names, op, vault]}

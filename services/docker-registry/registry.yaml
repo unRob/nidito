@@ -1,14 +1,12 @@
-{{- with secret "cfg/infra/tree/service:dns" }}
-{{ scratch.Set "zone" .Data.zone }}
-{{- end }}
+{{- $zone := env "meta.dns_zone" -}}
 version: 0.1
 log:
   accesslog:
     disabled: false
-{{- with secret "cfg/svc/tree/nidi.to:docker-registry" }}
+{{- with secret (printf "cfg/svc/tree/%s:docker-registry" $zone) }}
 auth:
   token:
-    realm: https://registry.{{ scratch.Get "zone" }}/auth
+    realm: https://registry.{{ $zone }}/auth
     service: {{ .Data.auth.issuer }}
     issuer: {{ .Data.auth.issuer }}
     rootcertbundle: {{ env "NOMAD_ALLOC_DIR" }}/auth.pem
@@ -17,7 +15,7 @@ storage:
     accesskey: {{ .Data.storage.key }}
     secretkey: {{ .Data.storage.secret }}
     region: {{ .Data.storage.region }}
-    regionendpoint: https://s3.garage.{{ scratch.Get "zone" }}
+    regionendpoint: https://s3.garage.{{ $zone }}
     forcepathstyle: true
     # accelerate: false
     bucket: {{ .Data.storage.bucket }}
@@ -42,7 +40,7 @@ storage:
 # https://docs.docker.com/registry/configuration/#http
 http:
   addr: :{{ env "NOMAD_PORT_http" }}
-  host: https://registry.{{ scratch.Get "zone" }}
+  host: https://registry.{{ $zone }}
   secret: {{ .Data.http.key }}
   debug:
     addr: :{{ env "NOMAD_PORT_metrics" }}
