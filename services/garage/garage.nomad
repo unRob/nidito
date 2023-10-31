@@ -6,7 +6,7 @@ code: https://git.deuxfleurs.fr/Deuxfleurs/garage
 */
 
 locals {
-  version = "0.8.4"
+  version = "0.9.0"
   image = "dxflrs/garage:v${local.version}"
 }
 
@@ -49,9 +49,9 @@ job "garage" {
     }
 
     restart {
-      delay    = "5s"
+      delay    = "15s"
       attempts = 20
-      interval = "1h"
+      interval = "10m"
       mode     = "delay"
     }
 
@@ -133,7 +133,7 @@ job "garage" {
           nidito-acl            = "allow altepetl"
           nidito-http-buffering = "off"
           nidito-dns-alias      = "api.garage"
-          nidito-http-tls       = "garage.nidi.to"
+          nidito-http-tls       = "garage.${meta.dns_zone}"
         }
       }
 
@@ -152,7 +152,7 @@ job "garage" {
           nidito-http-buffering     = "off"
           nidito-http-max-body-size = "2048m"
           nidito-dns-alias          = "s3.garage; *.s3.garage"
-          nidito-http-tls           = "garage.nidi.to"
+          nidito-http-tls           = "garage.${meta.dns_zone}"
         }
       }
 
@@ -172,7 +172,7 @@ job "garage" {
           # TODO: drop suffix after minio is phased out
           nidito-http-domain    = "cajon"
           nidito-dns-alias      = "*.cajon"
-          nidito-http-tls       = "cajon.nidi.to"
+          nidito-http-tls       = "cajon.${meta.dns_zone}"
         }
       }
 

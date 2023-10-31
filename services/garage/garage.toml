@@ -1,7 +1,6 @@
 # https://garagehq.deuxfleurs.fr/documentation/reference-manual/configuration/
 {{- $dc := env "node.region" }}
-{{- with secret (printf "cfg/infra/tree/dc:%s" $dc) }}
-{{- $zone := .Data.dns.zone }}
+{{- $zone := env "meta.dns_zone" }}
 metadata_dir = "/storage/metadata"
 data_dir = "/storage/data"
 
@@ -10,7 +9,7 @@ db_engine = "lmdb"
 replication_mode = "3"
 
 compression_level = 1
-{{ with secret (printf "cfg/svc/tree/%s:garage" .Data.dns.zone) }}
+{{ with secret (printf "cfg/svc/tree/%s:garage" $zone) }}
 rpc_secret = "{{ .Data.secret }}"
 rpc_bind_addr = "[::]:{{ .Data.ports.rpc }}"
 rpc_public_addr = "{{ env "NOMAD_ADDR_rpc" }}"
@@ -42,10 +41,9 @@ bind_addr = "[::]:{{ env "NOMAD_PORT_web" }}"
 root_domain = "cajon.{{ $zone }}"
 
 [admin]
-{{ with secret (printf "cfg/svc/tree/%s:garage" .Data.dns.zone) }}
+{{ with secret (printf "cfg/svc/tree/%s:garage" $zone) }}
 api_bind_addr = "0.0.0.0:{{ env "NOMAD_PORT_api" }}"
 # metrics_token = "{{ .Data.token.metrics }}"
 admin_token = "{{ .Data.token.admin }}"
 # trace_sink = "http://localhost:4317"
 {{ end }}
-{{- end }}

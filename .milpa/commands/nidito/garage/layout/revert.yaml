@@ -1,0 +1,3 @@
+summary: Reverts a staged layout change
+description: |
+  Shows staged changes and prompts before reverting.

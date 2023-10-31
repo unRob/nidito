@@ -1,0 +1,5 @@
+summary: Edit the garage node layout
+description: |
+  ⚠️ Will only allow a single edit before applying or reverting
+
+  Opens a vim buffer with the current layout and waits for edits. If changes are found, a diff is shown and a confirmation is requested before staging the layout changes

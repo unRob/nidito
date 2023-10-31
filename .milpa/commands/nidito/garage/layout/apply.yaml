@@ -1,0 +1,3 @@
+summary: Applies layout changes
+description: |
+  Shows proposed layout changes before applying them. Edit first with `nidito garage layout edit`

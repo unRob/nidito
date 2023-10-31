@@ -1,0 +1,3 @@
+summary: Shows the current garage layout
+description: |
+  Will show the current layout, or a diff from the current layout to the staged layout.

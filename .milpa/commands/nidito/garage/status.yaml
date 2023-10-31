@@ -1,0 +1,3 @@
+summary: Shows garage node status
+description: |
+  Queries any live node to find it's view of the cluster.
