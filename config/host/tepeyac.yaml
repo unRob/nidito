@@ -12,6 +12,7 @@ tags:
   reachability: private
   role: leader
   storage: secondary
+  storage_class: ssd
 tls:
   consul: !!secret ""
   key: !!secret ""

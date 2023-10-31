@@ -11,6 +11,7 @@ mac: !!secret
 tags:
   role: leader
   storage: none
+  storage_class: nvme
 tls:
   consul: !!secret ""
   key: !!secret ""

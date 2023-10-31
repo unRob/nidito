@@ -1,0 +1,33 @@
+- name: Get installed cert fingerprint
+  become: true
+  shell: |
+    security find-certificate -c "Nidito CA" -p | openssl x509 -noout -sha256 -fingerprint
+  register: installed_cert
+  ignore_errors: yes
+  check_mode: no
+
+- set_fact:
+    needs_install: "{{ installed_cert.stdout != config.services.ca.cert }}"
+  check_mode: no
+
+- name: Install certificate
+  become: true
+  copy:
+    content: "{{ config.services.ca.cert }}"
+    dest: "/nidito/nidito.pem"
+    group: "{{ user.group }}"
+    mode: u=rw,g=r,o=
+  register: added_tls_cert
+
+- name: Get installed cert fingerprint
+  when: added_tls_cert.changed
+  become: true
+  shell: |
+    openssl x509 -in /nidito/nidito.pem -noout -sha256 -fingerprint
+  register: fs_cert
+  check_mode: no
+
+- name: Add TLS cert to store
+  become: true
+  when: fs_cert.stdout != installed_cert.stdout
+  shell: security add-trusted-cert -d /nidito/nidito.pem

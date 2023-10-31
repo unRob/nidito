@@ -6,11 +6,12 @@ dc: casa
 hardware:
   arch: arm64
   model: mac14,3
-  os: macos/ventura
+  os: macos/sonoma
 mac: !!secret
 tags:
   role: leader
   storage: secondary
+  storage_class: nvme
 token:
   consul: !!secret
 tls:

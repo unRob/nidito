@@ -2,7 +2,7 @@
   become: true
   copy:
     content: "{{ config.services.ca.cert }}"
-    dest: /var/db/ca-certificates/Nidito_CA.pem
+    dest: /var/db/ca-certificates/Nidito_CA.crt
     owner: root
     mode: u=rwx,g=rwx,o=
   register: added_tls_cert

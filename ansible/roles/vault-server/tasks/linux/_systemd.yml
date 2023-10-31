@@ -11,5 +11,6 @@
   become: yes
   systemd:
     name: vault
+    daemon_reload: yes
     enabled: yes
   notify: restart vault

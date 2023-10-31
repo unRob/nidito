@@ -10,3 +10,16 @@
     name: "{{ node.auth.username }}"
     groups: "{{ user.group }}"
     append: yes
+
+- name: Install reboot power failure systemd
+  when: node.hardware.model == "macmini5,3"
+  become: yes
+  template:
+    src: templates/reboot-on-pfd.service.j2
+    dest: /usr/lib/systemd/system/reboot-on-power-failure.service
+  register: reboot_on_power_failure
+
+- name: Activate reboot on power failure
+  become: true
+  when: reboot_on_power_failure.changed
+  shell: systemctl start reboot-on-power-failure

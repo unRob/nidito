@@ -11,5 +11,6 @@
   become: yes
   systemd:
     name: consul
+    daemon_reload: yes
     enabled: yes
   notify: restart consul

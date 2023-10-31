@@ -18,6 +18,7 @@ mac: !!secret
 tags:
   role: leader
   storage: primary
+  storage_class: hdd
 tls:
   consul: !!secret ""
   key: !!secret ""

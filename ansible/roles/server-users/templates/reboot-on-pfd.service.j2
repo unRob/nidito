@@ -1,0 +1,11 @@
+[Unit]
+Description=Reboot after power failure
+
+[Service]
+Type=oneshot
+
+# reboot register for Mac Mini with Intel ISA bridge
+ExecStart=setpci -s 0:1f.0 0xa4.b=0
+
+[Install]
+WantedBy=sysinit.target

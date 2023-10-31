@@ -11,5 +11,6 @@
   become: yes
   systemd:
     name: node-exporter
+    daemon_reload: yes
     enabled: yes
   notify: restart node_exporter

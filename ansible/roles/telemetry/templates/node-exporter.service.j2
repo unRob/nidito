@@ -1,6 +1,6 @@
 [Unit]
 Description=node-exporter
-After=network.target {{ node_exporter.systemd.after }}
+After=network-online.target {{ node_exporter.systemd.after }}
 {% if node_exporter.systemd.wants != "" %}
 Wants={{ node_exporter.systemd.wants }}
 {% endif %}
