@@ -52,8 +52,7 @@ fi
 
 @milpa.log info "Gathering information on $NODE_NAME"
 scp "$MILPA_COMMAND_REPO/remote/gather-info.sh" "$NODE_NAME:gather-info.sh"
-
-IFS='|' read -r model os arch mac_address < <(ssh -q "$NODE_NAME" '~/gather-info.sh')
+IFS='|' read -r model os arch mac_address < <(ssh -q "$NODE_NAME" ./gather-info.sh)
 
 @milpa.log info "Storing node metadata"
 cfg="$(@config.dir)/host/${NODE_NAME}.yaml"

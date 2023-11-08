@@ -1,0 +1,9 @@
+description: a slow cgi server turns Hue API json into prom metrics
+docs:
+  - https://prometheus.io/docs/introduction/overview/
+packages:
+  self:
+    image: prom/prometheus
+    version: "v2.47.2"
+    source: https://github.com/prometheus/prometheus
+    check: github-releases

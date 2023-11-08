@@ -34,7 +34,7 @@ function @config.names () {
 }
 
 function @config.path_to_name () {
-  fname=$"$(cd "$(dirname "$1")"; pwd)/$(basename "$1")"
+  fname=$"$(cd "$(dirname "$1")"; pwd)/$(basename "$1")" || @milpa.fail "Could not cd into dirname of $1"
   fname="${fname##"${CONFIG_DIR}/"}"
   fname="${fname%.yaml}"
   echo "${fname//\//:}"

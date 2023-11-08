@@ -1,0 +1,12 @@
+description:
+docs:
+  - https://icecast.org/docs/icecast-2.4.0/
+packages:
+  self:
+    image: registry.nidi.to/icecast
+    source: ./Dockerfile
+    version: 202309122357
+  upstream:
+    source: https://github.com/karlheyes/icecast-kh
+    check: github-releases
+    version: icecast-2.4.0-kh22

@@ -4,7 +4,8 @@
 @tmp.file layout
 
 # https://garagehq.deuxfleurs.fr/api/garage-admin-v0.html#tag/Layout/operation/GetLayout
-@garage.curl "layout" > $layout || @milpa.fail "Could not fetch current layout"
+# shellcheck disable=2154
+@garage.curl "layout" > "$layout" || @milpa.fail "Could not fetch current layout"
 
 if ! jq --exit-status "(.stagedRoleChanges | length) > 0" "$layout" >/dev/null; then
   @milpa.log success "Current layout found for version $(jq -r ".version" "$layout")"

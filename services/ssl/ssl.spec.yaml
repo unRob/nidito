@@ -1,0 +1,10 @@
+description: renews letsencrypt certs and stores them in vault
+packages:
+  self:
+    image: registry.nidi.to/ssl
+    source: ./Dockerfile
+    version: "202307272333"
+  terraform:
+    source: https://github.com/hashicorp/terraform
+    version: "1.5.4"
+    check: github-releases

@@ -12,6 +12,7 @@ function diffing () {
 }
 
 set -o pipefail
-joao diff $(diffing) | delta || @milpa.fail "Remote and local config differ"
+read -ra configs < <(diffing)
+joao diff "${configs[@]}" | delta || @milpa.fail "Remote and local config differ"
 
 @milpa.log complete "remote and local configs match!"

@@ -1,0 +1,9 @@
+description: The open and composable observability and data visualization platform.
+docs:
+  - https://grafana.com/docs/grafana/latest/
+packages:
+  self:
+    image: grafana/grafana
+    source: https://github.com/grafana/grafana
+    check: github-releases
+    version: 9.4.7

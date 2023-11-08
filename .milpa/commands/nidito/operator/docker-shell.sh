@@ -13,7 +13,7 @@ case "$MILPA_OPT_MODE" in
       -v /run/host-services/ssh-auth.sock:/ssh-auth.sock \
       -e SSH_AUTH_SOCK="/ssh-auth.sock" \
       -v "$NIDITO_ROOT:/nidito" \
-      -v $HOME/.op:/home/root/.op \
+      -v "$HOME/.op:/home/root/.op" \
       registry.nidi.to/base-operator:testing
   ;;
 esac

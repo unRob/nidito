@@ -1,0 +1,14 @@
+description: base docker images
+packages:
+  base:
+    image: registry.nidi.to/base
+    source: ./Dockerfile
+    version: "0"
+  operator:
+    image: registry.nidi.to/base-operator
+    source: ./operator.Dockerfile
+    version: "0"
+  sync:
+    image: registry.nidi.to/base-sync
+    source: ./sync.Dockerfile
+    version: "0"

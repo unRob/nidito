@@ -1,0 +1,8 @@
+description: turns http requests into nomad jobs
+docs:
+  - tbd
+packages:
+  self:
+    image: registry.nidi.to/event-gateway
+    version: "202305220457"
+    source: ./Dockerfile

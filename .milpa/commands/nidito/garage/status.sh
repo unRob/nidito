@@ -3,6 +3,7 @@
 
 @tmp.file status
 # https://garagehq.deuxfleurs.fr/api/garage-admin-v0.html#tag/Nodes/operation/GetNodes
+# shellcheck disable=2154
 @garage.curl status > "$status"
 
 function jqs() {

@@ -1,0 +1,15 @@
+description: Authenticated docker registry
+docs:
+  - https://distribution.github.io/distribution/
+  - https://github.com/cesanta/docker_auth
+packages:
+  docker_auth:
+    source: https://github.com/cesanta/docker_auth
+    check: github-releases
+    version: "1.11"
+    comparison: prefix
+  registry:
+    source: https://github.com/distribution/distribution
+    check: github-releases
+    version: "2"
+    comparison: prefix

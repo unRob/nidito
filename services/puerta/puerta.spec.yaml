@@ -1,0 +1,14 @@
+description: ingest media from remote storage
+docs:
+  - https://git.rob.mx/nidito/puerta
+  - https://litestream.io/
+packages:
+  self:
+    image: registry.nidi.to/puerta
+    source: ./Dockerfile
+    version: "202310030148"
+  litestream:
+    source: https://github.com/benbjohnson/litestream
+    image: litestream/litestream
+    check: github-releases
+    version: "0.3.9"

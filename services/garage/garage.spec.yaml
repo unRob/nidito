@@ -1,0 +1,9 @@
+description: An open-source distributed object storage service tailored for self-hosting
+docs:
+  - https://garagehq.deuxfleurs.fr/
+packages:
+  self:
+    source: https://git.deuxfleurs.fr/Deuxfleurs/garage
+    image: dxflrs/garage
+    check: gitea-releases
+    version: v0.9.0

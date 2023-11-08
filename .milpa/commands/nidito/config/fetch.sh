@@ -19,6 +19,8 @@ args=()
 if [[ "$MILPA_OPT_DRY_RUN" ]]; then
   args+=(--dry-run)
 fi
-joao fetch "${args[@]}" $(fetching) || @milpa.fail "Could not fetch"
+
+read -ra configs < <(fetching)
+joao fetch "${args[@]}" "${configs[@]}" || @milpa.fail "Could not fetch"
 
 @milpa.log complete "Done fetching secrets from 1password"

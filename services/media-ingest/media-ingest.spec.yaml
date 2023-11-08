@@ -1,0 +1,8 @@
+description: ingest media from remote storage
+docs:
+  - https://rclone.org/docs/
+packages:
+  self:
+    image: registry.nidi.to/media-ingest
+    source: ./Dockerfile
+    version: "202305212142"

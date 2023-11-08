@@ -12,6 +12,7 @@ else
   @milpa.log info "Querying local ssh-agent for available keys..."
   set -o errexit
   set -o pipefail
+  # shellcheck disable=2154
   ssh-add -L | awk '{print $1"¬"$2"¬"$3}' > "$keys" || @milpa.fail "could not query agent for keys!"
   set +o errexit
   set +o pipefail
@@ -53,3 +54,5 @@ fi
 SH
 }
 ensure_ssh_key || @milpa.fail "Could not ensure ssh key got added to host"
+
+@milpa.log success "SSH keys present in host"
