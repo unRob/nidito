@@ -1,9 +1,9 @@
-summary: Does the initial provisioning of a new node
+summary: Bootstraps configuration to welcome a new a node into this nidito
 description: |
-  1. Sets up wireguard and coredns if needed,
-  2. Adds dns records to core DC coredns
-  3. creates a consul token and ca certs
-  4. and provisions software on the node
+  1. Creates the secrets file for it in the config/host/$NODE_NAME.yaml file,
+  2. adds the host to ~/.ssh/config.d
+  3. adds dns records to coredns
+  4. creates a consul token and ca certs
 arguments:
   - name: node-name
     description: the name of the node to bootstrap
@@ -17,5 +17,9 @@ arguments:
     values:
       milpa: nidito dc list --source local
 options:
+  ssh-key:
+    description: the path to the ssh-key to add to this node
+    values:
+      files: []
   address:
     description: the node address to assign, leave unset for next available

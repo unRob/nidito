@@ -1,0 +1,9 @@
+summary: Creates a configuration file for a new DC
+description: |
+  Asks questions, generates a yaml
+arguments:
+  - name: dc
+    description: The DC name to provision
+    required: true
+    values:
+      milpa: nidito dc list --source local

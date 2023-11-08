@@ -1,0 +1,7 @@
+summary: Does the initial configuration for joining a new DC
+description: |
+  For now, only makes sure a nomad ACL token exists
+arguments:
+  - name: dc
+    description: The DC to bootstrap
+    required: true

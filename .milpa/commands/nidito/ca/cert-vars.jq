@@ -18,7 +18,8 @@ reduce .[] as $n (
           "\($svc).service.consul",
           "\($svc).service.\($n.dc).consul",
           "\($n.name).node.consul",
-          "\($n.name).node.\($n.dc).consul"
+          "\($n.name).node.\($n.dc).consul",
+          "\($n.name).\($n.dc).$mainZone"
         ] + (
           if $svc == "consul" then
             (($dcs | map(select(. != $n.dc) | "*.\(.).consul")) // [])
@@ -34,7 +35,8 @@ reduce .[] as $n (
     names: [
       "localhost",
       "op.service.consul",
-      "op.query.consul"
+      "op.query.consul",
+      "op.\($n.dc).$mainZone"
     ],
     ips: ["127.0.0.1", $n.address]
   }]

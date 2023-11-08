@@ -3,7 +3,7 @@
 
 function cert_vars() {
   # shellcheck disable=2016
-  @config.tree host . | jq -rc --arg dcs "$(@config.names dc)"  --from-file "${MILPA_COMMAND_PATH%%provision.sh}cert-vars.jq"
+  @config.tree host . | jq -rc --arg mainZone "$(@config.get service:dns zone)" --arg dcs "$(@config.names dc)"  --from-file "${MILPA_COMMAND_PATH%%provision.sh}cert-vars.jq"
 }
 
 @milpa.log info "running terraform to generate certificates"
@@ -40,8 +40,8 @@ done < <(jq -r '.certs | keys | map(sub("-"; " ")) [] ' output.json)
 
 @milpa.log info "Writing CA to config"
 caConfig="$(@config.dir)/service/ca.yaml"
-joao set --secret "$caConfig" key "$(jq -r '.ca.key' output.json)" || @milpa.fail "could not save CA key"
-joao set --secret "$caConfig" cert "$(jq -r '.ca.cert' output.json)" || @milpa.fail "could not save CA cert"
+jq -r '.ca.key' output.json | joao set --secret "$caConfig" key || @milpa.fail "could not save CA key"
+jq -r '.ca.cert' output.json | joao set --secret "$caConfig" cert || @milpa.fail "could not save CA cert"
 @milpa.log complete "All certs stored"
 
 rm -rf output.json
@@ -51,4 +51,4 @@ while read -r file; do
   joao get "$file" tls >/dev/null 2>&1 || continue;
   n="$(basename "$file")";
   vault kv put "nidito/service/op/${n%%.*}" @<(joao get "$file" tls 2>/dev/null | jq '{key: .key, cert: .op}')
-done < <(find ../../config/host -name '*.yaml')
+done < <(find "$(config.dir)/host" -name '*.yaml')

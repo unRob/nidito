@@ -1,0 +1,9 @@
+summary: lists datacenter ips
+description: |
+  from config
+options:
+  format:
+    default: text
+    description: the format to output the list in
+    values:
+      static: [text, json]
