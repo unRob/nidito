@@ -5,7 +5,7 @@
   check_mode: no
 
 - set_fact:
-    needs_install: "{{ installed_nomad_version.stdout != config.services.nomad.version}}"
+    needs_install: "{{ installed_nomad_version.stdout != nomad.version }}"
   check_mode: no
 
 - set_fact:

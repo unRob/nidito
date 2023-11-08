@@ -1,6 +1,8 @@
 cluster_name = "{{ node.dc }}"
 log_format = "json"
 plugin_directory = "{{ vault.config }}/plugins"
+api_addr = "https://{{ node.address }}:{{ config.services.vault.port }}"
+
 
 storage "consul" {
   address = "https://{{ node.name }}.node.consul:{{ config.services.consul.ports.https }}"

@@ -1,19 +1,14 @@
+{% set peering = config.datacenters[node.dc].peering %}
 [Interface]
-PrivateKey = {{ config.datacenters[node.dc].peering.private_key }}
+PrivateKey = {{ peering.key.private }}
 ListenPort = {{ config.services.wireguard.port }}
-Address = {{ peer.peering.address }}
-{% for peer_name in config.datacenters[node.dc].peering.peers if "dc" in peer and "resolve_dns" in peer %}
-{% set peer = config.datacenters[peer_name] %}
-PostUp = resolvectl domain wg0 '~{{ peer.dns.zone }}' '~42.10.in-addr.arpa'; resolvectl dns wg0 {{ peer.peering.address | replace(/\/\d+$/, "") }}:53
+Address = {{ peering.address | regex_replace('24$', "32") }}, {{ peering.address | regex_replace('\d+/', "0/") }}
 MTU = 1420
-{% endfor %}
 
-{% for peer_name in config.datacenters[node.dc].peering.peers.items() %}
-{% if "dc" in peer%}
-{% set peer = config.datacenters[peer_name] %}
+{% for name, peer in config.datacenters[node.dc].peering.peers.items() if "dc" in peer %}
+{% set _dc = config.datacenters[peer.dc] %}
 [Peer]
-PublicKey = {{ peer.peering.public_key }}
-AllowedIPs = {{ peer.peering.address | replace(/\/\d+$/, "") }}/32, {{ peer.subnet }};
-Endpoint = {{ peer.dns.zone }}:{{ config.services.wireguard.port }}
-{% endif %}
+PublicKey = {{ _dc.peering.key.public }}
+AllowedIPs = {{ _dc.peering.address | regex_replace('\d+$', "32") }}, {{ _dc.subnet }}
+Endpoint = {{ peer.dc }}.tepetl.net:{{ config.services.wireguard.port }}
 {% endfor %}

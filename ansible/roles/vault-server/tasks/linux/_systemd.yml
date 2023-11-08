@@ -9,6 +9,7 @@
 
 - name: Enable vault daemon
   become: yes
+  when: not ansible_check_mode
   systemd:
     name: vault
     daemon_reload: yes

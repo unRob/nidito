@@ -19,7 +19,7 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/vault/{{ vault.version }}/vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: "{{ vault.bin | dirname }}"
     owner: "{{ vault.user }}"
     group: "{{ user.group }}"

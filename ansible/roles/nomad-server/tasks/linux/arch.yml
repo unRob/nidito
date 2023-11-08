@@ -1,10 +1,10 @@
 - name: Install nomad
-  when: installed_nomad_version.stdout != config.services.nomad.version
+  when: installed_nomad_version.stdout != nomad.version
   become: yes
   notify: restart nomad
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/nomad/{{ config.services.nomad.version }}/nomad_{{ config.services.nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/nomad/{{ nomad.version }}/nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: "{{ nomad.bin | dirname }}"
 
 - name: configure systemd

@@ -11,7 +11,7 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_linux_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/consul/{{ consul.version }}/consul_{{ consul.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: "{{ consul.bin | dirname }}"
   notify: restart consul
 

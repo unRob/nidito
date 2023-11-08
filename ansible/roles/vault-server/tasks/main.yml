@@ -6,7 +6,7 @@
   check_mode: no
 
 - set_fact:
-    needs_install: "{{ installed_vault_version.stdout != config.services.vault.version}}"
+    needs_install: "{{ installed_vault_version.stdout != vault.version }}"
   check_mode: no
 
 - set_fact:

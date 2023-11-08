@@ -8,6 +8,7 @@
     - restart consul
 
 - name: Enable consul daemon
+  when: not ansible_check_mode
   become: yes
   systemd:
     name: consul

@@ -30,14 +30,14 @@ retry_join = [ "{{ dc.dns.leaders }}.{{ dc.dns.zone }}" ]
 bootstrap_expect = 1
 # reply with our "wan" address when servicing dns/http requests from other DCs
 translate_wan_addrs = true
-recursors = ["9.9.9.9", "1.1.1.1"]
+{# recursors = ["9.9.9.9", "1.1.1.1"] #}
 {% endif %}
 
 # Bind all servers together
 retry_join_wan = [
   {% for name, peer in dc.peering.peers.items() if "dc" in peer -%}
   {%- set rdc = config.datacenters[peer.dc] %}
-  "{{ rdc.dns.leaders }}.{{ rdc.dns.zone }}",
+  "{{ rdc.dns.leaders }}.{{ peer.dc }}.tepetl.net",
   {% endfor %}
 ]
 

@@ -1,8 +1,8 @@
 [Unit]
 Description=CoreDNS DNS server
 Documentation=https://coredns.io
-After=network.target auditd.service vyatta-router.service
-Wants=vyatta-router.service
+After=network.target {{ coredns.systemd.after }}
+Wants={{ coredns.systemd.wants }}
 
 [Service]
 ExecReload=/bin/kill -SIGUSR1 $MAINPID

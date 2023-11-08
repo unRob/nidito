@@ -1,6 +1,7 @@
 - name: Restart wireguard service
-  when: ansible_pkg_mgr == "pacman"
+  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
   listen: restart wireguard
   become: yes
-  shell: |
-    systemctl restart wg-quick@wg0.service
+  systemd:
+    name: wg-quick@wg0
+    state: restarted

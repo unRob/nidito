@@ -34,7 +34,7 @@
   when: needs_install
   become: yes
   get_url:
-    url: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip"
+    url: "https://releases.hashicorp.com/vault/{{ vault.version }}/vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: /tmp
 
 - name: Create the vault bin directory
@@ -51,10 +51,10 @@
   become: yes
   shell: |
     cd /tmp
-    7z e vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip
+    7z e vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip
     mv -f /tmp/vault {{ vault.bin }}
     chown "{{ vault.user }}:{{ user.group }}" "{{ consul.bin }}"
-    rm -rf /tmp/vault_{{ config.services.vault.version }}_linux_{{ golang_artifact_arch }}.zip
+    rm -rf /tmp/vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip
   notify: restart vault
 
 - name: configure systemd

@@ -5,7 +5,7 @@
   check_mode: no
 
 - set_fact:
-    needs_install: "{{ installed_consul_version.stdout != config.services.consul.version}}"
+    needs_install: "{{ installed_consul_version.stdout != consul.version }}"
   check_mode: no
 
 - set_fact:

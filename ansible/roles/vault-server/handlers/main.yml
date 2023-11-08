@@ -22,7 +22,7 @@
 - name: Unseal vault
   listen: restart vault
   delegate_to: localhost
-  no_log: true
+  # no_log: true
   shell: VAULT_ADDR="https://{{ node.address }}:5570" vault operator unseal "{{ config.datacenters[node.dc].vault.unseal_key }}"
 
 - name: Configure 1password plugin
@@ -42,11 +42,15 @@
       -version="$VERSION" \
       -args="vault-plugin" secret joao
 
-    if vault plugin list secret | grep -c -m1 '^joao ' >/dev/null; then
+    if vault secrets list | grep -c -m1 '^cfg/infra/\s*joao ' >/dev/null; then
       vault secrets tune -plugin-version="$VERSION" cfg/infra/
-      vault secrets tune -plugin-version="$VERSION" cfg/svc/
     else
       vault secrets enable -path=cfg/infra joao
+    fi
+
+    if vault secrets list | grep -c -m1 '^cfg/svc/\s*joao ' >/dev/null; then
+      vault secrets tune -plugin-version="$VERSION" cfg/svc/
+    else
       vault secrets enable -path=cfg/svc joao
     fi
     set +x

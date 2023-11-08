@@ -1,46 +1,56 @@
 
 ---
-- name: Gateway
-  hosts: role_router
-  tags: [coredns, wireguard]
-  gather_facts: no
+- name: Base
+  hosts:
+    - role_router
+    - role_leader
+  tags: [base, bootstrap]
   roles:
-    - gateway
+    - base
     - tls-client
+
+- name: CoreDNS
+  hosts:
+    - role_leader:secondary_dc:reachability_gateway
+    - role_router
+  tags: [coredns]
+  roles:
     - coredns
+
+- name: Wireguard
+  hosts:
+    - role_leader:secondary_dc:reachability_gateway
+    - role_router
+  tags: [wireguard]
+  roles:
     - wireguard
 
-- name: telemetry
+- name: Telemetry
   hosts:
     - role_leader
     - role_router
-  tags: [telemetry]
+  tags: [bootstrap, telemetry]
   roles:
     - telemetry
 
-- name: Leader node configuration
-  hosts: role_leader
-  tags: [base]
-  roles:
-    - server-users
-    - tls-client
-
 - name: Consul
   hosts: role_leader
-  tags: [consul]
+  tags: [bootstrap, consul]
   serial: 1
   roles:
-    - role: consul-server
+    - consul-server
 
 - name: Vault
   hosts: role_leader:!storage_none
-  tags: [vault]
+  tags: [bootstrap, vault]
+  serial: 1
   roles:
     - vault-server
 
 - name: Nomad
   hosts: role_leader
-  tags: [nomad]
+  tags: [bootstrap, nomad]
+  serial: 1
   roles:
     - docker
     - nomad-server

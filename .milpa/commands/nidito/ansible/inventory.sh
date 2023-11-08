@@ -7,7 +7,7 @@ elif [[ "$MILPA_OPT_HOST" ]]; then
   echo "{}"
   exit 0
 else
-  @milpa.fail "Unknown ansible-inventory command <$*>"
+  @milpa.fail "Unknown ansible-inventory command <$*> (you probably meant --list)"
 fi
 
 
@@ -38,7 +38,12 @@ jq '{
   to_entries |
   map(
     .key as $node_name |
-    (.value.tags + .value.hardware + { dc: .value.dc } | del(.model)) |
+    (
+      .value.tags +
+      (.value.hardware | del(.model)) +
+      { dc: .value.dc } +
+      { (if $datacenters[.value.dc].primary then "primary" else "secondary" end): "dc" }
+    ) |
     with_entries({
       key: ("\(.key)_\(.value)" | gsub("\\W"; "_")),
       value: [$node_name]

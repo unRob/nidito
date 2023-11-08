@@ -1,25 +1,40 @@
+{% set _dc = config.datacenters[node.dc] %}
+{% set _dns = _dc.dns %}
 . {
+  {% if not _dc.primary %}bind 127.0.0.1 {{ node.address }}{% endif %}
+
   forward . {{ config.services.dns.forwarders | join(" ") }}
   cache
 
-  prometheus 10.42.20.1:9153
+  acl {
+    allow {{ _dc.subnet }}
+    allow {{ _dc.peering.address | regex_replace('\d+/', '0/') }}
+  }
+
+  prometheus {{ node.address }}:9153
 }
 
 # tepetl
 {{ node.dc }}.tepetl.net {
+  # expose consul, vault and nomad
   rewrite name exact consul.{{ node.dc }}.tepetl.net consul.service.{{ node.dc }}.consul answer auto
   rewrite name exact vault.{{ node.dc }}.tepetl.net active.vault.service.{{ node.dc }}.consul answer auto
   rewrite name exact nomad.{{ node.dc }}.tepetl.net nomad.service.{{ node.dc }}.consul answer auto
 
+  # read static hostnames and NS data
   file {{ coredns.config }}/zones/tepetl
+
+  # forward consul requests to consul zone below
+  forward service.{{ node.dc }}.consul {{ node.address }}:53
 }
 
+
+{% if "authority" in _dns and _dns.authority != "external" %}
 # Main zone
-{{ config.datacenters[node.dc].dns.zone }} {
+{{ _dns.zone }} {
   hosts {
-    {% set gateway_name = "unknown" -%}
     {% for name, n in config.nodes.items() if n.dc == node.dc -%}
-    {{ n.address }} {{ name }}.{{ config.datacenters[node.dc].dns.zone }}
+    {{ n.address }} {{ name }}.{{ _dns.zone }}
     {% endfor %}
 
     fallthrough
@@ -38,9 +53,14 @@
     acl_metadata_tag nidito-acl
     # acl zones are defined here
     acl_zone external 0.0.0.0/0
-    {% for name, net in config.networks.items() if "dc" in net and net.dc == node.dc -%}
+{% for name, net in config.networks.items() if "dc" in net and net.dc == node.dc %}
+{% if ( "core" in net and net.core ) or name == net.dc %}
+    acl_zone {{ name }} {{ net.range }} {{ config.datacenters | dict2items | rejectattr("key", "equalto", node.dc) | map(attribute="value") | map(attribute= "peering") | map(attribute="address") | join(" ") }}
+{% else %}
     acl_zone {{ name }} {{ net.range }}
-    {% endfor %}
+{% endif %}
+
+{% endfor %}
 
     # read aliases from this tag
     alias_metadata_tag nidito-dns-alias
@@ -60,36 +80,61 @@
   }
 
   errors
-  prometheus 10.42.20.1:9153
+  prometheus {{ node.address }}:9153
 }
+{% else %}
+{{ config.services.dns.zone }} {
+  acl {
+    allow net 127.0.0.1/32
+    # allow {{ node.dc }}
+    allow net {{ _dc.subnet }}
+  }
+
+  forward . {{ config.datacenters.casa.subnet | regex_replace('0/\d+$', "1") }}:53
+  errors
+}
+{% endif %}
 
 # resolve other DCs names with tunneled addresses
 {% for dc_name, dc in config.datacenters.items() if dc_name != node.dc -%}
 # forwarded zone for {{ dc_name }}
-{{ dc.dns.zone }} {
-  hosts {
-    {% for name, n in config.nodes.items() if n.dc == dc_name -%}
-    {{ n.address }} {{ name }}.{{ dc.dns.zone }}
-    {% endfor %}
-
-    fallthrough
-  }
-
-  forward . {{ config.services.dns.forwarders | join(" ") }}
+{{ dc_name }}.tepetl.net {
+  forward . {{ dc.peering.address | split("/") | first }}:53
   cache
-  prometheus 10.42.20.1:9153
+  prometheus {{ node.address }}:9153
 }
+
 {% endfor %}
 
+# resolve .consul queries internally
 consul {
   # allow only specific networks to query this zone
   # either way, both consul and the node's firewall should deny
   # but just in case of computers, and to make my life easier
   acl {
     allow net 127.0.0.1/32
-    {% for _, network in config.networks.items() if "core" in network -%}
+    allow net 172.17.0.0/24
+{% if _dc.primary %}
+{% for _, network in config.networks.items() if "core" in network and network.dc == node.dc %}
+  # allow {{ node.dc }} core
+  allow net {{ network.range }}
+{% endfor %}
+{% else %}
+    # allow {{ node.dc }}
+    allow net {{ _dc.subnet }}
+{% endif %}
+{% for name, peer in config.datacenters[node.dc].peering.peers.items() if "dc" in peer %}
+{% set dc = config.datacenters[peer.dc] %}
+{% if "primary" in dc and dc.primary %}
+{% for _, network in config.networks.items() if "core" in network and network.dc == peer.dc %}
+    # allow {{ peer.dc }} core
     allow net {{ network.range }}
-    {% endfor %}
+{% endfor %}
+{% else %}
+    # allow {{ peer.dc }}
+    allow net {{ dc.subnet}}
+{% endif %}
+{% endfor %}
 
     block
   }
@@ -108,6 +153,6 @@ consul {
     class denial error
   }
   errors
-  prometheus 10.42.20.1:9153
+  prometheus {{ node.address }}:9153
 }
 

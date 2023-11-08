@@ -12,7 +12,7 @@
   become: yes
   unarchive:
     remote_src: yes
-    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns.plugin }}/coredns-consul-linux-mips64.tgz"
+    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns.version }}/coredns-consul-linux-mips64.tgz"
     dest: "{{ coredns.bin | dirname }}"
     mode: u=rwx,g=rwx,o=rw
   notify: restart coredns

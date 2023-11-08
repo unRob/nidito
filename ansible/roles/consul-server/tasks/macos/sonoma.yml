@@ -8,10 +8,10 @@
     append: yes
 
 - name: Install consul
-  when: installed_consul_version.stdout != config.services.consul.version
+  when: installed_consul_version.stdout != consul.version
   become: true
   unarchive:
-    src: "https://releases.hashicorp.com/consul/{{ config.services.consul.version }}/consul_{{ config.services.consul.version }}_darwin_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/consul/{{ consul.version }}/consul_{{ consul.version }}_darwin_{{ golang_artifact_arch }}.zip"
     remote_src: yes
     dest: "{{ consul.bin | dirname }}"
   notify: restart consul

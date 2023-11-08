@@ -18,12 +18,12 @@ $TTL 1h
 @			30m	IN	A	{{ node.address }}
 
 ; hosts
-{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc %}
+{% for name, n in config.nodes.items() if name != node.name and n.tags.role == "leader" and n.dc == node.dc %}
 {{ name }}			5m	IN	A	{{ n.address }}
 {% endfor %}
 
 ; Cluster leaders
-{% for name, n in config.nodes.items() if n.tags.role == "leader" and n.dc == node.dc and "provisioning" not in n.tags %}
+{% for name, n in config.nodes.items() if name != node.name and n.tags.role == "leader" and n.dc == node.dc and "provisioning" not in n.tags %}
 {{ config.datacenters[node.dc].dns.leaders }}			5m	IN	A	{{ n.address }}
 {% endfor %}
 

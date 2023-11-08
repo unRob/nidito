@@ -4,15 +4,23 @@ consul:
   bin: /usr/bin/consul
   data: /var/lib/consul
   logs: # journald
+  version: 1.16.2
+  source: https://github.com/hashicorp/consul
+  check: hc-releases
   systemd:
     wants:
     after:
 coredns:
   user: coredns
   group: users
-  plugin: v0.2.1
+  version: v0.3.0
+  source: https://github.com/unRob/coredns-consul
+  check: github-releases
   config: /etc/coredns.d
   bin: /usr/bin/coredns
+  systemd:
+    after: network-online.target
+    wants: consul.target
 docker:
   engine: 20.10
   cni_plugins: 1.2.0
@@ -23,6 +31,9 @@ node_exporter:
   address: "{{ node.address }}"
   logs: # journald
   version: 1.6.1
+  source: https://github.com/prometheus/node_exporter
+  check: github-releases
+  comparison: suffix
   systemd:
     wants:
     after:
@@ -33,6 +44,9 @@ nomad:
   config: /etc/nomad.d
   data: /var/lib/nomad
   logs: # journald
+  version: 1.6.3
+  source: https://github.com/hashicorp/nomad
+  check: hc-releases
   systemd:
     wants:
     after:
@@ -41,9 +55,14 @@ vault:
   bin: /usr/bin/vault
   user: vault
   logs: # journald
+  version: 1.15.0
+  source: https://github.com/hashicorp/vault
+  check: hc-releases
   systemd:
     wants:
     after:
 joao:
   version: v0.0.0+alpha.7
   src: "https://cdn.rob.mx/tools/joao/"
+  source: https://git.rob.mx/nidito/joao
+  check: gitea-tags

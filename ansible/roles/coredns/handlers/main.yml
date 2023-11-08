@@ -1,4 +1,4 @@
-- name: Restart coredns service
+- name: Restart coredns systemd service
   when: ansible_pkg_mgr is undefined or ansible_pkg_mgr == "pacman"
   listen: restart coredns
   become: yes
@@ -6,7 +6,16 @@
     name: coredns
     state: restarted
 
-- name: Restart coredns service
+- name: Reload systemd daemons
+  when: ansible_pkg_mgr is undefined or ansible_pkg_mgr == "pacman"
+  listen: reload systemd daemons
+  become: yes
+  systemd:
+    daemon_reload: true
+    name: coredns
+    enabled: true
+
+- name: Restart coredns launchctl service
   when: ansible_pkg_mgr is not undefined and ansible_pkg_mgr == "homebrew"
   listen: restart coredns
   become: yes

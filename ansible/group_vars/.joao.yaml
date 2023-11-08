@@ -1,0 +1,4 @@
+# this is a hack so `joao` can read and write to all.yml
+# see `nidito sbom list`
+_config: !!joao
+  vault: trash

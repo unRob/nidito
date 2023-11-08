@@ -9,6 +9,7 @@
 
 - name: Enable nomad daemon
   become: yes
+  when: not ansible_check_mode
   systemd:
     name: nomad
     daemon_reload: yes

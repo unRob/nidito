@@ -12,11 +12,15 @@ $cfg set interfaces wireguard wg0 mtu 1420
 
 {% for name, peer in config.datacenters[node.dc].peering.peers.items() %}
 {% if "dc" in peer %}
+{% set net = config.networks[peer.dc] %}
 {% set _dc = config.datacenters[peer.dc] %}
-$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.peering.address }}
-$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} allowed-ips {{ _dc.subnet }}
-$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} description '{{ peer.dc }} tunnel'
-$cfg set interfaces wireguard wg0 peer {{ _dc.peering.public_key }} endpoint '{{ _dc.peering.endpoint }}'
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.key.public }} allowed-ips {{ _dc.peering.address | regex_replace('24$', "32") }}
+{% if not _dc.peering.address.endswith("/32") %}
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.key.public }} allowed-ips {{ _dc.peering.address  | regex_replace('\d+/', "0/")}}
+{% endif %}
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.key.public }} allowed-ips {{ _dc.subnet }}
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.key.public }} description '{{ peer.dc }} tunnel'
+$cfg set interfaces wireguard wg0 peer {{ _dc.peering.key.public }} endpoint '{{ _dc.peering.endpoint }}'
 $cfg set protocols static interface-route {{ _dc.subnet }} next-hop-interface wg0 description '{{ peer.dc }} tunnel'
 {% else %}
 {% set peer = config.datacenters[node.dc].peering.peers[name] %}

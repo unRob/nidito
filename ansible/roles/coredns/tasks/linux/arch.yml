@@ -1,0 +1,36 @@
+- name: Add the coredns user
+  become: true
+  user:
+    name: "{{ coredns.user }}"
+    groups: "{{ user.group }}"
+    create_home: no
+    shell: /usr/bin/false
+
+- name: Download a coredns+consul build
+  when: needs_install and not ansible_check_mode
+  become: yes
+  unarchive:
+    remote_src: yes
+    src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns.version }}/coredns-consul-linux-{{ golang_artifact_arch }}.tgz"
+    dest: "{{ coredns.bin | dirname }}"
+    mode: u=rwx,g=rwx,o=rw
+  notify: restart coredns
+
+- name: Install systemd service
+  become: yes
+  template:
+    src: templates/coredns.service.j2
+    dest: /usr/lib/systemd/system/coredns.service
+  notify:
+    - reload systemd daemons
+    - restart coredns
+
+- name: Configure DNS for local machine
+  become: yes
+  shell: |
+    nmcli con mod "cloud-init enp1s0" ipv4.ignore-auto-dns yes
+    nmcli con mod "cloud-init enp1s0" ipv4.dns "127.0.0.1"
+    systemctl restart NetworkManager
+    # iptables -A INPUT -p udp --dport 53 --dst {{ ansible_default_ipv4.gateway }} -j DROP
+    # iptables-save | grep -ivE '(DOCKER|172.17.0)' > /etc/iptables/iptables.rules
+    # systemctl enable iptables

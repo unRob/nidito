@@ -7,3 +7,7 @@ node_exporter:
 coredns:
   config: /config/nidito/coredns/config
   bin: /config/nidito/coredns/coredns
+  group: users
+  systemd:
+    after: auditd.service vyatta-router.service
+    wants: vyatta-router.service

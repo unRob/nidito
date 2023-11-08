@@ -8,10 +8,10 @@
     append: yes
 
 - name: Install vault
-  when: installed_vault_version.stdout != config.services.vault.version
+  when: installed_vault_version.stdout != vault.version
   become: true
   unarchive:
-    src: "https://releases.hashicorp.com/vault/{{ config.services.vault.version }}/vault_{{ config.services.vault.version }}_darwin_{{ golang_artifact_arch }}.zip"
+    src: "https://releases.hashicorp.com/vault/{{ vault.version }}/vault_{{ vault.version }}_darwin_{{ golang_artifact_arch }}.zip"
     remote_src: yes
     dest: /usr/local/bin
   notify: restart vault
