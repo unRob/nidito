@@ -26,6 +26,12 @@ Routers and Somebody else's computers (SECs) are named after the place they're p
 
 - **`anahuac`**: valley (mx)
 - **`bedstuy`** neighborhood (us)
+- **`bernal`** mountain (qro)
+
+Home networking devices get subway station names:
+
+- **`mixcoac`**
+- **`pantitlán`**
 
 Roaming hosts are named after features beyond the Anahuac valley:
 

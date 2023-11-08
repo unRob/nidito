@@ -1,8 +1,3 @@
-resource "vault_mount" "consul" {
-  path = "consul"
-  type = "consul"
-}
-
 data "terraform_remote_state" "consul" {
   backend   = "consul"
   workspace = "default"

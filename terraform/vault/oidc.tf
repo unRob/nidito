@@ -19,14 +19,22 @@ resource "vault_identity_oidc_key" "infra" {
   algorithm          = "RS256"
 }
 
+data "vault_generic_secret" "dns" {
+  path = "cfg/infra/tree/service:dns"
+}
+
+resource "digitalocean_domain" "root" {
+  name =
+}
+
 resource "vault_identity_oidc_client" "nomad" {
   name = "nomad"
   key  = vault_identity_oidc_key.infra.name
   redirect_uris = [
     "https://nomad.service.consul:5560/oidc/callback",
     "https://nomad.service.consul:5560/ui/settings/tokens",
-    "https://nomad.nidi.to/oidc/callback",
-    "https://nomad.nidi.to/ui/settings/tokens",
+    "https://nomad.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}/oidc/callback",
+    "https://nomad.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}/ui/settings/tokens",
   ]
   assignments = [
     vault_identity_oidc_assignment.admin.name
@@ -55,7 +63,7 @@ resource "vault_identity_oidc_scope" "groups" {
 resource "vault_identity_oidc_provider" "internal" {
   name          = "internal"
   https_enabled = true
-  issuer_host   = "vault.nidi.to"
+  issuer_host   = "vault.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}"
   allowed_client_ids = [
     vault_identity_oidc_client.nomad.client_id
   ]

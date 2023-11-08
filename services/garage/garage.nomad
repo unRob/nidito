@@ -1,10 +1,3 @@
-/*
-An open-source distributed object storage service tailored for self-hosting
-
-docs: https://garagehq.deuxfleurs.fr/
-code: https://git.deuxfleurs.fr/Deuxfleurs/garage
-*/
-
 locals {
   version = "0.9.0"
   image = "dxflrs/garage:v${local.version}"

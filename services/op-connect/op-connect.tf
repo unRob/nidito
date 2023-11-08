@@ -18,6 +18,10 @@ terraform {
   required_version = ">= 1.0.0"
 }
 
+provider consul {
+  address = "https://consul.service.${terraform.workspace}.consul:5554"
+}
+
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "op"

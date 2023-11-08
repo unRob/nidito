@@ -43,13 +43,18 @@ data "vault_generic_secret" "do" {
   path = "cfg/infra/tree/provider:digitalocean"
 }
 
-data "digitalocean_droplet" "bedstuy" {
-  name = "bedstuy"
+data "terraform_remote_state" "rob_mx" {
+  backend = "consul"
+  workspace = "default"
+  config = {
+    datacenter = "casa"
+    path = "nidito/state/rob.mx"
+  }
 }
 
 resource "digitalocean_domain" "fqdn" {
   name       = "ruidi.to"
-  ip_address = data.digitalocean_droplet.bedstuy.ipv4_address
+  ip_address = data.terraform_remote_state.rob_mx.outputs.bernal.ip
 }
 
 resource "digitalocean_record" "www" {
@@ -61,7 +66,7 @@ resource "digitalocean_record" "www" {
 }
 
 resource "consul_keys" "cdn-config" {
-  datacenter = "nyc1"
+  datacenter = "qro0"
   key {
     path = "cdn/ruidi.to"
     value = "ruidi.to"

@@ -52,12 +52,12 @@ module "consul-policy" {
     "nidito/state/letsencrypt-env:" = "list"
     "nidito/state/letsencrypt-env:*" = "write"
     "nidito/state/letsencrypt-env:casa" = "write"
-    "nidito/state/letsencrypt-env:nyc1" = "write"
+    "nidito/state/letsencrypt-env:qro0" = "write"
     "nidito/state/letsencrypt-env:*/" = "write"
     "nidito/state/letsencrypt-env:*/.tfstate" = "write"
     "nidito/state/letsencrypt-env:*/.lock" = "write"
     "nidito/state/letsencrypt-env:casa/.lock" = "write"
-    "nidito/state/letsencrypt-env:nyc1/.lock" = "write"
+    "nidito/state/letsencrypt-env:qro0/.lock" = "write"
   }
 
   read_consul_data = true
@@ -70,7 +70,7 @@ module "consul-policy" {
   }
 }
 
-// nyc1 also needs to get a consul role to query state
+// external dcs also needs to get a consul role to query state
 data "terraform_remote_state" "vault" {
   backend = "consul"
   workspace = local.dc

@@ -2,7 +2,7 @@ server:
   addr: ":{{ env "NOMAD_PORT_auth" }}"
   real_ip_header: "X-Forwarded-For"
 
-{{- with secret (printf "cfg/svc/tree/%s:docker-registry" %s (env "meta.dns_zone")) }}
+{{- with secret (printf "cfg/svc/tree/%s:docker-registry" (env "meta.dns_zone")) }}
 token:
   issuer: {{ .Data.auth.issuer }}
   expiration: 900

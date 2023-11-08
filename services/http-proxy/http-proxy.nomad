@@ -11,7 +11,7 @@ locals {
 }
 
 job "http-proxy" {
-  datacenters = ["casa", "nyc1"]
+  datacenters = ["casa", "qro0"]
   type        = "system"
   priority    = 80
 
@@ -196,12 +196,16 @@ job "http-proxy" {
         destination = "local/conf.d/default.conf"
         data = replace(
           replace(
-            file("nginx.conf"),
-            "/ssl",
-            "{{env \"NOMAD_SECRETS_DIR\" }}/ssl"
+            replace(
+              file("nginx.conf"),
+              "/ssl",
+              "{{env \"NOMAD_SECRETS_DIR\" }}/ssl"
+            ),
+            "/var/lib/www",
+            "{{ env \"NOMAD_TASK_DIR\" }}/nidito"
           ),
-          "/var/lib/www",
-          "{{ env \"NOMAD_TASK_DIR\" }}/nidito"
+          "resolver 127.0.0.11",
+          "resolver 10.42.20.1"
         )
         change_mode   = "signal"
         change_signal = "SIGHUP"

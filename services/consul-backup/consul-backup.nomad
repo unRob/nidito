@@ -1,10 +1,10 @@
 job "consul-backup" {
-  datacenters = ["nyc1", "casa"]
+  datacenters = ["casa", "qro0"]
   type        = "batch"
   priority    = 50
 
   periodic {
-    cron             = "@daily"
+    crons             = ["@daily"]
     prohibit_overlap = true
   }
 

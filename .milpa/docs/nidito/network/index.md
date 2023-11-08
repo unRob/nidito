@@ -1,72 +1,70 @@
 ![network diagram](./diagram.png)
 
-## DNS name overview
-
-- nidi.to
-  - {dc}.nidi.to
-    - {hostname}.dc.nidi.to
-    - {service}.dc.nidi.to
-  - {service}.nidi.to
-
 ## IP Range overview
 
-
-- `10.42.0.0/16`: primary dc
+- `10.42.0.0/16`: primary DC
   - `10.42.0.0/24`: physical network devices
-    - `10.42.0.1` router
-    - `10.42.0.2` switch
-    - `10.42.0.10` cloudkey
     - `10.42.0.10{0..n}` access points
   - `10.42.16.0.0/20`: altepetl
-    - `10.42.20.0/24`: servers
-    - `10.42.2{2..9}.0/21`: containers from `10.42.20.{2..9}
-    - `10.42.30.0/24`: management tunnel
-    - `10.42.31.0/24` vpn
-  - `10.42.32.0.0/19`: calli
-    - `10.42.3{2..9}.0/21`: containers from `10.42.20.{2..9}
-    - `10.42.40.0/21`: atl
-      - `10.42.40.0/24`: atl vpn
-      - `10.42.42.0/24`: atl wlan
-    - `10.42.55.0/24`: wlan familia
-  - `10.42.96.0/19`: robotitos
+    - `10.42.20.0/24`: wired servers
+    - `10.42.31.0/24` server vpn
+  - `10.42.32.0.0/20`: atl
+    - `10.42.42.0/24`: atl wlan
+    - `10.42.43.0/24`: atl wired
+  - `10.42.48.0/20`: calli
+    - `10.42.50.0/24`: vlan familia
+    - `10.42.51.0/24`: vpn familia
+  - `10.42.96.0/20`: robotitos
     - `10.42.100.0/24`: appliance wlan
-    - `10.42.13{2..9}.0/21`: containers from `10.42.20.{2..9}
-  - `10.42.192.0/19`: guests
-    - `10.42.19{2..9}.0/21`: containers from `10.42.20.{2..9}
-    - `10.42.200.0/24`: wlan
-- `10.100.0.0/16`: secondary dcs
-  - `10.100.0.0/20`: nyc1 servers
-
+  - `10.42.192.0/20`: invitades
+    - `10.42.200.0/24`: guest wlan
+    - `10.42.201.0/24`: guest wired
+- `10.142.0.0/16`: secondary DCs
+  - `10.142.20.0/22`: qro0
+    - `10.142.20.0/24`: servers
+    - `10.142.21.0/24`: vpn
+  - `10.142.28.0/22`: TBD (leave a 22 in between each dc)
+    - `10.142.30.0/24`: servers (try and keep a multiple of 10 as main subnet)
+    - `10.142.31.0/24`: vpn (and next number for vpn)
 
 ## Physical
 
-### Router @ `10.42.0.1` _df_
+### Router @ `10.42.0.1` _anahuac_
 
 - `eth0`/`switch0`: chapultepec (bond)
 - `eth1`/`switch0`: chapultepec (bond)
-- `eth2`/`switch0`: ajusco
-- `eth3`/`switch0`: xitle
+- `eth2`/`switch0`: tetecon
+- `eth3`/`switch0`: popocatépetl
 - `eth4`/`switch0`: tepeyac
 - `eth5`/`switch0`: guerrero
-- `eth6`/`switch0`: tláloc
-- `eth7`/`switch0`: _unused_
-- `eth8`: escape-hatch
+- `eth6`/`switch0`: _unused_
+- `eth7`/`switch0`: oficina
+- `eth8`: _unused_
 - `eth9`: wan
 - `eth10` (sfp): _unused_
 - `eth11` (sfp): switch @ `10.42.0.2`
 
-### Switch @ `10.42.0.2` _sw0.df_
+### Switch @ `10.42.0.2` _mixcoac_
 
 - `eth0`: ap0 @ `10.42.0.100`
 - `eth1`: ap1 @ `10.42.0.101`
 - `eth2`: ap2 @ `10.42.0.102`
-- `eth3`: cloudkey @ `10.42.0.10`
-- `eth4`: apoltivi
-- `eth5`: hueberto
-- `eth6`: suich
+- `eth3`: pantitlán @ `10.42.0.10`
+- `eth4`: apoltivi @ `calli`
+- `eth5`: hueberto @ `robotitos`
+- `eth6`: suich @ `robotitos`
 - `eth7`: _unused_
 - `eth8` (sfp): _unused_
-- `eth9` (sfp): router @ `10.42.0.1`
+- `eth9` (sfp): anahuac @ `10.42.0.1`
+
+| name | function | ip |
+| - | - | - |
+| anahuac | router | 10.42.0.1 |
+| mixcoac | switch | 10.42.0.2 |
+| pantitlán | cloudkey | 10.42.0.10 |
+| ap1 | ap | 10.42.0.101 |
+| ap2 | ap | 10.42.0.102 |
+| ap3 | ap | 10.42.0.103 |
 
 ## VLANs
 

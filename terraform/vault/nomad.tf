@@ -48,10 +48,11 @@ HCL
 }
 
 resource "vault_token_auth_backend_role" "nomad" {
+  # https://developer.hashicorp.com/nomad/docs/integrations/vault-integration#token-role-requirements
   role_name           = "nomad-cluster"
   disallowed_policies = [vault_policy.nomad.name]
   orphan              = true
-  # 180 days
+  # 3 days
   token_period           = "259200"
   renewable              = true
   token_explicit_max_ttl = "0"
@@ -85,11 +86,12 @@ resource "vault_nomad_secret_backend" "nomad-backend" {
   default_lease_ttl_seconds = "3600"
   max_lease_ttl_seconds     = "86400"
   max_ttl                   = "86400"
-  address                   = "https://nomad.service.consul:5560"
+  address                   = "https://nomad.service.${terraform.workspace}.consul:5560"
   token = data.external.nomad-acl.result.secret
 }
 
 resource "nomad_acl_policy" "admin" {
+  # count = terraform.workspace == "casa" ? 1 : 0
   name        = "admin"
   description = "can do everything"
 
@@ -124,6 +126,7 @@ resource "nomad_acl_policy" "admin" {
 }
 
 resource "nomad_acl_role" "admins" {
+  # count = terraform.workspace == "casa" ? 1 : 0
   name        = "admin"
   description = "cluster admin"
 

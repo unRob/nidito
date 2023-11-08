@@ -10,7 +10,7 @@ locals {
 }
 
 job "op-connect" {
-  datacenters = ["nyc1", "casa"]
+  datacenters = ["casa", "qro0"]
   type        = "system"
   priority    = 90
 

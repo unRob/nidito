@@ -4,9 +4,9 @@ data consul_nodes casa {
   }
 }
 
-data consul_nodes nyc1 {
+data consul_nodes qro0 {
   query_options {
-    datacenter = "nyc1"
+    datacenter = "qro0"
   }
 }
 
@@ -19,7 +19,7 @@ locals {
   new_node_names = var.new_node == "" ? [] : [var.new_node]
   all_node_names = concat(
     data.consul_nodes.casa.node_names,
-    data.consul_nodes.nyc1.node_names,
+    data.consul_nodes.qro0.node_names,
     local.new_node_names
   )
 }

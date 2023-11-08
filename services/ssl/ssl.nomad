@@ -1,5 +1,5 @@
 job "ssl" {
-  datacenters = ["casa", "nyc1"]
+  datacenters = ["casa", "qro0"]
   type        = "batch"
 
   periodic {

@@ -25,20 +25,15 @@ provider "vault" {
   address = "https://vault.service.${terraform.workspace}.consul:5570"
 }
 
+provider "nomad" {
+  address = "https://nomad.service.${terraform.workspace}.consul:5560"
+}
+
 variable "admin_password" {
   description = "the password to set for the admin user"
   sensitive   = true
 }
 
-
-# generic secret provider
-resource "vault_mount" "kv" {
-  path = "kv"
-  type = "kv"
-  options = {
-    version = 1
-  }
-}
 
 resource "vault_mount" "nidito" {
   path = "nidito"

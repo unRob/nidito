@@ -55,7 +55,7 @@ job "prometheus" {
       }
 
       config {
-        image        = "prom/prometheus:v2.44.0"
+        image        = "prom/prometheus:v2.47.2"
         ports        = ["http"]
         network_mode = "host"
 
