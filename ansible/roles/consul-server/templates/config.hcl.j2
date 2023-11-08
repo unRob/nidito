@@ -37,7 +37,7 @@ translate_wan_addrs = true
 retry_join_wan = [
   {% for name, peer in dc.peering.peers.items() if "dc" in peer -%}
   {%- set rdc = config.datacenters[peer.dc] %}
-  "{{ rdc.dns.leaders }}.{{ peer.dc }}.tepetl.net",
+  "{{ rdc.dns.leaders }}.{{ peer.dc }}.{{ config.services.dns.zone }}",
   {% endfor %}
 ]
 

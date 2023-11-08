@@ -10,5 +10,5 @@ MTU = 1420
 [Peer]
 PublicKey = {{ _dc.peering.key.public }}
 AllowedIPs = {{ _dc.peering.address | regex_replace('\d+$', "32") }}, {{ _dc.subnet }}
-Endpoint = {{ peer.dc }}.tepetl.net:{{ config.services.wireguard.port }}
+Endpoint = {{ peer.dc }}.{{ config.services.dns.zone }}:{{ config.services.wireguard.port }}
 {% endfor %}

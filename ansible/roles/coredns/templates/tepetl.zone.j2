@@ -1,7 +1,7 @@
-$ORIGIN {{ node.dc }}.tepetl.net.
+$ORIGIN {{ node.dc }}.{{ config.services.dns.zone }}.
 $TTL 1h
 
-@ IN	SOA {{ node.name }}.tepetl.net. admin (
+@ IN	SOA {{ node.name }}.{{ config.services.dns.zone }}. admin (
 	42	; serial
 	12h	; refresh
 	3m	; retry

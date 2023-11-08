@@ -15,11 +15,11 @@
 }
 
 # tepetl
-{{ node.dc }}.tepetl.net {
+{{ node.dc }}.{{ config.services.dns.zone }} {
   # expose consul, vault and nomad
-  rewrite name exact consul.{{ node.dc }}.tepetl.net consul.service.{{ node.dc }}.consul answer auto
-  rewrite name exact vault.{{ node.dc }}.tepetl.net active.vault.service.{{ node.dc }}.consul answer auto
-  rewrite name exact nomad.{{ node.dc }}.tepetl.net nomad.service.{{ node.dc }}.consul answer auto
+  rewrite name exact consul.{{ node.dc }}.{{ config.services.dns.zone }} consul.service.{{ node.dc }}.consul answer auto
+  rewrite name exact vault.{{ node.dc }}.{{ config.services.dns.zone }} active.vault.service.{{ node.dc }}.consul answer auto
+  rewrite name exact nomad.{{ node.dc }}.{{ config.services.dns.zone }} nomad.service.{{ node.dc }}.consul answer auto
 
   # read static hostnames and NS data
   file {{ coredns.config }}/zones/tepetl
@@ -98,7 +98,7 @@
 # resolve other DCs names with tunneled addresses
 {% for dc_name, dc in config.datacenters.items() if dc_name != node.dc -%}
 # forwarded zone for {{ dc_name }}
-{{ dc_name }}.tepetl.net {
+{{ dc_name }}.{{ config.services.dns.zone }} {
   forward . {{ dc.peering.address | split("/") | first }}:53
   cache
   prometheus {{ node.address }}:9153
