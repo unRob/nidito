@@ -3,4 +3,7 @@ host: https://op.query.consul:5577
 vaults:
   admin: nidito-admin
   service: nidito
+# credentials must be saved to vault at `nidito/service/op/_credentials`
+# here so they also get stored in 1password
+# joao get config/service/connect.yaml credentials| vault kv put nidito/service/op/_credentials json=-
 credentials: !!secret ""

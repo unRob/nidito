@@ -1,25 +1,24 @@
 dns:
   authority: external
-  leaders: bedstuy
+  leaders: bernal
   zone: rob.mx
 peering:
-  address: 10.42.31.3/32
+  address: 10.142.21.1/24
   endpoint: !!secret
   peers:
     anahuac:
       dc: casa
       resolve_dns: true
-  private_key: !!secret
-  public_key: !!secret
+  key:
+    private: !!secret
+    public: !!secret
 primary: false
-subnet: 10.100.0.0/20
+subnet: 10.142.20.0/24
 vault:
   nomad_token: !!secret
   unseal_key: !!secret
   root_token: !!secret
 nomad:
-  # created with
-  # nomad acl token create -type="management" -global=true -name="nyc1 Replication Token"
   replication:
     accessor: !!secret
     secret: !!secret

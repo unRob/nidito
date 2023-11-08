@@ -19,11 +19,11 @@ tags:
   role: leader
   storage: primary
   storage_class: hdd
+token:
+  consul: !!secret
 tls:
   consul: !!secret ""
   key: !!secret ""
   nomad: !!secret ""
   vault: !!secret ""
   op: !!secret ""
-token:
-  consul: !!secret

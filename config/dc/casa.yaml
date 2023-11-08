@@ -15,8 +15,8 @@ peering:
       public_key: !!secret
       allowed_ips:
         - 10.42.31.42/32
-    bedstuy:
-      dc: nyc1
+    bernal:
+      dc: qro0
 subnet: 10.42.0.0/16
 vault:
   nomad_token: !!secret

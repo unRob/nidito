@@ -11,11 +11,12 @@ mac: !!secret
 tags:
   role: leader
   storage: none
-token:
-  consul: !!secret
+  storage_class: nvme
 tls:
   key: !!secret ""
   consul: !!secret ""
   nomad: !!secret ""
   op: !!secret ""
   vault: !!secret ""
+token:
+  consul: !!secret

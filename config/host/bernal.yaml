@@ -1,22 +1,24 @@
-address: 10.42.20.4
+address: 10.142.20.3
 auth:
   username: !!secret
   password: !!secret
-dc: casa
+dc: qro0
 hardware:
-  arch: arm64
-  model: mac14,3
-  os: macos/sonoma
+  arch: x86_64
+  model: vultr-cpu-2x4x50
+  os: linux/arch
 mac: !!secret
 tags:
   role: leader
   storage: secondary
   storage_class: nvme
+  reachability: gateway
+token:
+  consul: !!secret
+  consul_replication: !!secret
 tls:
   key: !!secret ""
   consul: !!secret ""
   nomad: !!secret ""
   op: !!secret ""
   vault: !!secret ""
-token:
-  consul: !!secret

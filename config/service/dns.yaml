@@ -5,11 +5,11 @@ consul:
 # send upstream queries to these servers
 # todo: look into tls
 forwarders:
-  - 1.1.1.1
-  - 8.8.8.8
+  - tls://1.1.1.1
+  - tls://8.8.8.8
 provider: digitalocean
 # the fully qualified domain name for my nidito
-# internal services will be a subdomain of this domain
-zone: nidi.to
+# it's expected to have publicly routable addresses for every subdomain
+zone: tepetl.net
 # resolves DNS for ACME requests
 acme_resolver: ns1.digitalocean.com
