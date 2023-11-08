@@ -1,0 +1,7 @@
+summary: Fetches an entry for a VERSION of CHANGELOG
+description: |
+  Works by doing a thing with another thing until the first thing looks about right
+arguments:
+  - name: product
+    description: The hashicorp product
+    required: true

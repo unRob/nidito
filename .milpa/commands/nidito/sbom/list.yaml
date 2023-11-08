@@ -1,0 +1,7 @@
+summary: Lists the current software packages we depend on
+description: |
+  Scans ansible/group_vars/all.yml and service/*/*.spec.yaml files to produce a list of software packages that we have versions for.
+options:
+  upgradeable:
+    description: List upgradeable packages with extra info
+    type: bool
