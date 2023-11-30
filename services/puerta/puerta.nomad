@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "puerta" {
   datacenters = ["casa"]
   region      = "casa"
@@ -50,8 +58,8 @@ job "puerta" {
       }
 
       config {
-        image   = "litestream/litestream:0.3.9"
-        args    = ["restore", "/alloc/puerta.db"]
+        image   = "${var.package.litestream.image}:${var.package.litestream.version}"
+        args    = ["restore", "-replica", "deprecated", "/alloc/puerta.db"]
         volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
       }
 
@@ -77,7 +85,7 @@ job "puerta" {
       }
 
       config {
-        image   = "litestream/litestream:0.3.9"
+        image   = "${var.package.litestream.image}:${var.package.litestream.version}"
         args    = ["replicate"]
         volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
       }
@@ -119,7 +127,7 @@ job "puerta" {
       }
 
       config {
-        image        = "registry.nidi.to/puerta:202310030148"
+        image        = "${var.package.self.image}:${var.package.self.version}"
         ports        = ["http"]
         network_mode = "bridge"
         entrypoint   = ["/bin/sh", "-c"]

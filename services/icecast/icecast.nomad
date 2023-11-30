@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "radio" {
   datacenters = ["casa"]
   priority    = 50
@@ -63,7 +71,7 @@ job "radio" {
       }
 
       config {
-        image = "registry.nidi.to/icecast:202309122357"
+        image = "${var.package.self.image}:${var.package.self.version}"
         ports = ["http"]
 
         volumes = [

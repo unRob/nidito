@@ -16,3 +16,4 @@ storage:
   bucket: ruiditos
   key: !!secret
   secret: !!secret
+  endpoint: s3.garage.nidi.to

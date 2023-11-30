@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-
-service="$MILPA_ARG_SERVICE"
-service_folder="$NIDITO_ROOT/services/${service%%.*}"
-spec="$service_folder/$service.nomad"
+@milpa.load_util service
+read -r service service_folder spec < <(@nidito.service.resolve_spec)
+cd "$service_folder" || @milpa.fail "could not cd into $service_folder"
 testing="$MILPA_OPT_LOCAL"
 
 [[ ! -f "$spec" ]] && @milpa.fail "Unknown service: $service, see available services running: ${0% *} list"

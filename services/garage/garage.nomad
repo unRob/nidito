@@ -1,11 +1,13 @@
-locals {
-  version = "0.9.0"
-  image = "dxflrs/garage:v${local.version}"
+variable "packages" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
 }
 
 job "garage" {
   datacenters = ["casa"]
-  region      = "casa"
   priority    = 70
 
   constraint {
@@ -28,8 +30,6 @@ job "garage" {
   }
 
   group "garage" {
-    count = 3
-
     update {
       max_parallel = 1
     }
@@ -87,7 +87,7 @@ job "garage" {
       }
 
       config {
-        image = "${local.image}"
+        image = "${package.self.image}:${package.self.version}"
         command  = "/garage"
         args     = ["--config", "${NOMAD_SECRETS_DIR}/garage.toml", "server"]
         ports    = ["rpc", "s3", "web", "api"]

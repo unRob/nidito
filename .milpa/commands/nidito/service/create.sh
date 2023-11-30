@@ -26,6 +26,14 @@ if src="$(@milpa.ask "Enter a source URL for $svc")"; then
 fi
 
 cat >"$svc_folder/$svc.nomad" <<HCL
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "$svc" {
   datacenters = ["$MILPA_OPT_DC"]
 

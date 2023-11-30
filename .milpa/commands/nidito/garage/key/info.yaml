@@ -8,3 +8,7 @@ arguments:
     required: true
     values:
       milpa: nidito garage key list --name-only
+options:
+  show-secret:
+    description: show secret key
+    type: bool

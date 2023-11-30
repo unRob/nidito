@@ -25,8 +25,8 @@ My local hosts are named after mountains, volcanos and hills around México City
 Routers and Somebody else's computers (SECs) are named after the place they're physically located at:
 
 - **`anahuac`**: valley (mx)
-- **`bedstuy`** neighborhood (us)
 - **`bernal`** mountain (qro)
+<!-- - **`bedstuy`** neighborhood (us) -->
 
 Home networking devices get subway station names:
 

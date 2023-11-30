@@ -36,7 +36,7 @@ metadata:
 # before
 
 0. **icecast/on-disconnect.sh** processes recording
-  0.0 uploads to cajon, triggers nomad:radio-processing
+  0.0 uploads to object storage, triggers nomad:radio-processing
   0.1 triggers event:stream:ended `{path: "Y-m-DTH-M-S.mp3"}`
 1. **radio-processing/entrypoint.sh** reads every recording and burns metadata, if changed, into `Y-m-DTH-M-S.mp3`
   1.0 generates `Y-m-DTH-M-S.png`
@@ -49,7 +49,7 @@ metadata:
 0. **icecast/on-connect.sh** triggers event:stream:started `{path: "Y-m-DTH-M-S.mp3"}`
 1. time elapses
 2. **icecast/on-disconnect.sh** processes recording
-  2.0 uploads to cajon, triggers nomad:radio-processing
+  2.0 uploads to object storage, triggers nomad:radio-processing
   2.1 triggers event:stream:ended `{path: "Y-m-DTH-M-S.mp3"}`
 3. **radio-processing/entrypoint.sh** reads every recording and burns metadata, if changed, into `Y-m-DTH-M-S.mp3`
   3.0 generates `Y-m-DTH-M-S.png`

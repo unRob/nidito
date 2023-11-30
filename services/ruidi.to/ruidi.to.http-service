@@ -1,20 +1,15 @@
 #!/bin/env bash
+# gets called by `nidito service deploy ...`
 
-read_cfg() {
-  vault read -format json -field data "cfg/${2:-infra}/tree/$1"
-}
+export RCLONE_CONFIG_REMOTE_TYPE="s3"
+export RCLONE_CONFIG_REMOTE_PROVIDER="Other"
+export RCLONE_CONFIG_REMOTE_ENV_AUTH="false"
+RCLONE_CONFIG_REMOTE_ACCESS_KEY_ID="$(joao get ./ruidi.to.joao.yaml storage.cdn.key)" || @milpa.fail "Could not configure rclone"
+export RCLONE_CONFIG_REMOTE_ACCESS_KEY_ID
+RCLONE_CONFIG_REMOTE_SECRET_ACCESS_KEY="$(joao get ./ruidi.to.joao.yaml storage.cdn.secret)" || @milpa.fail "Could not configure rclone"
+export RCLONE_CONFIG_REMOTE_SECRET_ACCESS_KEY
+RCLONE_CONFIG_REMOTE_ENDPOINT="$(joao get ./ruidi.to.joao.yaml storage.cdn.endpoint)" || @milpa.fail "Could not configure rclone"
+export RCLONE_CONFIG_REMOTE_ENDPOINT
+export RCLONE_CONFIG_REMOTE_FORCE_PATH_STYLE="true"
 
-eval "$(jq \
-  --argjson dns "$(read_cfg service:dns)" \
-  --argjson cdn "$(read_cfg service:cdn)" \
-  --argjson minio "$(read_cfg nidi.to:cajon nidito)" \
-  --null-input \
-  --raw-output \
-  '["export MC_HOST_cajon=https://\($minio.key):\($minio.secret)@cajon.\($dns.zone)/",
-    "export MC_HOST_cdn=https://\($cdn.key):\($cdn.secret)@\($cdn.endpoint)/"][]')"
-
-mc mirror \
-  --overwrite \
-  --remove \
-  --attr x-amz-acl=public-read \
-  ./http cdn/cdn.rob.mx/ruidi.to || @milpa.fail "could not mirror assets"
+rclone sync --s3-acl public-read ./http "remote:$(joao get ./ruidi.to.joao.yaml storage.cdn.bucket)" || @milpa.fail "Could not sync to $RCLONE_CONFIG_REMOTE_ENDPOINT"

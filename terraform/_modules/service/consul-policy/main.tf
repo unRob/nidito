@@ -8,6 +8,12 @@ variable "name" {
   type = string
 }
 
+variable "policy" {
+  description = "a valid HCL policy to use instead of a generated one"
+  type = string
+  default = ""
+}
+
 variable "prefixes" {
   description = "key prefixes paths the service can read from"
   type = map
@@ -50,19 +56,7 @@ locals {
     ("nidito/service/${var.name}/*") = "write"
     ("nidito/service/${var.name}/+/*") = "write"
   }
-}
-
-data "terraform_remote_state" "vault" {
-  backend = "consul"
-  workspace = terraform.workspace == "default" ? "casa" : terraform.workspace
-  config = {
-    path = "nidito/state/vault"
-  }
-}
-
-resource "consul_acl_policy" "service" {
-  name = "service-${var.name}"
-  rules = <<-HCL
+  policy = var.policy != "" ? var.policy : <<-HCL
   service "${var.name}" {
     policy = "write"
   }
@@ -98,6 +92,24 @@ resource "consul_acl_policy" "service" {
   HCL
 }
 
+data "terraform_remote_state" "vault" {
+  backend = "consul"
+  workspace = terraform.workspace == "default" ? "casa" : terraform.workspace
+  config = {
+    path = "nidito/state/vault"
+  }
+}
+
+resource "consul_acl_policy" "service" {
+  name = "service-${var.name}"
+  rules = local.policy
+}
+
+output "name" {
+  value = consul_acl_policy.service.name
+  description = "The generated policy name"
+}
+
 resource "vault_consul_secret_backend_role" "service" {
   count = var.create_vault_role ? 1 : 0
   name    = "service-${var.name}"
@@ -110,11 +122,6 @@ resource "vault_consul_secret_backend_role" "service" {
 output "vault-role" {
   value = var.create_vault_role ? vault_consul_secret_backend_role.service[0].name : ""
   description = "The generated vault role name"
-}
-
-output "name" {
-  value = consul_acl_policy.service.name
-  description = "The generated policy name"
 }
 
 resource "consul_acl_token" "service" {

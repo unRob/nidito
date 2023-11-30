@@ -1,13 +1,22 @@
-{{- with secret "cfg/svc/tree/nidi.to:puerta" }}
-access-key-id:     {{ .Data.storage.key }}
-secret-access-key: {{ .Data.storage.secret }}
 
 dbs:
   - path: /alloc/puerta.db
     replicas:
-      - name: s3
+      {{ with secret "cfg/svc/tree/nidi.to:puerta" -}}
+      - name: deprecated
         type: s3
-        bucket: {{ .Data.storage.bucket }}
+        access-key-id: {{ .Data.storage.deprecated.key }}
+        secret-access-key: {{ .Data.storage.deprecated.secret }}
+        bucket: {{ .Data.storage.deprecated.bucket }}
         path: puerta.db
-        endpoint: https://{{ .Data.storage.endpoint }}
-{{- end }}
+        endpoint: https://{{ .Data.storage.deprecated.endpoint }}
+
+      - name: local
+        type: s3
+        access-key-id: {{ .Data.storage.local.key }}
+        secret-access-key: {{ .Data.storage.local.secret }}
+        bucket: {{ .Data.storage.local.bucket }}
+        path: puerta.db
+        region: garage
+        endpoint: https://{{ .Data.storage.local.endpoint }}
+      {{- end }}

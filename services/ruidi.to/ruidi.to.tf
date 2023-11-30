@@ -16,19 +16,9 @@ terraform {
       source  = "hashicorp/vault"
       version = "~> 3.18.0"
     }
-    garage = {
-      source = "nidito/garage"
-      version = "0.0.1"
-    }
   }
 
   required_version = ">= 1.0.0"
-}
-
-provider "garage" {
-  host = "api.garage.nidi.to"
-  scheme = "https"
-  token = jsondecode(data.vault_generic_secret.garage.data.token).admin
 }
 
 data "vault_generic_secret" "garage" {
@@ -57,35 +47,45 @@ resource "digitalocean_domain" "fqdn" {
   ip_address = data.terraform_remote_state.rob_mx.outputs.bernal.ip
 }
 
-resource "digitalocean_record" "www" {
-  domain = "ruidi.to"
-  type   = "CNAME"
-  ttl    = 180
-  name   = "www"
-  value  = "ruidi.to."
+# resource "digitalocean_record" "www" {
+#   domain = "ruidi.to"
+#   type   = "CNAME"
+#   ttl    = 180
+#   name   = "www"
+#   value  = "ruidi.to."
+# }
+
+module "storage" {
+  source = "../../terraform/_modules/bucket/vultr"
+  # no dots allowed on vultr :/
+  name = "ruidi-to"
 }
 
 resource "consul_keys" "cdn-config" {
   datacenter = "qro0"
   key {
     path = "cdn/ruidi.to"
-    value = "ruidi.to"
+    value = jsonencode({
+     cert = "ruidi.to"
+     host = module.storage.endpoint
+     bucket = module.storage.bucket
+    })
   }
 }
 
 
-resource "garage_bucket" "ruiditos" {
-  website_access_enabled = true
-  website_config_error_document = "error.html"
-  website_config_index_document = "index.html"
-}
-
-resource "garage_bucket_global_alias" "ruiditos_alias" {
-  bucket_id = garage_bucket.ruiditos.id
-  alias     = "ruiditos"
+module "audio" {
+  source = "../../terraform/_modules/bucket/garage"
+  # no dots allowed on vultr :/
+  name = "ruiditos"
+  website_access = true
 }
 
 output "bucket" {
-  value = garage_bucket.ruiditos.id
+  value = module.audio.bucket
   description = "the bucket id"
+}
+
+output "cdn" {
+  value = "${module.storage.endpoint}/${module.storage.bucket}"
 }

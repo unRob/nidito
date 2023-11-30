@@ -5,3 +5,4 @@
 ansible/.cache
 config/.diff
 terraform.tfstate*
+services/*/*.vars

@@ -1,0 +1,19 @@
+summary: Outputs variables in json format suitable for nomad var-files arg
+description: |
+  Used with `nomad job [run|plan] -var-file <(nidito service nomad-vars SERVICE)`
+arguments:
+  - name: service
+    description: The name of the service to plan
+    values:
+      script: |
+        {{ if (eq (index .Opts "spec") "true") -}}
+        find . -name "*.nomad"
+        {{- else -}}
+        milpa nidito service list
+        {{- end}}
+      suggest-only: true
+    required: true
+options:
+  spec:
+    description: provide a nomad spec instead of a service name
+    type: bool

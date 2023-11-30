@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
-service="$MILPA_ARG_SERVICE"
-service_folder="$NIDITO_ROOT/services/$service"
-spec="$service_folder/$service.nomad"
+@milpa.load_util service
+read -r service service_folder spec < <(@nidito.service.resolve_spec)
+cd "$service_folder" || @milpa.fail "could not cd into $service_folder"
 http_spec="$service_folder/$service.http-service"
-
-cd "$service_folder" || @milpa.fail "services folder not found"
 
 @milpa.log info "deploying $service"
 
@@ -14,17 +12,17 @@ export NOMAD_ADDR="${NOMAD_ADDR/.service.consul/.service.${MILPA_OPT_DC}.consul}
 if [[ -f "$spec" ]]; then
   @milpa.log info "deploying with nomad"
   # export NOMAD_ADDR="https://nomad.service.$MILPA_OPT_DC.consul:5560"
+  @milpa.log info "Writing temporary variables for nomad job"
+  varFile="${spec%%nomad}vars"
+  milpa --verbose nidito service nomad-vars "$service" >"$varFile" || @milpa.fail "Could not get vars for $service"
+
   if [[ ! "$MILPA_OPT_SKIP_PLAN" ]]; then
-    nomad plan \
-      -verbose \
-      -region="$MILPA_OPT_DC" \
-      -diff \
-      "$spec"
-    result="$?"
-    [[ "$result" -gt 1 ]] && @milpa.fail "Could not run plan"
+    @nidito.service.nomad.plan "$spec" "$service"
   fi
 
-  exec nomad run -verbose -consul-token "$CONSUL_HTTP_TOKEN" -region="$MILPA_OPT_DC" "$spec"
+  trap 'rm $varFile' ERR EXIT
+  @nidito.service.nomad.deploy "$spec" "$service" || @milpa.fail "Deploy failed"
+  exit
 fi
 
 if [[ -f "${http_spec}" ]]; then

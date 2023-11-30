@@ -36,3 +36,31 @@ module "external-dns" {
   source = "../../terraform/_modules/public-dns"
   name = "puerta"
 }
+
+
+module "key" {
+  source = "../../terraform/_modules/bucket/garage/key"
+  name = "puerta-litestream"
+}
+
+module "bucket" {
+  source = "../../terraform/_modules/bucket/garage"
+  name = "puerta"
+  grants = {
+    litestream = {
+      key_id = module.key.id
+      write = true
+    }
+  }
+}
+
+output "bucket" {
+  value = module.bucket.bucket
+  description = "the bucket id"
+}
+
+output "credentials" {
+  value = module.key.credentials
+  sensitive = true
+  description = "credentials for litestream"
+}

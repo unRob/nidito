@@ -3,10 +3,16 @@ hue:
   bridge: !!secret
   device: 53
 storage:
-  bucket: puerta
-  key: !!secret
-  secret: !!secret
-  endpoint: !!secret
+  deprecated:
+    bucket: puerta
+    key: !!secret
+    secret: !!secret
+    endpoint: !!secret
+  local:
+    bucket: puerta
+    key: !!secret
+    secret: !!secret
+    endpoint: !!secret
 push:
   key:
     private: !!secret
