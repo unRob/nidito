@@ -3,13 +3,15 @@ docs:
   - https://distribution.github.io/distribution/
   - https://github.com/cesanta/docker_auth
 packages:
-  docker_auth:
+  auth:
     source: https://github.com/cesanta/docker_auth
     check: github-releases
+    image: cesanta/docker_auth
     version: "1.11"
     comparison: prefix
   registry:
     source: https://github.com/distribution/distribution
+    image: registry
     check: github-releases
-    version: "2"
+    version: "v2.8"
     comparison: prefix

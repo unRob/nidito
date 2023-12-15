@@ -3,8 +3,9 @@ packages:
   self:
     image: registry.nidi.to/ssl
     source: ./Dockerfile
-    version: "202307272333"
+    version: 202312150440
   terraform:
     source: https://github.com/hashicorp/terraform
-    version: "1.5.4"
+    version: "1.6.6"
     check: github-releases
+    comparison: suffix

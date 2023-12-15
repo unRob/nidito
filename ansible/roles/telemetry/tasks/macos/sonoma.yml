@@ -13,7 +13,8 @@
   homebrew:
     name: node_exporter
     state: present
-  notify: restart node_exporter
+  notify:
+    - restart service
 
 - name: Create the node_exporter logs directory
   become: true
@@ -29,10 +30,3 @@
 #   become: true
 #   shell: |
 #     mv /tmp/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
-
-- name: Install node_exporter launchd config
-  become: yes
-  template:
-    src: templates/service.plist.j2
-    dest: /Library/LaunchDaemons/io.prometheus.node_exporter.daemon.plist
-  notify: restart node_exporter

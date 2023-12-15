@@ -14,7 +14,8 @@
     src: "https://releases.hashicorp.com/consul/{{ consul.version }}/consul_{{ consul.version }}_darwin_{{ golang_artifact_arch }}.zip"
     remote_src: yes
     dest: "{{ consul.bin | dirname }}"
-  notify: restart consul
+  notify:
+    - restart service
 
 
 - name: Create the consul log directory
@@ -34,11 +35,4 @@
     group: "{{ user.group }}"
     state: directory
     mode: u=rwx,g=rwx,o=
-
-- name: Install consul launchd config
-  become: yes
-  template:
-    src: templates/service.plist.j2
-    dest: /Library/LaunchDaemons/io.consul.daemon.plist
-
 

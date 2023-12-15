@@ -13,7 +13,5 @@
     remote_src: yes
     src: "https://releases.hashicorp.com/consul/{{ consul.version }}/consul_{{ consul.version }}_linux_{{ golang_artifact_arch }}.zip"
     dest: "{{ consul.bin | dirname }}"
-  notify: restart consul
-
-- name: configure systemd
-  include_tasks: _systemd.yml
+  notify:
+    - restart service

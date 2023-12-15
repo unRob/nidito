@@ -12,3 +12,12 @@ packages:
     image: registry.nidi.to/base-sync
     source: ./sync.Dockerfile
     version: "0"
+dependencies:
+  milpa:
+    source: https://github.com/unRob/milpa
+    version: 0.0.0-beta.4
+    check: github-tags
+  minio:
+    source: https://github.com/minio/mc
+    version: RELEASE.2023-12-14T00-37-41Z
+    check: github-tags

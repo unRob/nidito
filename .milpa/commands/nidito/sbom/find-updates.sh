@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+export GH_PAT="$(op item get https://github.com --field api.token)"
+
 function find_latest() {
-  local name package check source filter prog;
+  local name package check source filter prog extra_args;
   name="$1"
   package="$2"
   check="$3"
   source="$4"
   prog="jq -r"
+  extra_args=()
   case "$check" in
     hc-releases)
       base="https://releases.hashicorp.com/${package}/index.json"
@@ -23,20 +26,32 @@ function find_latest() {
       filter='map(.name) | first'
       ;;
     github-releases)
+      extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://api.github.com/repos$repo/releases"
       filter='map(select(.prerelease | not) | .tag_name) | first'
       ;;
+    github-tags)
+      extra_args=( -H "Authorization: bearer $GH_PAT" )
+      repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
+      base="https://api.github.com/repos$repo/tags"
+      filter='map(.name) | first'
+      ;;
     github-changelog)
+      extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://raw.githubusercontent.com${repo}/main/CHANGELOG.md"
       # shellcheck disable=2209
       prog=awk
       # shellcheck disable=2016
       filter='/^#{1,3} v?[0-9]+.[0-9]+.[0-9]+/{ print $2; exit;}'
+      ;;
+    *)
+      @milpa.fail "unknown check $check for $package $name
+      "
   esac
 
-  latest=$(curl --fail --silent "$base" | $prog "$filter") || return 2
+  latest=$(curl --fail --silent --show-error "${extra_args[@]}" "$base" | $prog "$filter") || return 2
   echo "$latest"
 }
 
@@ -55,12 +70,12 @@ while read -r group package version check source comparison; do
       fi ;;
     prefix)
       if [[ "$latest" =~ ^"$version".* ]]; then
-        @milpa.log success "$package is up to date, want $version, latest is $latest"
+        @milpa.log success "$group:$package is up to date, want $version, latest is $latest"
         continue
       fi ;;
     suffix)
       if [[ "$latest" =~ .*"$version"$ ]]; then
-        @milpa.log success "$package is up to date, want $version, latest is $latest"
+        @milpa.log success "$group:$package is up to date, want $version, latest is $latest"
         continue
       fi ;;
       *)

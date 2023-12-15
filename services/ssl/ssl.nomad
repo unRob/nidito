@@ -1,9 +1,20 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "ssl" {
   datacenters = ["casa", "qro0"]
   type        = "batch"
 
   periodic {
-    cron             = "@weekly"
+    crons            = [
+      "@weekly"
+    ]
+
     prohibit_overlap = true
   }
 
@@ -30,7 +41,7 @@ job "ssl" {
       }
 
       config {
-        image   = "registry.nidi.to/ssl:202307272333"
+        image   = "${var.package.self.image}:${var.package.self.version}"
         command = "${node.region}"
       }
 

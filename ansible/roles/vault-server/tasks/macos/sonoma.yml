@@ -14,7 +14,8 @@
     src: "https://releases.hashicorp.com/vault/{{ vault.version }}/vault_{{ vault.version }}_darwin_{{ golang_artifact_arch }}.zip"
     remote_src: yes
     dest: /usr/local/bin
-  notify: restart vault
+  notify:
+    - restart service
 
 
 - name: Create the vault log directory
@@ -25,11 +26,3 @@
     group: "{{ user.group }}"
     state: directory
     mode: u=rwx,g=rwx,o=
-
-- name: Install vault launchd config
-  become: yes
-  template:
-    src: templates/service.plist.j2
-    dest: /Library/LaunchDaemons/io.vault.daemon.plist
-
-

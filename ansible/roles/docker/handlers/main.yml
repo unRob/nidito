@@ -1,5 +1,5 @@
 # - name: Restart docker service
-#   when: ansible_pkg_mgr == "homebrew"
+#   when: ansible_service_mgr == "launchd"
 #   listen: restart docker
 #   become: yes
 #   shell: "launchctl stop io.docker.daemon 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.docker.daemon.plist"

@@ -1,5 +1,5 @@
 - name: Restart wireguard service
-  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
+  when: ansible_service_mgr == "systemd"
   listen: restart wireguard
   become: yes
   systemd:

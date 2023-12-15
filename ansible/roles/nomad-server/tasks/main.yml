@@ -33,11 +33,20 @@
     # permission to execute anything in /usr/(local/)bin!
     # - "{{ nomad.bin | dirname }}"
 
+- include_role:
+    name: _service
+  vars:
+    service_name: nomad
+    launchd_name: io.nomad.daemon
+    launchd_template: templates/service.plist.j2
+    systemd_template: templates/nomad.service.j2
+
 - include_tasks: "{{ node.hardware.os }}.yml"
 
 - name: Recover cluster
   become: true
-  notify: Restart nomad service
+  notify:
+    - restart service
   when: config.services.nomad.recover_cluster
   template:
     src: templates/peers.json.j2
@@ -60,7 +69,8 @@
       content: "{{ node.tls.key }}"
     - name: cert.pem
       content: "{{ node.tls.nomad }}"
-  notify: restart nomad
+  notify:
+    - restart service
 
 - name: Configure nomad
   become: true
@@ -70,7 +80,8 @@
     owner: "{{ nomad.user }}"
     group: "{{ user.group }}"
     mode: u=rw,g=r,o=
-  notify: restart nomad
+  notify:
+    - restart service
 
 - name: Configure nomad tls, vault and log_level
   become: true
@@ -80,4 +91,5 @@
     owner: "{{ nomad.user }}"
     group: "{{ user.group }}"
     mode: u=rw,g=r,o=
-  notify: reload nomad
+  notify:
+    - reload nomad

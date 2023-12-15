@@ -11,7 +11,9 @@ function list_upgradeable() {
     <(joao get "$NIDITO_ROOT/ansible/group_vars/all.yml" --output json . | jq -r '{"infra": .}') \
     <(while read -r service_spec; do
       name=$(basename "${service_spec//.spec.yaml/}")
-      joao get "$service_spec" --output json . | jq -r --arg name "$name" $'{($name): (.packages // {})}'
+      joao get "$service_spec" --output json . | jq -r --arg name "$name" '{
+        ($name): ( (.packages // {}) + (.dependencies // {}) )
+      }'
     done < <(find "$NIDITO_ROOT"/services -name "*.spec.yaml" -maxdepth 2 | sort))
 }
 

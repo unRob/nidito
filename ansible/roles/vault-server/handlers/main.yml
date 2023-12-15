@@ -1,34 +1,13 @@
-- name: Restart vault service
-  when: ansible_pkg_mgr == "homebrew"
-  listen: restart vault
-  become: yes
-  shell: "launchctl unload -w /Library/LaunchDaemons/io.vault.daemon.plist; launchctl load -w /Library/LaunchDaemons/io.vault.daemon.plist"
-
-- name: Reload systemctl daemons
-  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: reload systemd daemons
-  become: yes
-  systemd:
-    daemon_reload: true
-
-- name: Restart vault service
-  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: restart vault
-  become: yes
-  systemd:
-    name: vault
-    state: restarted
-
 - name: Unseal vault
-  listen: restart vault
+  listen: restart service
   delegate_to: localhost
-  # no_log: true
+  no_log: true
   shell: VAULT_ADDR="https://{{ node.address }}:5570" vault operator unseal "{{ config.datacenters[node.dc].vault.unseal_key }}"
 
 - name: Configure 1password plugin
   listen: configure vault plugin
   delegate_to: localhost
-  # no_log: true
+  no_log: true
   shell: |
     set -o errexit
     export VAULT_ADDR="https://{{ node.address }}:5570"

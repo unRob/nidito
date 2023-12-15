@@ -13,7 +13,5 @@
     7z e nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip
     mv -f /tmp/nomad {{ nomad.bin }}
     rm -rf /tmp/nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip
-  notify: restart nomad
-
-- name: configure systemd
-  include_tasks: _systemd.yml
+  notify:
+    - restart service

@@ -17,8 +17,15 @@
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 
-- name: install vault
-  include_tasks: "{{ node.hardware.os }}.yml"
+- include_role:
+    name: _service
+  vars:
+    service_name: vault
+    launchd_name: io.hashicorp.vault
+    launchd_template: templates/service.plist.j2
+    systemd_template: templates/vault.service.j2
+
+- include_tasks: "{{ node.hardware.os }}.yml"
 
 - name: Create vault directories
   become: true
@@ -53,12 +60,14 @@
       content: "{{ node.tls.key }}"
     - name: cert.pem
       content: "{{ node.tls.vault }}"
-  notify: restart vault
+  notify:
+    - restart service
 
 - name: Install 1password plugin
   become: true
+  check_mode: no
   unarchive:
-    src: "{{ joao.src }}/{{ joao.version }}/joao-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
+    src: "{{ joao.src }}{{ joao.version }}/joao-{{ ansible_system | lower }}-{{ golang_artifact_arch }}.tgz"
     remote_src: yes
     dest: "{{ vault.config }}/plugins"
     mode: u=rwx,g=,o=
@@ -75,10 +84,12 @@
 
 - name: Configure vault
   become: true
+  check_mode: no
   template:
     src: templates/config.hcl.j2
     dest: "{{ vault.config }}/config.hcl"
     owner: "{{ vault.user }}"
     group: "{{ user.group }}"
     mode: u=rw,g=r,o=
-  notify: restart vault
+  notify:
+    - restart service

@@ -49,14 +49,13 @@
 - name: Install consul binary
   when: needs_install
   become: yes
+  creates: "{{ consul.bin }}"
   shell: |
     cd /tmp
     7z e consul_{{ consul.version }}_linux_{{ golang_artifact_arch }}.zip
     mv -f /tmp/consul "{{ consul.bin }}"
     chown "{{ consul.user }}:{{ user.group }}" "{{ consul.bin }}"
     rm -rf /tmp/consul_{{ consul.version }}_linux_{{ golang_artifact_arch }}.zip
-  notify: restart consul
+  notify:
+    - restart service
 
-
-- name: configure systemd
-  include_tasks: _systemd.yml

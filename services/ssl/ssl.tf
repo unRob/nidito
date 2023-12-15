@@ -21,6 +21,10 @@ locals {
   dc = terraform.workspace
 }
 
+provider "vault" {
+  address = "https://vault.service.${terraform.workspace}.consul:5570"
+}
+
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "ssl"

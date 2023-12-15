@@ -21,6 +21,14 @@
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 
+- include_role:
+    name: _service
+  vars:
+    service_name: node-exporter
+    launchd_name: io.prometheus.node_exporter
+    launchd_template: templates/service.plist.j2
+    systemd_template: templates/node-exporter.service.j2
+
 - include_tasks: "{{ node.hardware.os }}.yml"
 
 # unifi-poller en cloudkey + DPKG_CACHE_UBNT_PKGS en /etc/default/ubnt-dpkg-cache

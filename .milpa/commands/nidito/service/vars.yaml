@@ -1,6 +1,8 @@
 summary: Outputs variables in json format suitable for nomad var-files arg
 description: |
-  Used with `nomad job [run|plan] -var-file <(nidito service nomad-vars SERVICE)`
+  Used with `nomad job [run|plan] -var-file <(nidito service vars --output nomad SERVICE)`
+
+  and during docker builds, with --build-arg
 arguments:
   - name: service
     description: The name of the service to plan
@@ -17,3 +19,10 @@ options:
   spec:
     description: provide a nomad spec instead of a service name
     type: bool
+  output:
+    description: how to output values
+    default: nomad
+    values:
+      static:
+        - nomad
+        - docker

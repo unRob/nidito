@@ -29,12 +29,18 @@ if [[ -f "$dockerfile" ]]; then
     done < <("$service_folder/build_args.sh") || @milpa.fail "Could not run build_args to completion"
   fi
 
+  while read -r arg; do
+    build_args+=( --build-arg "$arg" )
+  done < <(milpa nidito service vars --output docker "$service")
+
   if [[ "$testing" ]]; then
     @milpa.log info "Creating $image:testing"
     docker build --builder default "${build_args[@]}" -t "${image}:testing" --file "$dockerfile" "$service_folder" || @milpa.fail "Could not build image"
   else
     @milpa.log info "Creating $image:latest with buildx ($dateTag / $shaTag)"
-    @milpa.log info "Using dockerfile at $dockerfile"
+    nidito_spec="${spec%%.nomad}.spec.yaml"
+    package="$(joao get "$nidito_spec" packages | jq -r 'to_entries | map(select(.value.source == "./Dockerfile") | .key) | first')" || @milpa.fail "Could not find a package spec in $nidito_spec"
+    @milpa.log info "Using dockerfile at $dockerfile (package $package)"
     platforms="${MILPA_ARG_PLATFORMS[*]}"
     docker buildx build \
       --platform "${platforms// /,}" \
@@ -48,7 +54,8 @@ if [[ -f "$dockerfile" ]]; then
       "${build_args[@]}" \
       "$service_folder" --push || @milpa.fail "Could not build image"
 
-    sed -i '' -E 's#^( *image *= *)"registry.nidi.to/'"$service"':[^"]*"#\1"'"$image:$dateTag"'"#' "$spec"
+    joao set "$nidito_spec" "packages.$package.image" <<<"$image"
+    joao set "$nidito_spec" "packages.$package.version" <<<"$dateTag"
   fi
 elif [[ -f "$NIDITO_ROOT/services/$service/Makefile" ]]; then
   cd "$NIDITO_ROOT/services/$service" && make nidito-build

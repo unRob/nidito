@@ -1,0 +1,23 @@
+- name: Restart launchd service
+  when: ansible_service_mgr == "launchd"
+  listen: restart service
+  become: yes
+  shell: |
+    launchctl unload -w /Library/LaunchDaemons/{{ launchd_name }}.plist 2>/dev/null
+    launchctl load -w /Library/LaunchDaemons/{{ launchd_name }}.plist
+  register: "restarted_service"
+
+- name: Reload systemd daemons
+  when: ansible_service_mgr == "systemd"
+  listen: reload systemd daemons
+  become: yes
+  systemd:
+    daemon_reload: true
+
+- name: Restart systemd service
+  when: ansible_service_mgr == "systemd"
+  listen: restart service
+  become: yes
+  systemd:
+    name: "{{ service_name }}"
+    state: restarted

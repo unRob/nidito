@@ -11,3 +11,5 @@ coredns:
   systemd:
     after: auditd.service vyatta-router.service
     wants: vyatta-router.service
+systemd:
+  prefix: /etc

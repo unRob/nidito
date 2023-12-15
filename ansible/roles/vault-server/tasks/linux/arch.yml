@@ -23,7 +23,5 @@
     dest: "{{ vault.bin | dirname }}"
     owner: "{{ vault.user }}"
     group: "{{ user.group }}"
-  notify: restart vault
-
-- name: configure systemd
-  include_tasks: _systemd.yml
+  notify:
+    - restart service

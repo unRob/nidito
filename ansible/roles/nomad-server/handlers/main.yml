@@ -1,34 +1,11 @@
-- name: Restart nomad service
-  when: ansible_pkg_mgr == "homebrew"
-  listen: restart nomad
-  become: yes
-  shell: "launchctl unload -w /Library/LaunchDaemons/io.nomad.daemon.plist 2>/dev/null; launchctl load -w /Library/LaunchDaemons/io.nomad.daemon.plist"
-  register: restarted_nomad
-
 - name: Reload nomad config
-  when: ansible_pkg_mgr == "homebrew" and not restarted_nomad.changed
-  listen: restart nomad
+  when: ansible_service_mgr == "launchd" and not restarted_service.changed
+  listen: reload nomad
   become: yes
   shell: kill -HUP "$(ps x | awk '/\/usr\/local\/bin\/nomad agent/ {print $1; exit}')"
 
-- name: Reload systemd daemons
-  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: reload systemd daemons
-  become: yes
-  systemd:
-    daemon_reload: true
-
-- name: Restart nomad service
-  when: ansible_pkg_mgr == "pacman" or ansible_pkg_mgr == "unknown"
-  listen: restart nomad
-  become: yes
-  systemd:
-    name: nomad
-    state: restarted
-  register: restarted_nomad
-
 - name: Reload nomad config
-  when: ansible_pkg_mgr == "pacman" and not restarted_nomad.changed
+  when: ansible_service_mgr == "systemd" and not restarted_service.changed
   listen: reload nomad
   become: yes
   systemd:

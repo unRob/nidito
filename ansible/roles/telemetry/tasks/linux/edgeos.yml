@@ -14,15 +14,14 @@
     remote_src: yes
     src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.linux-mips64.tar.gz"
     dest: "{{ node_exporter.bin | dirname }}"
+  notify:
+    - restart service
 
 - name: Install systemd service backup
   become: yes
   template:
     src: templates/node-exporter.service.j2
     dest: "{{ node_exporter.bin | dirname }}/node-exporter.service"
-  notify:
-    - reload systemd daemons
-    - restart node_exporter
 
 - name: Create the node_exporter firstboot directory
   become: true

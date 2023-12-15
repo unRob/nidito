@@ -16,8 +16,15 @@
     golang_artifact_arch: "amd64"
   when: node.hardware.arch == 'x86_64'
 
-- name: install consul
-  include_tasks: "{{ node.hardware.os }}.yml"
+- include_role:
+    name: _service
+  vars:
+    service_name: consul
+    launchd_name: io.hashicorp.consul
+    launchd_template: templates/service.plist.j2
+    systemd_template: templates/consul.service.j2
+
+- include_tasks: "{{ node.hardware.os }}.yml"
 
 - name: Create consul directories
   become: true
@@ -52,7 +59,8 @@
       content: "{{ node.tls.consul }}"
     - name: key.pem
       content: "{{ node.tls.key }}"
-  notify: restart consul
+  notify:
+    - restart service
 
 - name: Configure consul
   become: true
@@ -62,7 +70,8 @@
     owner: "{{ consul.user }}"
     group: "{{ user.group }}"
     mode: u=rw,g=r,o=
-  notify: restart consul
+  notify:
+    - restart service
 
 - name: Configure consul services
   become: true
@@ -73,4 +82,5 @@
     group: "{{ user.group }}"
     mode: u=rw,g=r,o=
   loop: "{{ node.builtin_services | default({}) | dict2items }}"
-  notify: restart consul
+  notify:
+    - restart service

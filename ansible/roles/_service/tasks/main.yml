@@ -1,0 +1,27 @@
+- name: Install launchd config
+  when: ansible_service_mgr == "launchd"
+  become: yes
+  template:
+    src: "{{ launchd_template }}"
+    dest: "/Library/LaunchDaemons/{{ launchd_name }}.plist"
+
+- name: Install systemd service
+  when: ansible_service_mgr == "systemd"
+  become: yes
+  template:
+    src:  "{{ systemd_template }}"
+    dest: "{{ systemd.prefix }}/systemd/system/{{ service_name }}.service"
+  register: systemd_service
+  notify:
+    - reload systemd daemons
+    - restart service
+
+- name: Enable systemd daemon
+  when: ansible_service_mgr == "systemd" and systemd_service.changed
+  become: yes
+  systemd:
+    name: "{{ service_name }}"
+    daemon_reload: yes
+    enabled: yes
+  notify:
+    - restart service

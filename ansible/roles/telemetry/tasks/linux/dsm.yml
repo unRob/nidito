@@ -20,9 +20,6 @@
   become: true
   shell: |
     mv /tmp/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
-
-- name: configure systemd
-  include_tasks: _systemd.yml
-
-
+  notify:
+    - restart service
 

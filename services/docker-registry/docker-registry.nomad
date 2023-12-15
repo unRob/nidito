@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "docker-registry" {
   datacenters = ["casa"]
   type        = "service"
@@ -54,7 +62,7 @@ job "docker-registry" {
       }
 
       config {
-        image = "cesanta/docker_auth:1.11"
+        image = "${var.package.auth.image}:${var.package.auth.version}"
         args = [
           "--alsologtostderr",
           "${NOMAD_SECRETS_DIR}/auth.yaml"
@@ -121,7 +129,7 @@ job "docker-registry" {
       }
 
       config {
-        image = "registry:2.8"
+        image = "${var.package.registry.image}:${trimprefix(var.package.registry.version, "v")}"
 
         ports = ["http", "metrics"]
 
@@ -163,7 +171,7 @@ job "docker-registry" {
         ]
 
         meta {
-          nidito-acl                 = "allow altepetl"
+          nidito-acl                 = "allow altepetl; allow qro0"
           nidito-http-max-body-size  = "700m"
           nidito-http-location-proxy = "/auth registry-auth ${NOMAD_PORT_auth}"
         }

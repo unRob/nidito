@@ -132,6 +132,10 @@ plugin "docker" {
     volumes {
       enabled = true
     }
+
+    # required for CSI
+    allow_caps = ["sys_admin"]
+    allow_privileged = true
   }
 }
 

@@ -14,16 +14,8 @@
     src: "https://github.com/unRob/coredns-consul/releases/download/{{ coredns.version }}/coredns-consul-linux-{{ golang_artifact_arch }}.tgz"
     dest: "{{ coredns.bin | dirname }}"
     mode: u=rwx,g=rwx,o=rw
-  notify: restart coredns
-
-- name: Install systemd service
-  become: yes
-  template:
-    src: templates/coredns.service.j2
-    dest: /usr/lib/systemd/system/coredns.service
   notify:
-    - reload systemd daemons
-    - restart coredns
+    - restart service
 
 - name: Configure DNS for local machine
   become: yes
