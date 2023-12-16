@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "media-rename" {
   datacenters = ["casa"]
   type        = "batch"

@@ -1,3 +1,6 @@
-summary: Finds updated versions of the hashicorp stack
+summary: Finds updated versions of the software in our services
 description: |
-  Reads release notes and prints any new version
+  Looks for new versions in github/gitea tags/releases/changelogs and prints any new version we should upgrade to.
+arguments:
+  - name: filter
+    description: an optional filter when looking at available packages; a service or pacakge name

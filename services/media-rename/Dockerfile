@@ -1,11 +1,7 @@
-FROM python:3.10-alpine
+FROM python:3.11-alpine
+ARG PACKAGE_UPSTREAM_VERSION
 WORKDIR /app
-
-ADD requirements.txt /app/requirements.txt
-RUN apk add --no-cache --virtual .build-deps git \
-  && pip install setuptools \
-  && pip install -r requirements.txt \
-  && rm -rf .build-deps
+RUN pip install mnamer==${PACKAGE_UPSTREAM_VERSION}
 
 ADD entrypoint.sh /entrypoint.sh
 ENTRYPOINT "/entrypoint.sh"

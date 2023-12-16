@@ -1,3 +1,10 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
 
 job "media-ingest" {
   datacenters = ["casa"]

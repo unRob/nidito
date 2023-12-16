@@ -6,4 +6,5 @@ packages:
     image: grafana/grafana
     source: https://github.com/grafana/grafana
     check: github-releases
-    version: 9.4.7
+    version: 10.2.2
+    comparison: suffix

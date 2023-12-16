@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "grafana" {
   datacenters = ["casa"]
   type        = "service"
@@ -39,7 +47,7 @@ job "grafana" {
       }
 
       config {
-        image = "grafana/grafana:9.4.7"
+        image = "${var.package.self.image}:${var.package.self.version}"
         ports = ["http"]
         volumes = [
           "/nidito/grafana/data:/var/lib/grafana"

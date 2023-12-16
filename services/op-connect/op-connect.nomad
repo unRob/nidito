@@ -1,12 +1,9 @@
-/*
-Bridge between 1Password public's API and our local network
-
-docs: https://developer.1password.com/docs/connect
-code: https://github.com/1Password/connect
-*/
-
-locals {
-  version = "1.7"
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
 }
 
 job "op-connect" {
@@ -82,7 +79,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-sync:${local.version}"
+        image = "${var.package.api.image}-sync:${var.package.api.version}"
         ports = ["sync"]
       }
     }
@@ -126,7 +123,7 @@ job "op-connect" {
       }
 
       config {
-        image = "1password/connect-api:${local.version}"
+        image = "${var.package.api.image}-api:${var.package.api.version}"
         ports = ["http", "api"]
       }
 

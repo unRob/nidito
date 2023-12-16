@@ -83,4 +83,4 @@ while read -r group package version check source comparison; do
   esac
 
   @milpa.log warning "$group:$package has an update: $version => $latest (${source}/releases)"
-done < <(milpa nidito sbom list --upgradeable)
+done < <(milpa nidito sbom list --upgradeable | if [[ "$MILPA_ARG_FILTER" ]]; then grep "$MILPA_ARG_FILTER"; else cat; fi)

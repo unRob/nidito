@@ -3,7 +3,8 @@ docs:
   - https://developer.1password.com/docs/connect
 packages:
   api:
-    image: 1password/connect-api
+    # this is incomplete, -api/-sync is added in nomadfile
+    image: 1password/connect
     source: https://github.com/1Password/connect
     check: github-changelog
     version: "v1.7.1"

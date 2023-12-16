@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "consul-backup" {
   datacenters = ["casa", "qro0"]
   type        = "batch"

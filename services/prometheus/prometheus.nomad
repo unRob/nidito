@@ -1,3 +1,11 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "prometheus" {
   datacenters = ["casa"]
   type        = "service"
@@ -55,7 +63,7 @@ job "prometheus" {
       }
 
       config {
-        image        = "prom/prometheus:v2.47.2"
+        image        = "${var.package.self.image}:${var.package.self.version}"
         ports        = ["http"]
         network_mode = "host"
 

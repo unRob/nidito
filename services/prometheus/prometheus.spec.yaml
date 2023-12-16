@@ -4,6 +4,6 @@ docs:
 packages:
   self:
     image: prom/prometheus
-    version: "v2.47.2"
+    version: "v2.48.1"
     source: https://github.com/prometheus/prometheus
     check: github-releases

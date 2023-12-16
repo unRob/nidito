@@ -1,4 +1,4 @@
-variable "packages" {
+variable "package" {
   type = map(object({
     image   = string
     version = string
@@ -145,7 +145,7 @@ job "garage" {
           nidito-http-buffering     = "off"
           nidito-http-max-body-size = "2048m"
           nidito-dns-alias          = "s3.garage; *.s3.garage"
-          nidito-http-tls           = "garage.${meta.dns_zone}"
+          nidito-http-tls           = "s3.garage.${meta.dns_zone}"
         }
       }
 
@@ -161,8 +161,6 @@ job "garage" {
 
         meta {
           nidito-acl            = "allow external"
-          nidito-http-buffering = "off"
-          # TODO: drop suffix after minio is phased out
           nidito-http-domain    = "cajon"
           nidito-dns-alias      = "*.cajon"
           nidito-http-tls       = "cajon.${meta.dns_zone}"
