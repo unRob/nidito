@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export GH_PAT="$(op item get https://github.com --field api.token)"
+export GH_PAT="$(op item get https://github.com --field api.token)" || @milpa.fail "Could not read github token"
 
 function find_latest() {
   local name package check source filter prog extra_args;
@@ -29,7 +29,7 @@ function find_latest() {
       extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://api.github.com/repos$repo/releases"
-      filter='map(select(.prerelease | not) | .tag_name) | first'
+      filter='map(select(.prerelease | not) | .tag_name) | sort_by(gsub("[^0-9.]"; "") | split(".") | map(tonumber)) | last'
       ;;
     github-tags)
       extra_args=( -H "Authorization: bearer $GH_PAT" )
@@ -45,6 +45,12 @@ function find_latest() {
       prog=awk
       # shellcheck disable=2016
       filter='/^#{1,3} v?[0-9]+.[0-9]+.[0-9]+/{ print $2; exit;}'
+      ;;
+    gitlab-commits)
+      # removes initial slash and encodes slash as %2F so we don't need to issue two requests
+      repo="$(ruby -ruri -e 'puts URI.encode_uri_component(URI.parse("'"$source"'").path.delete_prefix "/")')"
+      base="https://gitlab.com/api/v4/projects/$repo/repository/commits"
+      filter='map(.id) | first'
       ;;
     *)
       @milpa.fail "unknown check $check for $package $name

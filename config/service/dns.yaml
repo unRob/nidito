@@ -3,7 +3,6 @@ consul:
   # used by dns service to read services and stuff
   token: !!secret
 # send upstream queries to these servers
-# todo: look into tls
 forwarders:
   - tls://1.1.1.1
   - tls://8.8.8.8

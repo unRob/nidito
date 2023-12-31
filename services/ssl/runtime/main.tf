@@ -22,7 +22,10 @@ terraform {
 }
 
 variable "domains" {
-  type = map(string)
+  type = map(object({
+    provider = string
+    token = string
+  }))
   default = {}
   description = "domains"
 }
@@ -43,8 +46,12 @@ data "vault_generic_secret" "dc" {
   path = "cfg/infra/tree/dc:${local.dc}"
 }
 
-data "vault_generic_secret" "provider_dns" {
+data "vault_generic_secret" "provider_digitalocean" {
   path = "cfg/infra/tree/provider:digitalocean"
+}
+
+data "vault_generic_secret" "provider_cloudflare" {
+  path = "cfg/infra/tree/provider:cloudflare"
 }
 
 data "terraform_remote_state" "registration" {
@@ -66,11 +73,13 @@ resource acme_certificate cert {
   recursive_nameservers = ["1.1.1.1:53", "8.8.8.8:53"]
 
   dns_challenge {
-    provider = "digitalocean"
-    config = {
-      DO_AUTH_TOKEN = data.vault_generic_secret.provider_dns.data[each.value == "default" ? "token" : each.value]
+    provider = each.value.provider
+    config = each.value.provider == "digitalocean" ? {
+      DO_AUTH_TOKEN = data.vault_generic_secret.provider_digitalocean.data[each.value.token == "default" ? "token" : each.value.token]
       DO_PROPAGATION_TIMEOUT = 60
       DO_TTL = 30
+    } : {
+      CF_DNS_API_TOKEN = data.vault_generic_secret.provider_cloudflare.data.token
     }
   }
 }

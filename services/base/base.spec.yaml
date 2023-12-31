@@ -1,9 +1,9 @@
 description: base docker images
 packages:
   base:
-    image: registry.nidi.to/base
+    image: registry.nidi.to/base-operator
     source: ./Dockerfile
-    version: "0"
+    version: 202312312157
   operator:
     image: registry.nidi.to/base-operator
     source: ./operator.Dockerfile
@@ -19,5 +19,9 @@ dependencies:
     check: github-tags
   minio:
     source: https://github.com/minio/mc
-    version: RELEASE.2023-12-14T00-37-41Z
+    version: RELEASE.2023-12-23T08-47-21Z
     check: github-tags
+  musl-locales:
+    source: https://gitlab.com/rilian-la-te/musl-locales
+    version: 1101fb2bcdd189cd9415b8bd1c775eb43527d25c
+    check: gitlab-commits

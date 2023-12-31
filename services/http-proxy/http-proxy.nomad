@@ -51,11 +51,13 @@ job "http-proxy" {
     network {
       port "http" {
         static       = local.ports.http
+        // TODO: find a way to make these public when reachability == "gateway"
         host_network = "private"
       }
 
       port "https" {
         static       = local.ports.https
+        // TODO: find a way to make these public when reachability == "gateway"
         host_network = "private"
       }
     }
@@ -118,6 +120,9 @@ job "http-proxy" {
       config {
         image        = "nginx:stable-alpine"
         network_mode = "host"
+        // TODO: this is too wide, test capabilities instead
+        // https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
+        privileged = true
 
         ports = ["http", "https"]
 
@@ -126,7 +131,7 @@ job "http-proxy" {
           "local/conf.d:/etc/nginx/conf.d",
           "local/docker-entrypoint.d/05-get-ssl-certs.sh:/docker-entrypoint.d/05-get-ssl-certs.sh",
           "local/nidito:/var/lib/www/nidito",
-          "/nidito/http-proxy:/nidito"
+          "/nidito/http-proxy:/nidito",
         ]
       }
 

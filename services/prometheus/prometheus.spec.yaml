@@ -7,3 +7,4 @@ packages:
     version: "v2.48.1"
     source: https://github.com/prometheus/prometheus
     check: github-releases
+    comparison: suffix

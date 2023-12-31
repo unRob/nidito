@@ -39,7 +39,7 @@ if [[ -f "$dockerfile" ]]; then
   else
     @milpa.log info "Creating $image:latest with buildx ($dateTag / $shaTag)"
     nidito_spec="${spec%%.nomad}.spec.yaml"
-    package="$(joao get "$nidito_spec" packages | jq -r 'to_entries | map(select(.value.source == "./Dockerfile") | .key) | first')" || @milpa.fail "Could not find a package spec in $nidito_spec"
+    package="$(joao get --output json "$nidito_spec" . | jq -r '(.packages // {}) + (.dependencies // {}) |  to_entries | map(select(.value.source == "./Dockerfile") | .key) | first')" || @milpa.fail "Could not find a package spec in $nidito_spec"
     @milpa.log info "Using dockerfile at $dockerfile (package $package)"
     platforms="${MILPA_ARG_PLATFORMS[*]}"
     docker buildx build \

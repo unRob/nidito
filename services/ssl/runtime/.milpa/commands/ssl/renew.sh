@@ -4,24 +4,33 @@ set -o pipefail
 export VAULT_ADDR="https://vault.service.${MILPA_ARG_DC}.consul:5570"
 
 function vault_get () {
-  curl --max-time 5 --silent --fail --show-error -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
+  curl --max-time 10 --silent --fail --show-error -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
 }
 
 function vault_list() {
-  curl --max-time 5 --silent --fail --show-error --request LIST -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
+  curl --max-time 10 --silent --fail --show-error --request LIST -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
 }
 
 @milpa.log info "Renewing SSL for DC: $MILPA_ARG_DC"
 main_zone=$(vault_get "cfg/infra/tree/dc:${MILPA_ARG_DC}" .data.dns.zone) || @milpa.fail "could not find main_zone"
+main_provider=$(dig +short NS "$main_zone" | awk -F. '{print $(NF-2); exit}') || @milpa.fail "Could not resolve nameserver for $main_zone"
 @milpa.log info "DC $MILPA_ARG_DC hosted at DNS zone $main_zone"
 
-jq --null-input --arg zone "$main_zone" '{domains: {($zone): "default"}}' >terraform.tfvars.json
+jq --null-input \
+  --arg zone "$main_zone" \
+  --arg ns "$main_provider" \
+  '{domains: {($zone): {token: "default", provider: $ns}}}' >terraform.tfvars.json
 
 @milpa.log info "Looking for additional SSL certs to renew..."
 while read -r zone; do
   zone_token=$(vault_get "nidito/service/ssl/domains/$zone" '.data.token // "token"') || @milpa.fail "no vault config found for zone $zone at nidito/service/ssl/domains/$zone"
-  @milpa.log info "Zone $zone is using token $zone_token"
-  jq --arg zone "$zone" --arg token "$zone_token" '.domains[$zone] = $token' <terraform.tfvars.json > terraform.tfvars.json.tmp || @milpa.fail "could not set token args"
+  provider=$(dig +short NS "$zone" | awk -F. '{print $(NF-2); exit}') || @milpa.fail "Could not resolve nameserver for $zone"
+  @milpa.log info "Zone $zone is using token $zone_token (NS: $provider)"
+  jq \
+    --arg zone "$zone" \
+    --arg token "$zone_token" \
+    --arg ns "$provider" \
+    '.domains[$zone] = {token: $token, provider: $ns}' <terraform.tfvars.json > terraform.tfvars.json.tmp || @milpa.fail "could not set token args"
   mv terraform.tfvars.json.tmp terraform.tfvars.json
 done < <(vault_list nidito/service/ssl/domains '(.data.keys // [])[]')
 

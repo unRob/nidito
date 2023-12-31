@@ -33,9 +33,11 @@ module "vault-policy" {
   consul_creds = ["service-garage"]
 }
 
-resource "consul_acl_policy" "service" {
-  name = "service-garage"
-  rules = <<-HCL
+module "consul-policy" {
+  source = "../../terraform/_modules/service/consul-policy"
+  name = "garage"
+  create_vault_role = true
+  policy = <<-HCL
   service_prefix "" {
     policy = "read"
   }
@@ -50,23 +52,43 @@ resource "consul_acl_policy" "service" {
     policy = "read"
   }
   HCL
+
 }
 
-data "terraform_remote_state" "vault" {
-  backend = "consul"
-  workspace = terraform.workspace
-  config = {
-    path = "nidito/state/vault"
-  }
-}
+# resource "consul_acl_policy" "service" {
+#   name = "service-garage"
+#   rules = <<-HCL
+#   service_prefix "" {
+#     policy = "read"
+#   }
 
-resource "vault_consul_secret_backend_role" "service" {
-  name    = "service-garage"
-  backend = data.terraform_remote_state.vault.outputs.consul_backend_name
-  policies = ["service-garage"]
-  ttl = 600
-  max_ttl = 86400
-}
+#   service "garage" {
+#     policy = "write"
+#   }
+
+#   // needed to list catalog services for some reason
+#   // https://developer.hashicorp.com/consul/docs/security/acl/acl-rules#node-rules
+#   node_prefix "" {
+#     policy = "read"
+#   }
+#   HCL
+# }
+
+# data "terraform_remote_state" "vault" {
+#   backend = "consul"
+#   workspace = terraform.workspace
+#   config = {
+#     path = "nidito/state/vault"
+#   }
+# }
+
+# resource "vault_consul_secret_backend_role" "service" {
+#   name    = "service-garage"
+#   backend = data.terraform_remote_state.vault.outputs.consul_backend_name
+#   policies = ["service-garage"]
+#   ttl = 600
+#   max_ttl = 86400
+# }
 
 provider "digitalocean" {
   token = data.vault_generic_secret.do.data.token
@@ -109,7 +131,7 @@ resource "digitalocean_record" "web" {
 }
 
 resource "vault_generic_secret" "ssl-req" {
-  path = "nidito/service/ssl/domains/garage.nidi.to"
+  path = "nidito/service/ssl/domains/garage.${local.dns_zone}"
   data_json = jsonencode({
     "star": true,
     "token": "default"
@@ -117,7 +139,7 @@ resource "vault_generic_secret" "ssl-req" {
 }
 
 resource "vault_generic_secret" "s3-ssl-req" {
-  path = "nidito/service/ssl/domains/s3.garage.nidi.to"
+  path = "nidito/service/ssl/domains/s3.garage.${local.dns_zone}"
   data_json = jsonencode({
     "star": true,
     "token": "default"
@@ -125,7 +147,7 @@ resource "vault_generic_secret" "s3-ssl-req" {
 }
 
 resource "vault_generic_secret" "cajon-ssl-req" {
-  path = "nidito/service/ssl/domains/cajon.nidi.to"
+  path = "nidito/service/ssl/domains/cajon.${local.dns_zone}"
   data_json = jsonencode({
     "star": true,
     "token": "default"

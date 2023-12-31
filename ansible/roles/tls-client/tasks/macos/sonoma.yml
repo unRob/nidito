@@ -27,7 +27,8 @@
   register: fs_cert
   check_mode: no
 
+
 - name: Add TLS cert to store
   become: true
-  when: fs_cert.stdout != installed_cert.stdout
+  when: needs_install
   shell: security add-trusted-cert -d /nidito/nidito.pem

@@ -1,10 +1,18 @@
+variable "package" {
+  type = map(object({
+    image   = string
+    version = string
+  }))
+  default = {}
+}
+
 job "promtail" {
   datacenters = ["casa"]
-  type = "system"
+  type        = "system"
 
   vault {
-    policies = ["promtail"]
-    change_mode   = "restart"
+    policies    = ["promtail"]
+    change_mode = "restart"
   }
 
   group "promtail" {
@@ -28,8 +36,8 @@ job "promtail" {
       }
 
       template {
-        destination = "secrets/tls/ca.pem"
-        data = <<-PEM
+        destination   = "secrets/tls/ca.pem"
+        data          = <<-PEM
         {{- with secret "cfg/infra/tree/service:ca" }}
         {{ .Data.cert }}
         {{- end }}
@@ -39,8 +47,8 @@ job "promtail" {
       }
 
       template {
-        data = file("promtail.yml")
-        perms = 640
+        data        = file("promtail.yml")
+        perms       = 640
         destination = "/local/promtail.yml"
       }
 

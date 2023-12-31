@@ -25,7 +25,7 @@
     name: _service
   vars:
     service_name: node-exporter
-    launchd_name: io.prometheus.node_exporter
+    launchd_name: io.prometheus.node_exporter.daemon
     launchd_template: templates/service.plist.j2
     systemd_template: templates/node-exporter.service.j2
 
