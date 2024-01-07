@@ -28,19 +28,15 @@ job "media-ingest" {
         value     = "primary"
       }
 
-      // // workload identity is broken for periodic tasks
-      // // https://github.com/hashicorp/nomad/pull/17018
-      // identity {
-      //   env = true
-      //   file = false
-      // }
+      identity {
+        env = true
+      }
 
       template {
         destination = "secrets/env"
         env         = true
         data        = <<ENV
           TARGET="/media"
-          NOMAD_TOKEN="{{ with secret "nomad/creds/service-media-ingest" }}{{ .Data.secret_id }}{{ end }}"
         ENV
       }
 

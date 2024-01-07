@@ -1,0 +1,3 @@
+# remember to cache with rclone  --header-upload X-Bz-Info-b2-cache-control copy ...
+key: !!secret
+secret: !!secret

@@ -13,7 +13,13 @@ function downloadMedia() {
 
   while read -r file; do
     echo "Downloading $file"
-    rclone copy "putio:$file" "$kind/" >&2 || fail "Could not download $file"
+    # checksums take forever on spinning rust
+    rclone \
+      --log-level INFO \
+      --stats 10s \
+      --stats-one-line-date \
+      --ignore-checksum \
+      copy "putio:$file" "$kind/" >&2 || fail "Could not download $file"
     downloaded=$(( downloaded + 1 ))
     echo "Deleting $file"
     rclone delete "putio:$file" >&2
@@ -65,12 +71,9 @@ echo "Sync complete"
 if [[ "$downloaded" -gt 0 ]]; then
   echo "Dispatching media-rename"
   set -o xtrace
-  # workload identity is broken for periodic tasks
-  # https://github.com/hashicorp/nomad/pull/17018
-  # -H "Authorization: Bearer ${NOMAD_TOKEN}" \
   curl --fail-with-body --verbose \
     --unix-socket "${NOMAD_SECRETS_DIR}/api.sock" \
-    -H "x-nomad-token: ${NOMAD_TOKEN}" \
+    -H "Authorization: Bearer ${NOMAD_TOKEN}" \
     -H "Content-type: application/json" \
     -XPOST \
     localhost/v1/job/media-rename/dispatch \
