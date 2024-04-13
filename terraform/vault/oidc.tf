@@ -23,19 +23,25 @@ data "vault_generic_secret" "dns" {
   path = "cfg/infra/tree/service:dns"
 }
 
-resource "digitalocean_domain" "root" {
-  name =
+data "vault_generic_secret" "dc" {
+  path = "cfg/infra/tree/dc:${terraform.workspace}"
 }
+
 
 resource "vault_identity_oidc_client" "nomad" {
   name = "nomad"
   key  = vault_identity_oidc_key.infra.name
-  redirect_uris = [
-    "https://nomad.service.consul:5560/oidc/callback",
-    "https://nomad.service.consul:5560/ui/settings/tokens",
-    "https://nomad.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}/oidc/callback",
-    "https://nomad.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}/ui/settings/tokens",
-  ]
+  redirect_uris = flatten([
+    for domain in [
+      "service.consul:5560",
+      nonsensitive(jsondecode(data.vault_generic_secret.dc.data_json).dns.zone),
+      # "${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}",
+    ]:
+    [
+      "https://nomad.${domain}/oidc/callback",
+      "https://nomad.${domain}/ui/settings/tokens",
+    ]
+  ])
   assignments = [
     vault_identity_oidc_assignment.admin.name
   ]
@@ -63,7 +69,8 @@ resource "vault_identity_oidc_scope" "groups" {
 resource "vault_identity_oidc_provider" "internal" {
   name          = "internal"
   https_enabled = true
-  issuer_host   = "vault.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}"
+  # issuer_host   = "vault.${terraform.workspace}.${nonsensitive(data.vault_generic_secret.dns.data.zone)}"
+  issuer_host   = "vault.nidi.to"
   allowed_client_ids = [
     vault_identity_oidc_client.nomad.client_id
   ]
@@ -83,36 +90,29 @@ data "vault_identity_oidc_openid_config" "internal" {
   name = vault_identity_oidc_provider.internal.name
 }
 
+resource "nomad_acl_auth_method" "vault-oidc" {
+  name              = "vault"
+  type              = "OIDC"
+  token_locality    = "global"
+  max_token_ttl     = "8h0m0s"
+  default           = false
 
-output "nomad-oidc" {
-  value = jsonencode({
-    OIDCDiscoveryURL = data.vault_identity_oidc_openid_config.internal.issuer,
-    OIDCClientID     = data.vault_identity_oidc_client_creds.nomad.client_id,
-    OIDCClientSecret = nonsensitive(data.vault_identity_oidc_client_creds.nomad.client_secret),
-    BoundAudiences = [
-      data.vault_identity_oidc_client_creds.nomad.client_id
-    ],
-    OIDCScopes          = ["groups"],
-    AllowedRedirectURIs = vault_identity_oidc_client.nomad.redirect_uris,
-    ListClaimMappings = {
+  config {
+    oidc_discovery_url    = data.vault_identity_oidc_openid_config.internal.issuer
+    oidc_client_id        = data.vault_identity_oidc_client_creds.nomad.client_id
+    oidc_client_secret    = data.vault_identity_oidc_client_creds.nomad.client_secret
+    oidc_scopes           = ["groups"]
+    bound_audiences       = [data.vault_identity_oidc_client_creds.nomad.client_id]
+    allowed_redirect_uris = vault_identity_oidc_client.nomad.redirect_uris
+    list_claim_mappings = {
       groups = "roles"
     }
-  })
-  description = <<-EOF
-    OIDC config for nomad. Nomad is HC's ugly duckling so it's terraform provider ain't up to date. Thus, we manually run:
+  }
+}
 
-    nomad acl auth-method create \
-      -default=false \
-      -name=vault \
-      -token-locality=global \
-      -max-token-ttl="8h" \
-      -type=oidc \
-      -config @<(terraform output -raw nomad-oidc)
-
-    nomad acl binding-rule create \
-      -auth-method=vault \
-      -bind-type=role \
-      -bind-name="admin" \
-      -selector="admin in list.roles"
-  EOF
+resource "nomad_acl_binding_rule" "vault-oidc" {
+  auth_method = nomad_acl_auth_method.vault-oidc.name
+  selector    = "admin in list.roles"
+  bind_type   = "role"
+  bind_name   = "admin"
 }

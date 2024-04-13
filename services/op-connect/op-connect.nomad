@@ -23,14 +23,6 @@ job "op-connect" {
   }
 
   group "op-connect" {
-
-    vault {
-      policies = ["op"]
-
-      change_mode   = "signal"
-      change_signal = "SIGHUP"
-    }
-
     network {
       port "http" {
         static       = 5577
@@ -47,6 +39,11 @@ job "op-connect" {
 
     task "sync" {
       driver = "docker"
+      vault {
+        role = "op"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
 
       resources {
         cpu        = 100
@@ -86,6 +83,11 @@ job "op-connect" {
 
     task "api" {
       driver = "docker"
+      vault {
+        role = "op"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
 
       lifecycle {
         hook    = "prestart"

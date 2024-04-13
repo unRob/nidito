@@ -18,15 +18,14 @@ job "ssl" {
     prohibit_overlap = true
   }
 
-  vault {
-    policies    = ["ssl"]
-    change_mode = "restart"
-  }
-
   group "ssl" {
 
     task "ssl" {
       driver = "docker"
+      vault {
+        role        = "ssl"
+        change_mode = "restart"
+      }
 
       template {
         destination = "secrets/env"

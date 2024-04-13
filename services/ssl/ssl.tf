@@ -31,6 +31,7 @@ module "vault-policy" {
   configs = [
     "dc:${local.dc}",
     "provider:digitalocean",
+    "provider:cloudflare"
   ]
   consul_creds = ["service-ssl"]
 

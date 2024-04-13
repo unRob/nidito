@@ -13,7 +13,7 @@ log "Mirror starting triggered by kind=$kind name=$name"
 
 sleep 5
 
-if mc --config-dir /home/icecast mirror /recordings/ "garage/$TARGET_BUCKET"; then
+if mc --config-dir /home/icecast mirror /recordings/ "garage/$TARGET_BUCKET/dropbox"; then
   log "Mirror complete"
   rm -rfv /recordings/*.mp3
   log "dispatching processing job"

@@ -2,8 +2,9 @@
 
 svc="${MILPA_ARG_SERVICE}"
 listen="${MILPA_OPT_LISTEN}"
-zone="$(joao get "config/dc/${MILPA_OPT_DC}.yaml" dns.zone)" || @milpa.fail "could not fetch dns zone for dc $MILPA_OPT_DC"
-dns="${MILPA_OPT_SUBDOMAIN:-debug-$svc}.$zone"
+zone="$(joao get "$NIDITO_ROOT/config/dc/${MILPA_OPT_DC}.yaml" dns.zone)" || @milpa.fail "could not fetch dns zone for dc $MILPA_OPT_DC"
+key="${MILPA_OPT_SUBDOMAIN:-debug-$svc}"
+dns="$key.$zone"
 loglevel="INFO"
 if [[ "$MILPA_VERBOSE" ]]; then
   loglevel="DEBUG"
@@ -11,10 +12,15 @@ fi
 
 function local_addresses() {
   set -o pipefail
-  ips="$(networksetup -listnetworkserviceorder |
-    awk '/Device: /{gsub(")", "", $NF); print $NF}' |
-    xargs ipconfig getifaddr)" || @milpa.fail "could not fetch local ipv4 addresses"
-  jq --raw-input -s -c 'split("\n") | map(select(. != ""))' <<<"$ips" || @milpa.fail "Could not format local ipv4 addresses"
+  while read -r iface; do
+    ipconfig getifaddr "$iface" || true # we don't care if this fails
+  done < <(
+    networksetup -listnetworkserviceorder |
+      awk '/Device: /{gsub(")", "", $NF); if (NF != "" ) { print $NF; }}' || @milpa.fail "could not fetch local ipv4 addresses"
+  ) |
+  sort |
+  uniq |
+  jq --raw-input -s -c 'split("\n") | map(select(. != ""))' || @milpa.fail "Could not format local ipv4 addresses"
 }
 
 function create_dns() {
@@ -24,7 +30,7 @@ function create_dns() {
     consul kv put "$1" - || @milpa.fail "Could create consul key at $1"
 }
 
-consul_entry="dns/dynamic/debug-$svc"
+consul_entry="dns/dynamic/$key"
 @milpa.log info "Creating temporary dns record for $dns"
 create_dns "$consul_entry" || @milpa.fail "Could not setup dynamic dns records with consul"
 @milpa.log success "DNS record for $dns created"
@@ -37,6 +43,7 @@ caddyfile="$(jq -c --null-input \
   --arg cert "$cert" \
   --arg pkey "$pkey" \
   --arg svc "$svc" \
+  --arg name "$key" \
   --arg listen "$listen" \
   --arg port "$MILPA_ARG_PORT" \
   --arg loglevel "$loglevel" \
@@ -44,7 +51,7 @@ caddyfile="$(jq -c --null-input \
   "apps": {
     "http": {
       "servers": {
-        "debug-\($svc)": {
+        "($name)": {
           "listen": [":\($listen)"],
           "routes": [{
             "handle": [{

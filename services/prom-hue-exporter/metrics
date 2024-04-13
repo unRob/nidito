@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "Content-type: text/plain; version=0.0.4"
+echo "Content-type: text/plain; charset=UTF-8; version=0.0.5"
 echo ""
 # {{ with secret (printf "cfg/svc/tree/%s:prom-hue-exporter" (env "meta.dns_zone")) }}
 HUE_BRIDGE_NOMAD="{{ .Data.bridge }}"
@@ -19,7 +19,7 @@ curl --max-time 5 --silent --fail-with-body --show-error "http://$HUE_BRIDGE/api
     value: (. | reduce .[] as $item ({}; .[$item.type] = $item ))
   }) |
   map(
-    select(.value.ZLLTemperature) |
+    select(.value.ZLLTemperature.state.temperature // false) |
     {
       key: .key,
       value: (.value.ZLLTemperature.state.temperature/100)

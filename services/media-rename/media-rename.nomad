@@ -10,17 +10,17 @@ job "media-rename" {
   datacenters = ["casa"]
   type        = "batch"
 
-  vault {
-    policies    = ["media-rename"]
-    change_mode = "restart"
-  }
-
   parameterized {}
 
   group "media-rename" {
 
     task "media-rename" {
       driver = "docker"
+
+      vault {
+        role    = "media-rename"
+        change_mode = "restart"
+      }
 
       constraint {
         attribute = "${meta.storage}"

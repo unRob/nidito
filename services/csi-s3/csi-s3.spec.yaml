@@ -1,0 +1,17 @@
+description: S3-backed CSI plugin
+docs:
+  - https://github.com/ctrox/csi-s3
+  - https://support.hashicorp.com/hc/en-us/articles/23886932651795-Integrating-MinIO-Object-Storage-as-CSI-in-HashiCorp-Nomad
+packages:
+  self:
+    image: registry.nidi.to/csi-s3
+    version: 202403312047
+    source: ./Dockerfile
+  upstream:
+    # available image does not run in arm :/
+    image: ctrox/csi-s3
+    source: https://github.com/ctrox/csi-s3
+    version: "v1.2.0-rc.2"
+    # this project seems abandoned, but works for now so...
+    # check: github-releases
+

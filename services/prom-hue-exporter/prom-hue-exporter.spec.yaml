@@ -2,5 +2,5 @@ description: a slow cgi server turns Hue API json into prom metrics
 packages:
   self:
     image: registry.nidi.to/prom-hue-exporter
-    version: "202305030550"
+    version: 202403022027
     source: ./Dockerfile

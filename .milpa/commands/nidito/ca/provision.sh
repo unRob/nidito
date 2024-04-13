@@ -51,4 +51,4 @@ while read -r file; do
   joao get "$file" tls >/dev/null 2>&1 || continue;
   n="$(basename "$file")";
   vault kv put "nidito/service/op/${n%%.*}" @<(joao get "$file" tls 2>/dev/null | jq '{key: .key, cert: .op}')
-done < <(find "$(config.dir)/host" -name '*.yaml')
+done < <(find "$(@config.dir)/host" -name '*.yaml')

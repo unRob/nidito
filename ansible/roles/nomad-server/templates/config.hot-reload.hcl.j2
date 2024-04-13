@@ -22,8 +22,11 @@ vault {
   enabled = true
   address = "https://vault.service.consul:{{ config.services.vault.port }}"
 
-  token = "{{ dc.vault.nomad_token }}"
   ca_file = "{{ nomad.config }}/tls/ca.pem"
+  jwt_auth_backend_path = "nomad-workload"
 
-  create_from_role = "nomad-cluster"
+  default_identity {
+    aud = ["vault.io"]
+    ttl = "1h"
+  }
 }

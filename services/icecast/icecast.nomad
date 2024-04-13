@@ -42,8 +42,7 @@ job "radio" {
       user   = "icecast"
 
       vault {
-        policies = ["icecast"]
-
+        role = "icecast"
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }

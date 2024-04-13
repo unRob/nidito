@@ -5,7 +5,6 @@ read -r _ _ spec < <(@nidito.service.resolve_spec)
 config="${spec//.nomad/.spec.yaml}"
 [[ -f "$config" ]] || @milpa.fail "Missing spec at $config"
 
-
 joao get "$config" . --output json | case "$MILPA_OPT_OUTPUT" in
   nomad)
      jq '{

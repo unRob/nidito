@@ -7,21 +7,24 @@ svc_folder="$NIDITO_ROOT/services/$svc"
 mkdir "$svc_folder" || @milpa.fail "Could not create $svc_folder"
 
 config="$svc_folder/$svc.joao.yaml"
-touch "$config" || @milpa.fail "Could not create $config"
+touch "$config"
+
+spec="$svc_folder/$svc.spec.yaml"
+touch "$spec" || @milpa.fail "Could not create $spec"
 if description="$(@milpa.ask "Enter a description for $svc")"; then
-  joao set "$config" description <<<"$description"
+  joao set "$spec" description <<<"$description"
 fi
 if version="$(@milpa.ask "Enter a version for $svc")"; then
-  joao set "$config" package.self.version <<<"$version"
+  joao set "$spec" packages.self.version <<<"$version"
 fi
 if docs="$(@milpa.ask "Enter a documentation URL for $svc")"; then
-  joao set "$config" docs <<<"$docs"
+  joao set "$spec" docs <<<"$docs"
 fi
 if src="$(@milpa.ask "Enter a source URL for $svc")"; then
-  joao set "$config" package.self.source <<<"$src"
+  joao set "$spec" packages.self.source <<<"$src"
   case "${src}" in
-    *github.com*) joao set "$config" package.self.check <<<"github-releases";;
-    *git.rob.mx*) joao set "$config" package.self.check <<<"gitea-releases";;
+    *github.com*) joao set "$spec" package.self.check <<<"github-releases";;
+    *git.rob.mx*) joao set "$spec" package.self.check <<<"gitea-releases";;
   esac
 fi
 
@@ -39,7 +42,6 @@ job "$svc" {
 
   vault {
     policies = ["$svc"]
-
     change_mode   = "signal"
     change_signal = "SIGHUP"
   }
@@ -58,6 +60,8 @@ job "$svc" {
     }
 
     task "$svc" {
+      driver = ""
+
       resources {
         cpu = 50
         memory = 128

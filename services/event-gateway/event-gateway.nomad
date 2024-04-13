@@ -10,13 +10,6 @@ job "event-gateway" {
   datacenters = ["casa"]
   region      = "casa"
 
-  vault {
-    policies = ["event-gateway"]
-
-    change_mode   = "restart"
-    change_signal = "SIGHUP"
-  }
-
   group "event-gateway" {
     update {
       max_parallel = 1
@@ -45,6 +38,11 @@ job "event-gateway" {
     task "event-gateway" {
       driver = "docker"
 
+      vault {
+        role = "event-gateway"
+        change_mode   = "restart"
+      }
+
       template {
         destination   = "local/listeners.json"
         data          = file("./listeners.json.tpl")
@@ -70,7 +68,7 @@ job "event-gateway" {
       }
 
       config {
-        image        = "registry.nidi.to/event-gateway:202305220457"
+        image        = "${var.package.self.image}:${var.package.self.version}"
         ports        = ["http"]
         network_mode = "bridge"
       }

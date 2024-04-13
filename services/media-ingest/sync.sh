@@ -15,7 +15,8 @@ function downloadMedia() {
     echo "Downloading $file"
     # checksums take forever on spinning rust
     rclone \
-      --log-level INFO \
+      --log-level DEBUG \
+      --progress \
       --stats 10s \
       --stats-one-line-date \
       --ignore-checksum \

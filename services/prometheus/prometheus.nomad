@@ -40,6 +40,10 @@ job "prometheus" {
     task "prometheus" {
       driver = "docker"
 
+      vault {
+        role = "prometheus"
+      }
+
       constraint {
         attribute = "${meta.storage}"
         value     = "primary"

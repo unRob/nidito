@@ -446,6 +446,72 @@
                 }
               }
             ]
+          },
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "rx bond0",
+                  "rx eth0",
+                  "rx eth1",
+                  "rx eth10",
+                  "rx eth11",
+                  "rx eth11.10",
+                  "rx eth11.100",
+                  "rx eth11.200",
+                  "rx eth11.40",
+                  "rx eth2",
+                  "rx eth3",
+                  "rx eth4",
+                  "rx eth5",
+                  "rx eth6",
+                  "rx eth7",
+                  "rx eth8",
+                  "rx eth9",
+                  "rx pppoe0",
+                  "rx switch0",
+                  "rx switch0.10",
+                  "rx switch0.200",
+                  "rx wg0",
+                  "tx bond0 ",
+                  "tx eth0 ",
+                  "tx eth1 ",
+                  "tx eth10 ",
+                  "tx eth11 ",
+                  "tx eth11.10 ",
+                  "tx eth11.100 ",
+                  "tx eth11.200 ",
+                  "tx eth11.40 ",
+                  "tx eth2 ",
+                  "tx eth3 ",
+                  "tx eth4 ",
+                  "tx eth6 ",
+                  "tx eth7 ",
+                  "tx eth8 ",
+                  "tx eth9 ",
+                  "tx pppoe0 ",
+                  "tx switch0 ",
+                  "tx switch0.10 ",
+                  "tx switch0.200 ",
+                  "tx wg0 "
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
           }
         ]
       },
@@ -1869,8 +1935,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 16,
+        "h": 7,
+        "w": 8,
         "x": 0,
         "y": 33
       },
@@ -1922,6 +1988,102 @@
         }
       ],
       "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "000000001"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "fieldMinMax": true
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 33
+      },
+      "id": 36,
+      "options": {
+        "calculate": false,
+        "calculation": {
+          "xBuckets": {
+            "mode": "size"
+          },
+          "yBuckets": {
+            "mode": "count",
+            "scale": {
+              "log": 10,
+              "type": "symlog"
+            }
+          }
+        },
+        "cellGap": 0,
+        "color": {
+          "exponent": 0.5,
+          "fill": "dark-orange",
+          "min": 0,
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Spectral",
+          "steps": 64
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto",
+          "value": "tasks"
+        },
+        "tooltip": {
+          "show": true,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "reverse": false
+        }
+      },
+      "pluginVersion": "10.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "000000001"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (instance) (nomad_client_allocations_running{instance=~\"$nodes\", service=\"nomad\"})",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "legendFormat": "{{instance}}",
+          "refId": "A"
+        }
+      ],
+      "title": "allocations per instance",
+      "transformations": [],
+      "type": "heatmap"
     },
     {
       "datasource": {
@@ -2690,7 +2852,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "30s",
+  "refresh": "10s",
   "revision": 1,
   "schemaVersion": 38,
   "tags": [],
@@ -2812,6 +2974,6 @@
   "timezone": "browser",
   "title": "Overview",
   "uid": "I5dazfrnk",
-  "version": 52,
+  "version": 55,
   "weekStart": ""
 }

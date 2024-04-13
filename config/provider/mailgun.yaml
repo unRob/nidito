@@ -5,3 +5,4 @@ smtp:
   port: 587
   username: dsm@nidi.to
   password: !!secret
+key: !!secret

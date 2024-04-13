@@ -66,3 +66,12 @@ output "bucket" {
   description = "the bucket id"
 }
 
+output "bucket_name" {
+  value = var.name
+  description = "the bucket name"
+}
+
+output "endpoint" {
+  value = "s3.garage.nidi.to"
+  description = "the endpoint for this bucket"
+}

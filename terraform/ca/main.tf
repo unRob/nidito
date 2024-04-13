@@ -22,6 +22,11 @@ terraform {
 #   address = "consul.service.consul:5554"
 #   insecure_https = true
 # }
+variable ttl {
+  type = number
+  default = 24 * 365
+  description = "the amount of hours certs will be valid for"
+}
 
 variable "hosts" {
   type = list(string)
@@ -114,7 +119,7 @@ resource "tls_locally_signed_cert" "certs" {
   ca_cert_pem        = local.ca.cert
 
   early_renewal_hours = 24 * 7
-  validity_period_hours = 24 * 365
+  validity_period_hours = var.ttl
 
   allowed_uses = [
     "key_encipherment",

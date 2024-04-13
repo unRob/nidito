@@ -11,11 +11,6 @@ job "prom-hue-exporter" {
   region      = "casa"
   priority    = 10
 
-  vault {
-    policies    = ["prom-hue-exporter"]
-    change_mode = "restart"
-  }
-
   group "prom-hue-exporter" {
     reschedule {
       delay          = "5s"
@@ -48,8 +43,13 @@ job "prom-hue-exporter" {
       driver = "docker"
       user   = "nobody"
 
+      vault {
+        role    = "prom-hue-exporter"
+        change_mode = "restart"
+      }
+
       template {
-        destination = "/local/metrics"
+        destination = "/local/cgi-bin/metrics"
         perms       = 0777
         data        = file("./metrics")
       }
@@ -61,13 +61,12 @@ job "prom-hue-exporter" {
       }
 
       config {
-        image        = "registry.nidi.to/prom-hue-exporter:202305030550"
+        image        = "${var.package.self.image}:${var.package.self.version}"
         ports        = ["http"]
         network_mode = "host"
         args = [
-          "-d", "${NOMAD_TASK_DIR}",
-          "-p", "${NOMAD_PORT_http}",
-          "-c", "metrics",
+          "-h", "${NOMAD_TASK_DIR}",
+          "-p", "${NOMAD_PORT_http}"
         ]
       }
 
@@ -77,7 +76,8 @@ job "prom-hue-exporter" {
 
         tags = [
           "nidito.service",
-          "nidito.metrics.enabled"
+          "nidito.metrics.enabled",
+          "nidito.metrics.path=/cgi-bin/metrics"
         ]
 
         meta {

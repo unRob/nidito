@@ -28,13 +28,6 @@ job "docker-registry" {
       mode = "delay"
     }
 
-    vault {
-      policies = ["docker-registry"]
-
-      change_mode   = "signal"
-      change_signal = "SIGHUP"
-    }
-
     network {
       port "http" {
         host_network = "private"
@@ -48,6 +41,11 @@ job "docker-registry" {
     }
 
     task "auth" {
+      vault {
+        role = "docker-registry"
+        change_mode = "signal"
+        change_signal = "SIGHUP"
+      }
       lifecycle {
         hook    = "prestart"
         sidecar = true
@@ -115,6 +113,11 @@ job "docker-registry" {
     }
 
     task "registry" {
+      vault {
+        role = "docker-registry"
+        change_mode = "signal"
+        change_signal = "SIGHUP"
+      }
       constraint {
         attribute = "${meta.storage}"
         operator  = "set_contains_any"

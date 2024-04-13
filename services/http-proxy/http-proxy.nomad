@@ -23,13 +23,6 @@ job "http-proxy" {
   type        = "system"
   priority    = 80
 
-  vault {
-    policies = ["http-proxy"]
-
-    change_mode   = "restart"
-    change_signal = "SIGHUP"
-  }
-
   update {
     max_parallel = 2
     stagger      = "10s"
@@ -63,6 +56,10 @@ job "http-proxy" {
     }
 
     task "nginx" {
+      vault {
+        role = "http-proxy"
+      }
+
       constraint {
         attribute = "${meta.os_family}"
         operator  = "!="
@@ -192,6 +189,9 @@ job "http-proxy" {
     }
 
     task "nginx-macos" {
+      vault {
+        role = "http-proxy"
+      }
       constraint {
         attribute = "${meta.os_family}"
         value     = "macos"

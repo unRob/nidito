@@ -7,7 +7,7 @@ packages:
     source: https://github.com/cesanta/docker_auth
     check: github-releases
     image: cesanta/docker_auth
-    version: "1.11"
+    version: "1.12"
     comparison: prefix
   registry:
     source: https://github.com/distribution/distribution

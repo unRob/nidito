@@ -4,7 +4,7 @@ consul:
   bin: /usr/bin/consul
   data: /var/lib/consul
   logs: # journald
-  version: 1.17.1
+  version: 1.18.1
   source: https://github.com/hashicorp/consul
   check: hc-releases
   systemd:
@@ -44,7 +44,7 @@ nomad:
   config: /etc/nomad.d
   data: /var/lib/nomad
   logs: # journald
-  version: 1.7.2
+  version: 1.7.6
   source: https://github.com/hashicorp/nomad
   check: hc-releases
   systemd:
@@ -55,7 +55,7 @@ vault:
   bin: /usr/bin/vault
   user: vault
   logs: # journald
-  version: 1.15.4
+  version: 1.16.0
   source: https://github.com/hashicorp/vault
   check: hc-releases
   systemd:

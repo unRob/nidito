@@ -17,13 +17,12 @@ job "consul-backup" {
   }
 
   group "consul-backup" {
-    vault {
-      policies    = ["consul-backup"]
-      change_mode = "noop"
-    }
-
     task "consul-backup" {
       driver = "docker"
+      vault {
+        role        = "consul-backup"
+        change_mode = "noop"
+      }
 
       template {
         destination   = "secrets/tls/ca.pem"
@@ -59,7 +58,7 @@ job "consul-backup" {
       }
 
       config {
-        image = "registry.nidi.to/consul-backup:202304092241"
+        image = "${var.package.self.image}:${var.package.self.version}"
         args  = ["${node.region}"]
         volumes = [
           "secrets/tls/ca.pem:/etc/ssl/certs/nidito.crt",

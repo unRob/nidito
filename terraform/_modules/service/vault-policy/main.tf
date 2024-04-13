@@ -56,10 +56,12 @@ locals {
   policies = merge(
     local.token_policies,
     {
-      ("config/kv/service:${var.name}") = ["read"]
+      // config
+      ("config/kv/service:${var.name}") = ["read"] // deprecated
       ("cfg/svc/tree/${var.domain}:${var.name}") = ["read"]
       ("cfg/svc/trees") = ["list"]
       ("cfg/infra/trees") = ["list"]
+      // service storage
       ("nidito/service/${var.name}") = ["read", "list"]
       ("nidito/service/${var.name}/*") = ["read", "list"]
       ("nidito/service/${var.name}/+/*") = ["read", "list"]
@@ -87,4 +89,34 @@ resource "vault_policy" "service" {
   %{ endfor }
   ${var.extra_rules}
   HCL
+}
+
+output "policy" {
+  value = vault_policy.service.name
+}
+
+data "terraform_remote_state" "vault" {
+  backend = "consul"
+  workspace = "${terraform.workspace == "default" ? "casa" : terraform.workspace}"
+  config = {
+    path = "nidito/state/vault"
+  }
+}
+
+resource "vault_jwt_auth_backend_role" "service" {
+  backend = data.terraform_remote_state.vault.outputs.nomad-auth-path
+  role_type = "jwt"
+  role_name = var.name
+  bound_audiences = ["vault.io"]
+  user_claim = "/nomad_job_id"
+  user_claim_json_pointer = true
+  claim_mappings = {
+    nomad_namespace = "nomad_namespace"
+    nomad_job_id = "nomad_job_id"
+    nomad_task = "nomad_task"
+  }
+  token_type = "service"
+  token_policies = [vault_policy.service.name]
+  token_period = 60 * 60 * 6
+  token_explicit_max_ttl = 0
 }

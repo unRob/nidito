@@ -1,5 +1,5 @@
 - name: Reload nomad config
-  when: ansible_service_mgr == "launchd" and not restarted_service.changed
+  when: ansible_service_mgr == "launchd"
   listen: reload nomad
   become: yes
   shell: kill -HUP "$(ps x | awk '/\/usr\/local\/bin\/nomad agent/ {print $1; exit}')"

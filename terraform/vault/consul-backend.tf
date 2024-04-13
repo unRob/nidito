@@ -22,3 +22,10 @@ resource "vault_consul_secret_backend" "consul" {
 output "consul_backend_name" {
   value = vault_consul_secret_backend.consul.path
 }
+
+
+// DEPRECATED
+resource "vault_mount" "consul" {
+  type = "consul"
+  path        = "consul"
+}

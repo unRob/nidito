@@ -1,0 +1,36 @@
+homeassistant:
+  name: Anahuac
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: !secret elevation
+  unit_system: metric
+  currency: USD
+  country: MX
+  time_zone: "America/Mexico_City"
+  external_url: "https://control.nidi.to"
+  internal_url: "https://control.nidi.to"
+http:
+  use_x_forwarded_for: true
+  server_port: !secret server_port
+  trusted_proxies:
+    - !secret tepetl_range
+
+
+# https://www.home-assistant.io/integrations/default_config/
+backup:
+config:
+dhcp:
+energy:
+
+# disabled history until I add psql/patroni
+# history:
+
+homeassistant_alerts:
+image_upload:
+# logbook:
+mobile_app:
+ssdp:
+sun:
+prometheus:
+  requires_auth: false
+zeroconf:

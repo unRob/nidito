@@ -1,0 +1,8 @@
+latitude: !!secret ""
+longitude: !!secret ""
+elevation: !!secret ""
+storage:
+  config:
+    key: !!secret
+    secret: !!secret
+    bucket: home-assistant-config

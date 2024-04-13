@@ -1,5 +1,5 @@
 FROM registry.nidi.to/base:latest
 
-RUN apk add curl jq thttpd
+RUN apk add curl jq busybox busybox-extras
 
-ENTRYPOINT [ "thttpd", "-D" ]
+ENTRYPOINT [ "httpd", "-f", "-v" ]

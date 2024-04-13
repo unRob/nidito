@@ -16,20 +16,8 @@ job "garage" {
     value     = "primary,secondary"
   }
 
-  constraint {
-    operator = "distinct_hosts"
-    value    = "true"
-  }
-
-
-  vault {
-    policies = ["garage"]
-
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
-  }
-
   group "garage" {
+    count = 3
     update {
       max_parallel = 1
     }
@@ -68,6 +56,10 @@ job "garage" {
 
 
     task "garage" {
+      vault {
+        role = "garage"
+      }
+
       driver = "docker"
 
       template {
@@ -87,7 +79,7 @@ job "garage" {
       }
 
       config {
-        image = "${package.self.image}:${package.self.version}"
+        image = "${var.package.self.image}:${var.package.self.version}"
         command  = "/garage"
         args     = ["--config", "${NOMAD_SECRETS_DIR}/garage.toml", "server"]
         ports    = ["rpc", "s3", "web", "api"]

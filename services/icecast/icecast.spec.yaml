@@ -5,7 +5,7 @@ packages:
   self:
     image: registry.nidi.to/icecast
     source: ./Dockerfile
-    version: 202312312202
+    version: 202309122357
   upstream:
     source: https://github.com/karlheyes/icecast-kh
     check: github-releases

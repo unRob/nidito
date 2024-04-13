@@ -13,11 +13,6 @@ job "media-ingest" {
 
   parameterized {}
 
-  vault {
-    policies    = ["media-ingest"]
-    change_mode = "restart"
-  }
-
   group "media-ingest" {
 
     task "rclone" {
@@ -26,6 +21,11 @@ job "media-ingest" {
       constraint {
         attribute = "${meta.storage}"
         value     = "primary"
+      }
+
+      vault {
+        role    = "media-ingest"
+        change_mode = "restart"
       }
 
       identity {
@@ -68,7 +68,7 @@ job "media-ingest" {
       }
 
       resources {
-        cpu        = 40
+        cpu        = 800
         memory     = 100
         memory_max = 800
       }

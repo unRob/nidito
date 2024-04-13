@@ -49,7 +49,6 @@
 - name: Install consul binary
   when: needs_install
   become: yes
-  creates: "{{ consul.bin }}"
   shell: |
     cd /tmp
     7z e consul_{{ consul.version }}_linux_{{ golang_artifact_arch }}.zip
