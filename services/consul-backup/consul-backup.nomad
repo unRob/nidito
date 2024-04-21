@@ -10,6 +10,7 @@ job "consul-backup" {
   datacenters = ["casa", "qro0"]
   type        = "batch"
   priority    = 50
+  namespace   = "infra-upkeep"
 
   periodic {
     crons             = ["@daily"]

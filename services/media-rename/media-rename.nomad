@@ -9,6 +9,7 @@ variable "package" {
 job "media-rename" {
   datacenters = ["casa"]
   type        = "batch"
+  namespace   = "media"
 
   parameterized {}
 

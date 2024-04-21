@@ -1,6 +1,6 @@
 FROM busybox:latest as buildenv
 ARG TARGETARCH
-ARG CONSUL_VERSION=1.15.2
+ARG CONSUL_VERSION
 
 WORKDIR /unpack
 RUN \

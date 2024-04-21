@@ -8,6 +8,7 @@ variable "package" {
 
 job "home-assistant" {
   datacenters = ["casa"]
+  namespace   = "home"
 
   group "home-assistant" {
     restart {

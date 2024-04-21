@@ -29,7 +29,11 @@ provider "digitalocean" {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "event-gateway"
-  nomad_roles = [nomad_acl_role.event-gateway.name]
+  configs = [
+    "provider:honeycomb",
+    "service:ca"
+  ]
+  consul_creds = [module.consul-policy.name]
 }
 
 module "external-dns" {
@@ -37,39 +41,24 @@ module "external-dns" {
   name = "evgw"
 }
 
-# TODO: set job and group when https://github.com/hashicorp/terraform-provider-nomad/pull/314 lands
-# created with the following command, then imported
-# nomad acl policy apply -namespace default -job event-gateway -group event-gateway -task event-gateway event-gateway-triggers-jobs <(cat <<EOF
-# namespace "default" {
-#   capabilities = ["dispatch-job"]
-# }
-# EOF
-# )
+module "consul-policy" {
+  source = "../../terraform/_modules/service/consul-policy"
+  name = "event-gateway"
+  create_vault_role = true
+}
+
 resource "nomad_acl_policy" "event-gateway" {
   name = "event-gateway-triggers-jobs"
-  # job = "event-gateway"
-  # group = "event-gateway"
-  # task = "event-gateway"
+  job_acl {
+    job_id = "event-gateway"
+    group = "event-gateway"
+    task = "event-gateway"
+    namespace = "infra-runtime"
+  }
   rules_hcl = <<HCL
-namespace "default" {
+namespace "*" {
   policy = "read"
   capabilities = ["dispatch-job"]
 }
 HCL
-}
-
-resource "vault_nomad_secret_role" "event-gateway" {
-  backend   = "nomad"
-  role      = nomad_acl_role.event-gateway.name
-  type      = "client"
-  policies  = [nomad_acl_policy.event-gateway.name]
-}
-
-resource "nomad_acl_role" "event-gateway" {
-  name        = "service-event-gateway"
-  description = "event-gateway service"
-
-  policy {
-    name = nomad_acl_policy.event-gateway.name
-  }
 }

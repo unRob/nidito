@@ -43,6 +43,7 @@ nomad:
   bin: /usr/bin/nomad
   config: /etc/nomad.d
   data: /var/lib/nomad
+  client_data: /var/lib/nomad/client
   logs: # journald
   version: 1.7.6
   source: https://github.com/hashicorp/nomad

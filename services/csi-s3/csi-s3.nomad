@@ -8,6 +8,7 @@ variable "package" {
 
 job "csi-s3" {
   datacenters = ["casa"]
+  namespace   = "infra-runtime"
 
   group "csi-s3" {
     task "controller" {

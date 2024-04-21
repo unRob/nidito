@@ -9,11 +9,7 @@ variable "package" {
 job "prometheus" {
   datacenters = ["casa"]
   type        = "service"
-
-  vault {
-    policies    = ["prometheus"]
-    change_mode = "restart"
-  }
+  namespace   = "infra-observability"
 
   group "prometheus" {
     reschedule {
@@ -42,6 +38,8 @@ job "prometheus" {
 
       vault {
         role = "prometheus"
+        change_mode = "signal"
+        change_signal = "SIGHUP"
       }
 
       constraint {

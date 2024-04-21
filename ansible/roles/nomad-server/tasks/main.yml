@@ -27,6 +27,7 @@
   with_items:
     - "{{ nomad.config }}"
     - "{{ nomad.data }}"
+    - "{{ nomad.client_data }}"
     - "{{ nomad.config }}/tls"
     # make sure the bin prefix is /nidito (not /usr/...)
     # before enabling this, otherwise risk denying our local user account

@@ -9,6 +9,7 @@ variable "package" {
 job "garage" {
   datacenters = ["casa"]
   priority    = 70
+  namespace   = "infra-runtime"
 
   constraint {
     attribute = "${meta.storage}"

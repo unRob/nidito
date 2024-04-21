@@ -23,10 +23,10 @@ if [[ -f "$dockerfile" ]]; then
   fi
 
   build_args=()
-  if [[ -f "$service_folder/build_args.sh" ]]; then
+  if [[ -f "${service_folder}/build-args.sh" ]]; then
     while read -r arg; do
       build_args+=( --build-arg "$arg" )
-    done < <("$service_folder/build_args.sh") || @milpa.fail "Could not run build_args to completion"
+    done < <(source "${service_folder}/build-args.sh") || @milpa.fail "Could not run build_args to completion"
   fi
 
   while read -r arg; do
@@ -49,6 +49,7 @@ if [[ -f "$dockerfile" ]]; then
       --tag "$image:$shaTag" \
       --tag "$image:latest" \
       --file "$dockerfile" \
+      --ssh "default" \
       --cache-from "type=registry,ref=$image:buildcache" \
       --cache-to "type=registry,ref=$image:buildcache,mode=max" \
       "${build_args[@]}" \

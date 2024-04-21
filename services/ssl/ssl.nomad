@@ -9,6 +9,7 @@ variable "package" {
 job "ssl" {
   datacenters = ["casa", "qro0"]
   type        = "batch"
+  namespace   = "infra-upkeep"
 
   periodic {
     crons            = [

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-echo "CONSUL_VERSION=$(joao get "$NIDITO_ROOT/config/service/consul.yaml" version)"
+echo "CONSUL_VERSION=$(joao get ~/src/nidito/ansible/group_vars/all.yml consul.version)"

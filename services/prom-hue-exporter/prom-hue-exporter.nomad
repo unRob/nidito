@@ -10,6 +10,7 @@ job "prom-hue-exporter" {
   datacenters = ["casa"]
   region      = "casa"
   priority    = 10
+  namespace   = "home"
 
   group "prom-hue-exporter" {
     reschedule {

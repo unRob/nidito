@@ -1,10 +1,17 @@
-FROM golang:1.20-alpine as build
-RUN apk add git
+FROM golang:1.21-alpine as build
+ARG PACKAGE_UPSTREAM_VERSION
+ARG PACKAGE_UPSTREAM_SOURCE
+RUN apk add git openssh
 WORKDIR /src
-ADD go.mod go.sum main.go /src/
-RUN export GOPATH=/go; go build -ldflags "-s -w" -trimpath -o /event-gateway
+RUN git config --global --add url.ssh://git@${PACKAGE_UPSTREAM_SOURCE#*://}.insteadOf ${PACKAGE_UPSTREAM_SOURCE}
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=ssh \
+    mkdir ~/.ssh/ && \
+    ssh-keyscan -t rsa -H git.rob.mx >> ~/.ssh/known_hosts && \
+    export GOPATH=/go GOPRIVATE=${PACKAGE_UPSTREAM_SOURCE#*://}; go install ${PACKAGE_UPSTREAM_SOURCE#*://}@${PACKAGE_UPSTREAM_VERSION}
 
 FROM registry.nidi.to/base:latest
-COPY --from=build /event-gateway /event-gateway
+COPY --from=build /go/bin/event-gateway /event-gateway
 
-ENTRYPOINT [ "/event-gateway" ]
+ENTRYPOINT [ "/event-gateway", "server", "--verbose" ]

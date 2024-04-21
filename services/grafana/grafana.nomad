@@ -9,6 +9,7 @@ variable "package" {
 job "grafana" {
   datacenters = ["casa"]
   type        = "service"
+  namespace   = "infra-observability"
 
   group "grafana" {
     reschedule {
@@ -32,17 +33,81 @@ job "grafana" {
       }
     }
 
+    task "db-restore" {
+      vault {
+        role = "grafana"
+        change_mode   = "restart"
+      }
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
+      driver = "docker"
+      user   = "nobody"
+
+      resources {
+        cpu        = 128
+        memory     = 64
+        memory_max = 512
+      }
+
+      config {
+        image   = "${var.package.litestream.image}:${var.package.litestream.version}"
+        args    = ["restore", "/alloc/grafana.db"]
+        volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
+      }
+
+      template {
+        data        = file("litestream.yaml")
+        destination = "secrets/litestream.yaml"
+      }
+    }
+
+    task "db-replicate" {
+      vault {
+        role = "grafana"
+        change_mode   = "restart"
+      }
+      lifecycle {
+        hook    = "prestart"
+        sidecar = true
+      }
+
+      driver = "docker"
+      user   = "nobody"
+
+      resources {
+        cpu        = 256
+        memory     = 128
+        memory_max = 512
+      }
+
+      config {
+        image   = "${var.package.litestream.image}:${var.package.litestream.version}"
+        args    = ["replicate"]
+        volumes = ["secrets/litestream.yaml:/etc/litestream.yml"]
+      }
+
+      template {
+        data        = file("litestream.yaml")
+        destination = "secrets/litestream.yaml"
+      }
+    }
+
     task "grafana" {
       driver = "docker"
+      user   = "nobody"
 
-      constraint {
-        attribute = "${meta.storage}"
-        value     = "secondary"
+      vault {
+        role = "grafana"
+        change_mode   = "restart"
       }
 
       env {
         GF_INSTALL_PLUGINS = "grafana-piechart-panel"
         GF_DOMAIN_ROOT_URL = "https://grafana.${meta.dns_zone}"
+        GF_DATABASE_URL = "sqlite3:///alloc/grafana.db"
         // GF_PATHS_CONFIG = "/secrets/grafana.ini"
       }
 
@@ -50,7 +115,7 @@ job "grafana" {
         image = "${var.package.self.image}:${var.package.self.version}"
         ports = ["http"]
         volumes = [
-          "/nidito/grafana/data:/var/lib/grafana"
+          "/nidito/grafana/data:/var/lib/grafana",
         ]
       }
 

@@ -9,6 +9,7 @@ variable "package" {
 job "radio" {
   datacenters = ["casa"]
   priority    = 50
+  namespace   = "media"
 
   group "radio" {
     update {

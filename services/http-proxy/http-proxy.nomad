@@ -22,6 +22,7 @@ job "http-proxy" {
   datacenters = ["casa", "qro0"]
   type        = "system"
   priority    = 80
+  namespace   = "infra-runtime"
 
   update {
     max_parallel = 2

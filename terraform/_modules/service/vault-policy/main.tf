@@ -57,7 +57,6 @@ locals {
     local.token_policies,
     {
       // config
-      ("config/kv/service:${var.name}") = ["read"] // deprecated
       ("cfg/svc/tree/${var.domain}:${var.name}") = ["read"]
       ("cfg/svc/trees") = ["list"]
       ("cfg/infra/trees") = ["list"]
@@ -66,12 +65,11 @@ locals {
       ("nidito/service/${var.name}/*") = ["read", "list"]
       ("nidito/service/${var.name}/+/*") = ["read", "list"]
     },
-    { for cfg in var.configs: ("config/kv/${cfg}") => ["read"] },
     { for cfg in var.configs: ("cfg/infra/tree/${cfg}") => ["read"] },
     { for svc in var.services: ("cfg/svc/tree/${svc}") => ["read"] },
-      /* deprecated */
+    // deprecated
     { for path in var.paths: ("nidito/${path}") => ["read", "list"] },
-    { for role in var.nomad_roles: ("nomad/creds/${role}") => ["read"] },
+    // consul credentials
     { for role in var.consul_creds: ("consul-acl/creds/${role}") => ["create", "update", "delete", "read", "list"] },
     (length(var.consul_creds) > 0 ? {
       ("auth/token/create") = ["create", "read", "update", "list"]

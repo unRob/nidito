@@ -39,12 +39,7 @@ variable "package" {
 
 job "$svc" {
   datacenters = ["$MILPA_OPT_DC"]
-
-  vault {
-    policies = ["$svc"]
-    change_mode   = "signal"
-    change_signal = "SIGHUP"
-  }
+  namespace = "home"
 
   group "$svc" {
     restart {
@@ -62,9 +57,15 @@ job "$svc" {
     task "$svc" {
       driver = ""
 
+      vault {
+        role          = "$svc"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+      }
+
       resources {
-        cpu = 50
-        memory = 128
+        cpu        = 50
+        memory     = 128
         memory_max = 512
       }
 

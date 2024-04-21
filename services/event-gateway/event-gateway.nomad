@@ -9,6 +9,7 @@ variable "package" {
 job "event-gateway" {
   datacenters = ["casa"]
   region      = "casa"
+  namespace   = "infra-runtime"
 
   group "event-gateway" {
     update {
@@ -44,8 +45,12 @@ job "event-gateway" {
       }
 
       template {
-        destination   = "local/listeners.json"
-        data          = file("./listeners.json.tpl")
+        destination   = "secrets/tls/ca.pem"
+        data          = <<-PEM
+        {{- with secret "cfg/infra/tree/service:ca" }}
+        {{ .Data.cert }}
+        {{- end }}
+        PEM
         change_mode   = "signal"
         change_signal = "SIGHUP"
       }
@@ -54,23 +59,35 @@ job "event-gateway" {
         destination = "secrets/env"
         env         = true
         data        = <<ENV
-          LOG_LEVEL="debug"
-          LISTENERS_PATH="{{ env "NOMAD_TASK_DIR" }}/listeners.json"
+          {{ with secret "cfg/infra/tree/provider:honeycomb" -}}
+          HONEYCOMB_DATASET="{{ .Data.dataset }}"
+          HONEYCOMB_API_ENDPOINT="{{ .Data.endpoint }}"
+          OTEL_SERVICE_NAME="event-gateway"
+          HONEYCOMB_API_KEY="{{ .Data.ingest }}"
+          {{- end }}
           PORT="{{ env "NOMAD_PORT_http" }}"
-          NOMAD_ADDR="unix://{{ env "NOMAD_SECRETS_DIR" }}/api.sock"
-          NOMAD_TOKEN="{{ with secret "nomad/creds/service-event-gateway" }}{{ .Data.secret_id }}{{ end }}"
+          CONSUL_HTTP_ADDR="{{ env "CONSUL_HTTP_ADDR" }}"
+          {{ with secret "consul-acl/creds/service-event-gateway" -}}
+          CONSUL_HTTP_TOKEN="{{ .Data.token }}"
+          {{- end }}
         ENV
       }
 
       identity {
-        env  = false
-        file = true
+        env  = true
       }
 
       config {
         image        = "${var.package.self.image}:${var.package.self.version}"
         ports        = ["http"]
         network_mode = "bridge"
+        args         = [
+          "--config", "consul://nidito/service/event-gateway/listener",
+          ":${NOMAD_PORT_http}"
+        ]
+        volumes = [
+          "secrets/tls/ca.pem:/etc/ssl/certs/nidito.crt",
+        ]
       }
 
       resources {

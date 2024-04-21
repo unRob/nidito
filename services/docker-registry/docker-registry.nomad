@@ -9,6 +9,7 @@ variable "package" {
 job "docker-registry" {
   datacenters = ["casa"]
   type        = "service"
+  namespace   = "infra-runtime"
 
   group "registry" {
     count = 1

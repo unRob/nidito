@@ -9,6 +9,7 @@ variable "package" {
 job "csi-s3-node" {
   datacenters = ["casa"]
   type = "system"
+  namespace   = "infra-runtime"
 
 
   group "csi-s3-node" {

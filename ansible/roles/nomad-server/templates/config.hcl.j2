@@ -55,6 +55,7 @@ client {
   enabled       = true
   node_class = "{{ node.hardware.os }}-{{ node.hardware.arch }}"
   memory_total_mb = "{% if ansible_memtotal_mb <= 1500 %}1000{% else %}{{ ansible_memtotal_mb * 0.9 | round | int }}{% endif %}"
+  state_dir = "{{ nomad.client_data }}/client"
 
   cni_path = "/opt/cni/bin"
   cni_config_dir = "/opt/cni/config"

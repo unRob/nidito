@@ -79,10 +79,6 @@ locals {
   }
   %{ endfor }
 
-  key "${var.name}" {
-    policy = "write"
-  }
-
   %{ if length(var.session_prefixes) > 0 }
   %{ for prefix, policy in var.session_prefixes }session_prefix "${prefix}" {
     policy = "${policy}"

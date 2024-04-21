@@ -6,5 +6,11 @@ packages:
     image: grafana/grafana
     source: https://github.com/grafana/grafana
     check: github-releases
-    version: 10.2.2
+    version: 10.4.2
+    comparison: suffix
+  litestream:
+    source: https://github.com/benbjohnson/litestream
+    image: litestream/litestream
+    check: github-releases
+    version: "0.3.13"
     comparison: suffix

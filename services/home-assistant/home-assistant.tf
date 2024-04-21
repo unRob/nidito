@@ -45,6 +45,7 @@ resource "nomad_csi_volume_registration" "config" {
   name = "home-assistant-config"
   plugin_id = "csi-s3"
   external_id = "home-assistant-config"
+  namespace = "home"
 
   capability {
     access_mode     = "multi-node-multi-writer"

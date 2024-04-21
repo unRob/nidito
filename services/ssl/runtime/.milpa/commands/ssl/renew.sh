@@ -11,10 +11,14 @@ function vault_list() {
   curl --max-time 10 --silent --fail --show-error --request LIST -H"X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$1" | jq -r "$2"
 }
 
+function dns_provider() {
+  dig +short NS "$1" @1.1.1.1 | awk -F. '!/'"$main_zone"'/ {print $(NF-2); exit}'
+}
+
 @milpa.log info "Renewing SSL for DC: $MILPA_ARG_DC"
 main_zone=$(vault_get "cfg/infra/tree/dc:${MILPA_ARG_DC}" .data.dns.zone) || @milpa.fail "could not find main_zone"
-main_provider=$(dig +short NS "$main_zone" | awk -F. '{print $(NF-2); exit}') || @milpa.fail "Could not resolve nameserver for $main_zone"
-@milpa.log info "DC $MILPA_ARG_DC hosted at DNS zone $main_zone"
+main_provider=$(dns_provider "$main_zone") || @milpa.fail "Could not resolve nameserver for $main_zone"
+@milpa.log info "DC $MILPA_ARG_DC hosted at DNS zone $main_zone with provider $main_provider"
 
 jq --null-input \
   --arg zone "$main_zone" \
@@ -24,7 +28,7 @@ jq --null-input \
 @milpa.log info "Looking for additional SSL certs to renew..."
 while read -r zone; do
   zone_token=$(vault_get "nidito/service/ssl/domains/$zone" '.data.token // "token"') || @milpa.fail "no vault config found for zone $zone at nidito/service/ssl/domains/$zone"
-  provider=$(dig +short NS "$zone" | awk -F. '{print $(NF-2); exit}') || @milpa.fail "Could not resolve nameserver for $zone"
+  provider=$(dns_provider "$zone") || @milpa.fail "Could not resolve nameserver for $zone"
   @milpa.log info "Zone $zone is using token $zone_token (NS: $provider)"
   jq \
     --arg zone "$zone" \

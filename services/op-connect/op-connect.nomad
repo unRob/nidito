@@ -10,6 +10,7 @@ job "op-connect" {
   datacenters = ["casa", "qro0"]
   type        = "system"
   priority    = 90
+  namespace   = "infra-runtime"
 
   constraint {
     attribute = "${meta.storage}"

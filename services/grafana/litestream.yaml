@@ -1,0 +1,14 @@
+
+dbs:
+  - path: /alloc/grafana.db
+    replicas:
+      {{ with secret "cfg/svc/tree/nidi.to:grafana" -}}
+      - name: local
+        type: s3
+        access-key-id: {{ .Data.storage.key }}
+        secret-access-key: {{ .Data.storage.secret }}
+        bucket: {{ .Data.storage.bucket }}
+        path: grafana.db
+        region: garage
+        endpoint: https://{{ .Data.storage.endpoint }}
+      {{- end }}

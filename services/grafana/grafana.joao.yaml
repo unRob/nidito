@@ -1,0 +1,18 @@
+auth:
+  client:
+    id: !!secret
+    secret: !!secret
+  uri:
+    auth: !!secret
+    token: !!secret
+    api: !!secret
+smtp:
+  address: smtp.mailgun.org
+  username: !!secret
+  password: !!secret
+  port: 587
+storage:
+  bucket: grafana-db
+  key: !!secret
+  secret: !!secret
+  endpoint: !!secret

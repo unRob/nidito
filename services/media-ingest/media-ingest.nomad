@@ -10,6 +10,7 @@ job "media-ingest" {
   datacenters = ["casa"]
   type        = "batch"
   priority    = 10
+  namespace   = "media"
 
   parameterized {}
 
@@ -41,7 +42,7 @@ job "media-ingest" {
       }
 
       template {
-        destination = "local/rclone.conf"
+        destination = "secrets/rclone.conf"
         data        = <<-EOF
           [putio]
           type = putio
@@ -58,11 +59,11 @@ job "media-ingest" {
       // }
 
       config {
-        image = "registry.nidi.to/media-ingest:202305212142"
+        image = "${var.package.self.image}:${var.package.self.version}"
         // command = "${NOMAD_TASK_DIR}/sync.sh"
 
         volumes = [
-          "local/rclone.conf:/config/rclone/rclone.conf",
+          "secrets/rclone.conf:/config/rclone/rclone.conf",
           "/volume1/media/dropbox/:/media",
         ]
       }

@@ -4,5 +4,8 @@ docs:
 packages:
   self:
     image: registry.nidi.to/event-gateway
-    version: "202305220457"
+    version: 202404211644
     source: ./Dockerfile
+  upstream:
+    source: https://git.rob.mx/nidito/event-gateway
+    version: e25fd89
