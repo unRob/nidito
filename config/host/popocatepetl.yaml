@@ -12,6 +12,7 @@ tags:
   role: leader
   storage: secondary
   storage_class: nvme
+  builder: enabled
 tls:
   key: !!secret ""
   consul: !!secret ""

@@ -29,6 +29,13 @@ if [[ -f "$dockerfile" ]]; then
     done < <(source "${service_folder}/build-args.sh") || @milpa.fail "Could not run build_args to completion"
   fi
 
+  if [[ -f "${service_folder}/build-secrets.sh" ]]; then
+    while read -r id; do
+      build_args+=( "--secret" "id=$id,src=$service_folder/BUILD_SECRET_$id" )
+    done < <(source "${service_folder}/build-secrets.sh") || @milpa.fail "Could not run build_args to completion"
+    trap 'rm -rf "$service_folder"/BUILD_SECRET_*' ERR EXIT
+  fi
+
   while read -r arg; do
     build_args+=( --build-arg "$arg" )
   done < <(milpa nidito service vars --output docker "$service")

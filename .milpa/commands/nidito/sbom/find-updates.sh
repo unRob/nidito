@@ -29,7 +29,7 @@ function find_latest() {
       extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://api.github.com/repos$repo/releases"
-      filter='map(select(.prerelease | not) | .tag_name) | sort_by(gsub("[^0-9.]"; "") | split(".") | map(tonumber)) | last'
+      filter='map(select((.prerelease | not) and ((.tag_name | test("(preview|rc|alpha|beta)")) | not)) | .tag_name) | sort_by(gsub("[^0-9.]"; "") | split(".") | map(tonumber)) | last'
       ;;
     github-tags)
       extra_args=( -H "Authorization: bearer $GH_PAT" )

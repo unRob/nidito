@@ -48,8 +48,8 @@ job "home-assistant" {
 
       resources {
         cpu = 50
-        memory = 128
-        memory_max = 512
+        memory = 512
+        memory_max = 1024
       }
 
       volume_mount {

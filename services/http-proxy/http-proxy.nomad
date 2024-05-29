@@ -46,13 +46,13 @@ job "http-proxy" {
       port "http" {
         static       = local.ports.http
         // TODO: find a way to make these public when reachability == "gateway"
-        host_network = "private"
+        host_network = "public"
       }
 
       port "https" {
         static       = local.ports.https
         // TODO: find a way to make these public when reachability == "gateway"
-        host_network = "private"
+        host_network = "public"
       }
     }
 

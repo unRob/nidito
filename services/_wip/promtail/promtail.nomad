@@ -9,6 +9,7 @@ variable "package" {
 job "promtail" {
   datacenters = ["casa"]
   type        = "system"
+  namespace   = "infra-observability"
 
   vault {
     policies    = ["promtail"]

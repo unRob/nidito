@@ -103,9 +103,11 @@ client {
     cidr = "{{ dc.subnet }}"
   }
 
-  host_network "public" {
-    cidr = "{% raw %}{{{% endraw %} GetPublicInterfaces | attr \"address\" {% raw %}}}{% endraw %}"
-  }
+  {% if ansible_all_ipv4_addresses | ansible.utils.ipaddr('public') | length > 0
+  %}host_network "public" {
+    cidr = "{{ ansible_all_ipv4_addresses | ansible.utils.ipaddr('public') | first}}/32"
+  }{% endif %}
+
 }
 
 plugin "raw_exec" {

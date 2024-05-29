@@ -155,7 +155,7 @@ job "garage" {
         meta {
           nidito-acl            = "allow external"
           nidito-http-domain    = "cajon"
-          nidito-dns-alias      = "*.cajon"
+          nidito-dns-alias      = "cajon; *.cajon"
           nidito-http-tls       = "cajon.${meta.dns_zone}"
         }
       }

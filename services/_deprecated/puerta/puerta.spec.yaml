@@ -1,4 +1,4 @@
-description: ingest media from remote storage
+description: opens a buzzer-controlled door
 docs:
   - https://git.rob.mx/nidito/puerta
   - https://litestream.io/

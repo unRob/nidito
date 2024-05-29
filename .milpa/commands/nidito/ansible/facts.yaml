@@ -1,0 +1,9 @@
+summary: Prints ansible_facts
+description: |
+  just a wrapper for `ansible -m setup`
+arguments:
+  - name: host
+    description: A list of hosts to apply roles to
+    required: true
+    values:
+      milpa: nidito node list --source config

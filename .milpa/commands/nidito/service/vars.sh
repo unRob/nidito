@@ -19,7 +19,7 @@ joao get "$config" . --output json | case "$MILPA_OPT_OUTPUT" in
   ;;
   docker)
     jq -r '
-      .packages // {} |
+      ((.packages // {}) + (.dependencies // {})) |
       to_entries |
       map(
         [ ("package_\(.key)_image" | ascii_upcase), (.value.image // "" | tostring) ],

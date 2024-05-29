@@ -14,7 +14,7 @@ terraform {
     }
     nomad = {
       source  = "hashicorp/nomad"
-      version = "~> 2.0.0"
+      version = "~> 2.2.0"
     }
   }
 
@@ -32,14 +32,16 @@ provider "nomad" {
 locals {
   namespaces = {
     infra = {
-      runtime = "stuff providing supporting features for services"
+      runtime       = "stuff providing supporting features for services"
       observability = "misnomer, or a declaration of intent, at best"
-      upkeep = "keeps things working and disasters preventable"
+      upkeep        = "keeps things working and disasters preventable"
     }
     nidito = {
-      home = "home management"
-      media = "media management"
-      rmr = "republica multitudinaria de roberto"
+      home   = "home management"
+      media  = "media management"
+      rmr    = "republica multitudinaria de roberto"
+      code   = "tools for coding around"
+      social = "the stuff of horrors"
     }
   }
 }

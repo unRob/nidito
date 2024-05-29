@@ -7,12 +7,14 @@ hardware:
   arch: x86_64
   model: macmini5,3
   os: linux/arch
+  builder: enabled
 mac: !!secret
 tags:
   reachability: private
   role: leader
   storage: secondary
   storage_class: ssd
+  builder: enabled
 tls:
   consul: !!secret ""
   key: !!secret ""

@@ -4,6 +4,6 @@ docs:
 packages:
   self:
     image: ghcr.io/home-assistant/home-assistant
-    version: "2024.4.3"
+    version: "2024.5.5"
     source: https://github.com/home-assistant/core
     check: github-releases

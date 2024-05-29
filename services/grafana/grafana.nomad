@@ -105,18 +105,16 @@ job "grafana" {
       }
 
       env {
-        GF_INSTALL_PLUGINS = "grafana-piechart-panel"
         GF_DOMAIN_ROOT_URL = "https://grafana.${meta.dns_zone}"
-        GF_DATABASE_URL = "sqlite3:///alloc/grafana.db"
+        GF_DATABASE_TYPE = "sqlite3"
+        GF_DATABASE_WAL = "true"
+        GF_DATABASE_PATH = "/alloc/grafana.db"
         // GF_PATHS_CONFIG = "/secrets/grafana.ini"
       }
 
       config {
         image = "${var.package.self.image}:${var.package.self.version}"
         ports = ["http"]
-        volumes = [
-          "/nidito/grafana/data:/var/lib/grafana",
-        ]
       }
 
       resources {

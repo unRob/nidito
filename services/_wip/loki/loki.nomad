@@ -9,6 +9,7 @@ variable "package" {
 job "loki" {
   datacenters = ["casa"]
   type        = "service"
+  namespace   = "infra-observability"
 
   update {
     max_parallel      = 1

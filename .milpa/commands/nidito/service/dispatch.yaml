@@ -7,6 +7,10 @@ arguments:
     values: { milpa: nidito service list }
   - name: task
     description: The name of the task to dispatch
+    values:
+      script: |
+        cd $NIDITO_ROOT/services/{{Arg "service"}}
+        nomad job run -output {{Arg "service"}}.nomad | jq -r '.Job.TaskGroups[].Tasks[].Name'
     required: true
   - name: payload
     description: json text to send as a payload

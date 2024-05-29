@@ -65,6 +65,7 @@ job "event-gateway" {
           OTEL_SERVICE_NAME="event-gateway"
           HONEYCOMB_API_KEY="{{ .Data.ingest }}"
           {{- end }}
+          NOMAD_ADDR="unix://{{ env "NOMAD_SECRETS_DIR" }}/api.sock"
           PORT="{{ env "NOMAD_PORT_http" }}"
           CONSUL_HTTP_ADDR="{{ env "CONSUL_HTTP_ADDR" }}"
           {{ with secret "consul-acl/creds/service-event-gateway" -}}

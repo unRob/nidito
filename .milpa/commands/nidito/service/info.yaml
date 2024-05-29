@@ -1,6 +1,6 @@
-summary: Deploy a service
+summary: Get job spec as json
 description: |
-  Deploys a service to nomad
+  Using nomad to read HCL
 arguments:
   - name: service
     description: The name of the service to deploy
@@ -15,13 +15,9 @@ arguments:
       suggest-only: true
     required: true
 options:
-  skip-plan:
-    type: bool
-    description: Skips planning the nomad job
-  dc:
-    description: the datacenter to deploy to
-    default: casa
-    values: {milpa: nidito dc list}
   spec:
     description: provide a nomad spec instead of a service name
     type: bool
+  filter:
+    description: a jq filter to render info
+    default: '.'

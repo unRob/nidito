@@ -1,7 +1,11 @@
 [Unit]
 Description=Consul Agent
 Requires=network-online.target
+# `After` works fine on synology DSM (debian) after a full DC reboot
+# but arch (kernel ~6.6, systemd ~254) doesn't wait at all with this
 After=network-online.target
+# Apparently, arch only waits with `Wants`
+Wants=network-online.target
 
 [Service]
 User={{ consul.user }}

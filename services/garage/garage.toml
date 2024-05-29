@@ -6,7 +6,8 @@ data_dir = "/storage/data"
 
 db_engine = "lmdb"
 
-replication_mode = "3"
+replication_factor = 3
+consistency_mode = "consistent"
 
 compression_level = 1
 {{ with secret (printf "cfg/svc/tree/%s:garage" $zone) }}

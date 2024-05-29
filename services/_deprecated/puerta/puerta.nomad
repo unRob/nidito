@@ -10,6 +10,7 @@ job "puerta" {
   datacenters = ["casa"]
   region      = "casa"
   priority    = 10
+  namespace   = "home"
 
   vault {
     policies = ["puerta"]

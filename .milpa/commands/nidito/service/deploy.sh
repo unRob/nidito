@@ -14,7 +14,7 @@ if [[ -f "$spec" ]]; then
   # export NOMAD_ADDR="https://nomad.service.$MILPA_OPT_DC.consul:5560"
   @milpa.log info "Writing temporary variables for nomad job"
   varFile="${spec%%nomad}vars"
-  milpa --verbose nidito service vars --output nomad "$service" >"$varFile" || @milpa.fail "Could not get vars for $service"
+  nomad_vars "$service" "$spec" >"$varFile" || @milpa.fail "Could not get vars for $service"
 
   if [[ ! "$MILPA_OPT_SKIP_PLAN" ]]; then
     @nidito.service.nomad.plan "$spec" "$service"

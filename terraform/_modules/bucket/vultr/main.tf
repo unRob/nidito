@@ -3,12 +3,12 @@ terraform {
   required_providers {
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 3.18.0"
+      version = "~> 4.2.0"
     }
 
     vultr = {
       source = "vultr/vultr"
-      version = "~> 2.16.0"
+      version = "~> 2.19.0"
     }
 
     minio = {

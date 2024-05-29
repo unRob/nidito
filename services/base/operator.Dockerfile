@@ -3,8 +3,8 @@ ARG PACKAGE_MILPA_VERSION
 
 RUN apk --update add --no-cache curl jq ncurses less findutils bash-completion openssh-client git
 
-RUN mkdir -p /etc/ssl/certs && \
-  curl --silent --show-error --fail -L https://cajon.nidi.to/tls/casa.pem >> /etc/ssl/certs/ca-certificates.crt
+RUN --mount=type=secret,id=CA_PEM mkdir -p /etc/ssl/certs && \
+  cp /run/secrets/CA_PEM /etc/ssl/certs/ca-certificates.crt
 
 ENV SHELL "/bin/bash"
 RUN curl --silent --show-error --fail -L https://milpa.dev/install.sh | MILPA_VERSION=${PACKAGE_MILPA_VERSION} bash -

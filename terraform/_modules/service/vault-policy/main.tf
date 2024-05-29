@@ -97,7 +97,7 @@ data "terraform_remote_state" "vault" {
   backend = "consul"
   workspace = "${terraform.workspace == "default" ? "casa" : terraform.workspace}"
   config = {
-    path = "nidito/state/vault"
+    path = "nidito/state/nomad"
   }
 }
 

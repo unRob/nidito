@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
-service="$MILPA_ARG_SERVICE"
+@milpa.load_util service
+read -r service service_folder _ < <(@nidito.service.resolve_spec)
+cd "$service_folder" || @milpa.fail "could not cd into $service_folder"
+
 if [[ "$MILPA_OPT_LOCAL" ]]; then
   exec docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
 fi
 
 set -e pipefail
-alloc="$(nomad job allocs -json "$service" | jq -r '.[0].ID')" || @milpa.fail "Could not fetch allocation for job $service"
+ns=$(milpa nidito service info "$service" --filter '.Job.Namespace')
+alloc="$(nomad job allocs -json -namespace "$ns" "$service" | jq -r '.[0].ID')" || @milpa.fail "Could not fetch allocation for job $service"
 
 cmd=(/bin/sh)
 if [[ ${#MILPA_ARG_COMMAND[@]} -gt 0 ]]; then
@@ -31,6 +35,6 @@ if [[ "${MILPA_OPT_TASK}" != "" ]]; then
   args+=( -task "$MILPA_OPT_TASK" )
 fi
 
-exec nomad alloc exec \
+exec nomad alloc exec -namespace "$ns" \
   "${args[@]}" \
   "$alloc" "${cmd[@]}"

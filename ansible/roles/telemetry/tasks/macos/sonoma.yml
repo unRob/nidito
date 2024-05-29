@@ -1,12 +1,11 @@
-# node exporter releases are broken on darwin
 # https://github.com/prometheus/node_exporter/issues/2539
-# - name: Download node_exporter
-#   when: needs_install
-#   become: true
-#   unarchive:
-#     remote_src: yes
-#     src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}.tar.gz"
-#     dest: "/tmp/"
+- name: Download node_exporter
+  when: needs_install
+  become: true
+  unarchive:
+    remote_src: yes
+    src: "https://github.com/prometheus/node_exporter/releases/download/v{{node_exporter.version}}/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}.tar.gz"
+    dest: "/tmp/"
 
 - name: Download node_exporter
   when: needs_install
@@ -25,8 +24,9 @@
     mode: u=rwx,g=rwx,o=
     recurse: true
 
-# - name: Install node_exporter
-#   when: needs_install
-#   become: true
-#   shell: |
-#     mv /tmp/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
+- name: Install node_exporter
+  when: needs_install
+  become: true
+  shell: |
+    mv /tmp/node_exporter-{{node_exporter.version}}.darwin-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
+

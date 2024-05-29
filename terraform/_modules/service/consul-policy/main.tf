@@ -144,3 +144,9 @@ output "token_path" {
   value = var.create_service_token ? vault_generic_secret.service[0].path : ""
   description = "The vault path to the created consul token"
 }
+
+# https://developer.hashicorp.com/consul/docs/security/acl/acl-roles
+# resource "consul_acl_role" "service" {
+#   name = "nomad-workload-${var.name}"
+#   policies    = [consul_acl_policy.service.id]
+# }

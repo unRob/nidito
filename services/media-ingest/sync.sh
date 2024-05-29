@@ -77,6 +77,6 @@ if [[ "$downloaded" -gt 0 ]]; then
     -H "Authorization: Bearer ${NOMAD_TOKEN}" \
     -H "Content-type: application/json" \
     -XPOST \
-    localhost/v1/job/media-rename/dispatch \
-    --data-binary "{}"
+    --data-binary '{"namespace":"media"}' \
+    localhost/v1/job/media-rename/dispatch
 fi
