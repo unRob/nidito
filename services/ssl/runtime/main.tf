@@ -10,15 +10,15 @@ terraform {
   required_providers {
     acme = {
       source  = "vancluever/acme"
-      version = "~> 2.15.1"
+      version = "~> 2.26.0"
     }
     vault = {
       source  = "hashicorp/vault"
-      version = "~> 4.2.0"
+      version = "~> 4.4.0"
     }
   }
 
-  required_version = ">= 1.2.0"
+  required_version = ">= 1.9.7"
 }
 
 variable "domains" {
@@ -70,14 +70,16 @@ resource acme_certificate cert {
   common_name               = each.key
   subject_alternative_names = ["*.${each.key}"]
 
-  recursive_nameservers = ["1.1.1.1:53", "8.8.8.8:53"]
+  recursive_nameservers = ["1.1.1.1:53"]
+  disable_complete_propagation = true
 
   dns_challenge {
     provider = each.value.provider
     config = each.value.provider == "digitalocean" ? {
       DO_AUTH_TOKEN = data.vault_generic_secret.provider_digitalocean.data[each.value.token == "default" ? "token" : each.value.token]
       DO_PROPAGATION_TIMEOUT = 60
-      DO_TTL = 30
+      DO_TTL = 300
+      DO_SEQUENCE_INTERVAL = 10
     } : {
       CF_DNS_API_TOKEN = data.vault_generic_secret.provider_cloudflare.data.token
     }

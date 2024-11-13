@@ -51,7 +51,7 @@
   become: yes
   shell: |
     cd /tmp
-    7z e vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip
+    7z e -y vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip
     mv -f /tmp/vault {{ vault.bin }}
     chown "{{ vault.user }}:{{ user.group }}" "{{ consul.bin }}"
     rm -rf /tmp/vault_{{ vault.version }}_linux_{{ golang_artifact_arch }}.zip

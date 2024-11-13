@@ -34,3 +34,9 @@
   become: true
   when: dsm_add_member
   shell: "/usr/syno/sbin/synogroup --memberadd '{{ user.group }}' '{{ node.auth.username }}'"
+
+# https://github.com/home-assistant/core/issues/93873
+# this helps also with CSI mounting and stuff
+- name: mount --make-shared /volume1
+  become: true
+  shell: mount --make-shared /volume1 && systemctl daemon-reload

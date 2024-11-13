@@ -43,3 +43,9 @@
   when: needs_install
   become: true
   shell: /config/scripts/firstboot.d/node_exporter.sh
+
+- include_role:
+    name: _service
+  vars:
+    service_name: node-exporter
+    systemd_template: templates/node-exporter.service.j2

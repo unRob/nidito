@@ -10,7 +10,7 @@
   become: yes
   shell: |
     cd /tmp
-    7z e nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip
+    7z e -y nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip
     mv -f /tmp/nomad {{ nomad.bin }}
     rm -rf /tmp/nomad_{{ nomad.version }}_linux_{{ golang_artifact_arch }}.zip
   notify:

@@ -7,5 +7,5 @@ packages:
     image: 1password/connect
     source: https://github.com/1Password/connect
     check: github-changelog
-    version: "1.7.2"
+    version: "1.7.3"
     comparison: suffix

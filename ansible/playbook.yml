@@ -29,6 +29,7 @@
   hosts:
     - role_leader
     - role_router
+    - role_controller
   tags: [bootstrap, telemetry]
   roles:
     - telemetry

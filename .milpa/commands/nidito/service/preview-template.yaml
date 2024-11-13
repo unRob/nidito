@@ -1,0 +1,17 @@
+summary: Previews a consul template
+description: |
+  wrapper to `consul-template -once -template="$FILE:/dev/stdout" | bat`
+arguments:
+  - name: file
+    description: the template to preview
+    required: true
+    values:
+      files: []
+options:
+  dc:
+    description: the datacenter to preview template with
+    default: casa
+    values: {milpa: nidito dc list}
+  node:
+    description: the nomad node to preview template with
+    values: {milpa: nidito node list}

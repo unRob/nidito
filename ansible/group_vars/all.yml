@@ -4,7 +4,7 @@ consul:
   bin: /usr/bin/consul
   data: /var/lib/consul
   logs: # journald
-  version: 1.18.2
+  version: 1.19.2
   source: https://github.com/hashicorp/consul
   check: hc-releases
   systemd:
@@ -31,7 +31,7 @@ node_exporter:
   bin: /usr/local/bin/node_exporter
   address: "{{ node.address }}"
   logs: # journald
-  version: 1.8.1
+  version: 1.8.2
   source: https://github.com/prometheus/node_exporter
   check: github-releases
   comparison: suffix
@@ -46,7 +46,7 @@ nomad:
   data: /var/lib/nomad
   client_data: /var/lib/nomad
   logs: # journald
-  version: 1.7.7
+  version: 1.9.3
   source: https://github.com/hashicorp/nomad
   check: hc-releases
   systemd:
@@ -57,7 +57,7 @@ vault:
   bin: /usr/bin/vault
   user: vault
   logs: # journald
-  version: 1.16.2
+  version: 1.18.0
   source: https://github.com/hashicorp/vault
   check: hc-releases
   systemd:
@@ -70,3 +70,16 @@ joao:
   check: gitea-tags
 systemd:
   prefix: /usr/lib
+unpoller:
+  bin: /usr/local/bin/unpoller
+  data: /nidito/unpoller
+  user: unifi-poller
+  address: "{{ node.address }}"
+  logs: # journald
+  version: 2.11.2
+  source: https://github.com/unpoller/unpoller
+  check: github-releases
+  comparison: suffix
+  systemd:
+    wants:
+    after:

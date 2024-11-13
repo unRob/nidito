@@ -10,5 +10,4 @@ options:
   dc:
     description: the datacenter that we'll eventually deploy to
     default: casa
-    repeated: true
     values: {milpa: nidito dc list}

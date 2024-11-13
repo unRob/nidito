@@ -1,0 +1,9 @@
+node_exporter:
+  bin: /data/nidito/node_exporter/node_exporter
+  address: 10.42.0.10
+unpoller:
+  bin: /data/nidito/unifi-poller/unpoller
+  data: /data/nidito/unifi-poller
+  address: 10.42.0.10
+systemd:
+  prefix: /etc

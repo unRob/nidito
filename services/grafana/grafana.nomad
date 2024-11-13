@@ -118,9 +118,9 @@ job "grafana" {
       }
 
       resources {
-        cpu        = 100
-        memory     = 200
-        memory_max = 500
+        cpu        = 512
+        memory     = 256
+        memory_max = 512
       }
 
       service {

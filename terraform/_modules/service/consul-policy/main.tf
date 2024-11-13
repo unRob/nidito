@@ -26,6 +26,12 @@ variable "session_prefixes" {
   default = {}
 }
 
+variable "service_prefixes" {
+  description = "service prefix permissions"
+  type = map
+  default = {}
+}
+
 variable "read_consul_data" {
   description = "allow reading consul service, node and agent metadata"
   type = bool
@@ -81,6 +87,12 @@ locals {
 
   %{ if length(var.session_prefixes) > 0 }
   %{ for prefix, policy in var.session_prefixes }session_prefix "${prefix}" {
+    policy = "${policy}"
+  }
+  %{ endfor }
+  %{ endif }
+  %{ if length(var.service_prefixes) > 0 }
+  %{ for prefix, policy in var.service_prefixes }service_prefix "${prefix}" {
     policy = "${policy}"
   }
   %{ endfor }

@@ -15,3 +15,9 @@
     mv /tmp/node_exporter-{{node_exporter.version}}.linux-{{ golang_artifact_arch }}/node_exporter {{ node_exporter.bin }}
   notify:
     - restart service
+
+- include_role:
+    name: _service
+  vars:
+    service_name: node-exporter
+    systemd_template: templates/node-exporter.service.j2

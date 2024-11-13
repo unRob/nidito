@@ -3,7 +3,7 @@ packages:
   base:
     image: registry.nidi.to/base-operator
     source: ./Dockerfile
-    version: 202405290240
+    version: 202411130202
   operator:
     image: registry.nidi.to/base-operator
     source: ./operator.Dockerfile
@@ -19,7 +19,7 @@ dependencies:
     check: github-tags
   minio:
     source: https://github.com/minio/mc
-    version: RELEASE.2024-05-24T09-08-49Z
+    version: RELEASE.2024-10-08T09-37-26Z
     check: github-tags
   musl-locales:
     source: https://gitlab.com/rilian-la-te/musl-locales

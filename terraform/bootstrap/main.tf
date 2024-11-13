@@ -6,7 +6,7 @@ terraform {
   required_providers {
     consul = {
       source  = "hashicorp/consul"
-      version = "~> 2.18.0"
+      version = "~> 2.21.0"
     }
     external = {
       source  = "hashicorp/external"

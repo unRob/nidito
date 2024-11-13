@@ -46,13 +46,13 @@ job "http-proxy" {
       port "http" {
         static       = local.ports.http
         // TODO: find a way to make these public when reachability == "gateway"
-        host_network = "public"
+        host_network = "private"
       }
 
       port "https" {
         static       = local.ports.https
         // TODO: find a way to make these public when reachability == "gateway"
-        host_network = "public"
+        host_network = "private"
       }
     }
 
@@ -117,6 +117,7 @@ job "http-proxy" {
 
       config {
         image        = "nginx:stable-alpine"
+        force_pull   = true
         network_mode = "host"
         // TODO: this is too wide, test capabilities instead
         // https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities
@@ -246,7 +247,7 @@ job "http-proxy" {
         destination = "local/on-ssl-change"
         data        = <<-SH
           #!/usr/bin/env bash
-          "${NOMAD_SECRETS_DIR}/secrets/ssl/write-ssl
+          "${NOMAD_SECRETS_DIR}/ssl/write-ssl
           # for some reason this returns exit code 129 and this makes nomad restart the whole thing
           /usr/local/bin/nginx -c  {{ env "NOMAD_TASK_DIR" }}/nginx.conf -s reload || true
         SH

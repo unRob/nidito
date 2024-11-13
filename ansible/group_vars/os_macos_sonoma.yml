@@ -18,7 +18,7 @@ nomad:
   group: wheel
   config: /usr/local/etc/nidito/nomad
   data: /private/var/lib/nomad
-  client_data: /nidito/nomad/client
+  client_data: /nidito/nomad
   logs: /usr/local/var/log/nomad
   bin: /usr/local/bin/nomad
 vault:

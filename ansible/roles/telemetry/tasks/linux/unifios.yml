@@ -1,0 +1,65 @@
+- name: Get installed version
+  become: true
+  shell: |
+    {{ unpoller.bin }} --version | awk '/unpoller, version/ {print $3}'
+  register: unpoller_installed_version
+  check_mode: no
+  ignore_errors: yes
+
+- set_fact:
+    needs_install: "{{ unpoller_installed_version.stdout != unpoller.version }}"
+
+- name: Add the nidito group
+  become: true
+  group:
+    name: "{{ user.group }}"
+    state: present
+
+
+- name: Add the unifi-poller user
+  become: true
+  user:
+    name: "{{ unpoller.user }}"
+    group: "{{ user.group }}"
+    create_home: no
+    shell: /usr/bin/false
+
+- name: Create the unifi-poller bin directory
+  become: true
+  file:
+    path: "{{ unpoller.bin | dirname }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+    recurse: true
+
+- name: Create the unifi-poller data directory
+  become: true
+  file:
+    path: "{{ unpoller.data }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+    recurse: true
+
+- include_role:
+    name: _service
+  vars:
+    service_name: unifi-poller
+    systemd_template: templates/unifi-poller.service.j2
+
+- name: Download unpoller
+  when: needs_install
+  become: true
+  unarchive:
+    remote_src: yes
+    src: "https://github.com/unpoller/unpoller/releases/download/v{{unpoller.version}}/unpoller_{{unpoller.version}}_linux_{{ golang_artifact_arch }}.tar.gz"
+    dest: "{{ unpoller.bin | dirname }}"
+  notify:
+    - restart service
+
+- name: Install config
+  become: yes
+  template:
+    src:  "up.conf.j2"
+    dest: "{{ unpoller.data }}/up.conf"
+  notify:
+    - restart service

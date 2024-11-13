@@ -1,0 +1,81 @@
+# scope is also the consul service name
+# with `primary` and `replica` tags, i.e. primary.postgres.service.consul
+scope: postgres
+name: pg-{{env "node.unique.name"}}
+namespace: /nidito/service
+
+consul:
+  url: {{ env "CONSUL_HTTP_ADDR" }}
+  token: {{ with secret "consul-acl/creds/service-postgres" }}{{ .Data.token }}{{ end }}
+  cacert: /secrets/tls/ca.pem
+  verify: true
+  register_service: true
+
+{{ with secret "cfg/svc/tree/nidi.to:postgres" }}
+bootstrap:
+  dcs:
+    # https://patroni.readthedocs.io/en/latest/dynamic_configuration.html#dynamic-configuration
+    loop_wait: 10
+    ttl: 30
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        timezone: 'UTC'
+        max_connections: 100
+        # shared_preload_libraries: pg_stat_statements
+        shared_buffers: 64MB
+        work_mem: 16MB
+        effective_cache_size: 512MB
+        tcp_keepalives_idle: 300
+        # timescaledb.telemetry_level: off
+      pg_hba:
+        - host all all 0.0.0.0/0 scram-sha-256
+        - host replication replication {{env "NOMAD_IP_api"}}/24 scram-sha-256
+        - host replication replication 127.0.0.1/32 scram-sha-256
+  initdb:
+    - auth-host: scram-sha-256
+    - auth-local: scram-sha-256
+    - encoding: UTF8
+    - locale: en_US.UTF-8
+    - data-checksums
+  users:
+    postgres:
+      password: {{ .Data.users.postgres }}
+      options:
+        - createrole
+        - createdb
+    replication:
+      password: {{ .Data.users.replication }}
+      options:
+        - replication
+
+restapi:
+  listen: 0.0.0.0:{{env "NOMAD_PORT_api"}}
+  connect_address: {{env "NOMAD_ADDR_api"}}
+  authentication:
+    username: {{ .Data.api.user }}
+    password: {{ .Data.api.password }}
+  keyfile: /secrets/tls/key.pem
+  certfile: /secrets/tls/cert.pem
+
+postgresql:
+  listen: 0.0.0.0:{{env "NOMAD_PORT_pg"}}
+  connect_address: {{env "NOMAD_ADDR_pg"}}
+  data_dir: /pg-data/data
+  pgpass: /tmp/pgpass
+  authentication:
+    superuser:
+      username: postgres
+      password: {{ .Data.users.postgres }}
+      sslrootcert: /secrets/tls/ca.pem
+    replication:
+      username: replication
+      password: {{ .Data.users.replication }}
+      sslrootcert: /secrets/tls/ca.pem
+  parameters:
+    ssl: on
+    ssl_key_file: /secrets/tls/key.pem
+    ssl_cert_file: /secrets/tls/cert.pem
+{{ end }}

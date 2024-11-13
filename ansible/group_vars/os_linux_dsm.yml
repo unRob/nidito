@@ -10,6 +10,7 @@ nomad:
   user: root
   group: root
   config: /volume1/nidito/nomad/etc
+  client_data: /volume1/nidito/nomad/data
   bin: /volume1/nidito/nomad/bin/nomad
   data: /volume1/nidito/nomad/data
 vault:

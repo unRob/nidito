@@ -4,7 +4,7 @@ description: |
 arguments:
   - name: repo
     description: the repo source to clone
-    default: git@github.com:unRob/nidito.git
+    default: https://github.com/unRob/nidito.git
   - name: branch
-    default: master
+    default: main
     description: the branch to clone from

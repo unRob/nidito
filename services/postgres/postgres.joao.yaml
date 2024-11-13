@@ -1,0 +1,9 @@
+users:
+  postgres: !!secret
+  replication: !!secret
+api:
+  user: !!secret
+  password: !!secret
+tls:
+  key: !!secret ""
+  cert: !!secret ""

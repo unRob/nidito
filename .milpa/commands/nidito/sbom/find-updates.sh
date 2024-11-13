@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export GH_PAT="$(op item get https://github.com --field api.token)" || @milpa.fail "Could not read github token"
+export GH_PAT="$(op item get https://github.com --field api.token --reveal)" || @milpa.fail "Could not read github token"
 
 function find_latest() {
   local name package check source filter prog extra_args;
@@ -16,13 +16,13 @@ function find_latest() {
       filter='.versions | map(.version | select(test("^[\\d.]+$"; "i"))) | sort_by(split(".") | map(tonumber)) | last'
       ;;
     gitea-releases)
-      repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
-      base="${source//$repo/}/api/v1/repos$repo/releases"
+      repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path.split("/").last(2).join("/")')"
+      base="${source//$repo}api/v1/repos/$repo/releases"
       filter='map(select(.prerelease | not) | .tag_name) | first'
       ;;
     gitea-tags)
-      repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
-      base="${source//$repo/}/api/v1/repos$repo/tags"
+      repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path.split("/").last(2).join("/")')"
+      base="${source//$repo}api/v1/repos/$repo/tags"
       filter='map(.name) | first'
       ;;
     github-releases)
@@ -57,6 +57,7 @@ function find_latest() {
       "
   esac
 
+  @milpa.log debug "requesting $base"
   latest=$(curl --fail --silent --show-error "${extra_args[@]}" "$base" | $prog "$filter") || return 2
   echo "$latest"
 }

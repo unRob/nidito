@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-@milpa.load_util service
+@milpa.load_util service tmp
 read -r service service_folder spec < <(@nidito.service.resolve_spec)
 cd "$service_folder" || @milpa.fail "could not cd into $service_folder"
 testing="$MILPA_OPT_LOCAL"
@@ -30,10 +30,14 @@ if [[ -f "$dockerfile" ]]; then
   fi
 
   if [[ -f "${service_folder}/build-secrets.sh" ]]; then
-    while read -r id; do
-      build_args+=( "--secret" "id=$id,src=$service_folder/BUILD_SECRET_$id" )
+    @tmp.dir bs
+    while read -d $'\0' -r kv; do
+      id="${kv%%*}"
+      data="${kv##*}"
+      tmpSecret="$bs/BUILD_SECRET_${id}"
+      echo "$data" > "$tmpSecret" || @milpa.fail "could not write secret to $tmpSecret"
+      build_args+=( "--secret" "id=$id,src=$tmpSecret" )
     done < <(source "${service_folder}/build-secrets.sh") || @milpa.fail "Could not run build_args to completion"
-    trap 'rm -rf "$service_folder"/BUILD_SECRET_*' ERR EXIT
   fi
 
   while read -r arg; do

@@ -12,6 +12,8 @@ storage "consul" {
   path    = "vault/"
 
   service_tags = "infra,nidito.metrics.enabled,nidito.metrics.path=/v1/sys/metrics,nidito.metrics.hc-prometheus-hack"
+
+  service_meta = "{\"nidito-acl\": \"allow altepetl\",\"nidito-metrics-scheme\": \"https\",\"nidito-metrics-path\": \"/v1/sys/metrics?format=prometheus\"}"
 }
 
 ui = true
