@@ -56,6 +56,7 @@ client {
   node_class = "{{ node.hardware.os }}-{{ node.hardware.arch }}"
   memory_total_mb = "{% if ansible_memtotal_mb <= 1500 %}1000{% else %}{{ ansible_memtotal_mb * 0.9 | round | int }}{% endif %}"
   state_dir = "{{ nomad.client_data }}/client"
+  {%if "usable_compute" in node.hardware %}cpu_total_compute = {{ node.hardware.usable_compute}}{% endif %}
 
   cni_path = "/opt/cni/bin"
   cni_config_dir = "/opt/cni/config"
@@ -107,6 +108,12 @@ client {
   %}host_network "public" {
     cidr = "{{ ansible_all_ipv4_addresses | ansible.utils.ipaddr('public') | first}}/32"
   }{% endif %}
+
+  {% if "volumes" in node -%}
+  {% for name in node.volumes %}host_volume "{{name}}" {
+    path = "/nidito/{{ name }}"
+  }{% endfor %}
+  {%- endif %}
 
 }
 

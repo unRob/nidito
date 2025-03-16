@@ -108,7 +108,7 @@ job "http-proxy" {
         perms       = 0777
         change_mode = "script"
         change_script {
-          command       = "${NOMAD_TASK_DIR}/on-ssl-change"
+          command       = "/local/on-ssl-change"
           timeout       = "10s"
           fail_on_error = false
         }
@@ -202,7 +202,7 @@ job "http-proxy" {
       driver = "raw_exec"
 
       template {
-        destination = "local/nidito/proxied-services"
+        destination = "local/www/nidito/proxied-services"
         data        = file("proxied-services.json.tpl")
         change_mode = "noop"
       }
@@ -217,7 +217,7 @@ job "http-proxy" {
               "{{env \"NOMAD_SECRETS_DIR\" }}/ssl"
             ),
             "/var/lib/www",
-            "{{ env \"NOMAD_TASK_DIR\" }}/nidito"
+            "{{ env \"NOMAD_TASK_DIR\" }}/www"
           ),
           "resolver 127.0.0.11",
           "resolver 10.42.20.1"

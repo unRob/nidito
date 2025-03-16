@@ -20,7 +20,7 @@ terraform {
 module "vault-policy" {
   source = "../../terraform/_modules/service/vault-policy"
   name = "home-assistant"
-  configs = [ "net:altepetl" ]
+  configs = [ "net:altepetl", "service:ca" ]
 }
 
 module "bucket_key" {
@@ -36,31 +36,6 @@ module "bucket" {
       key_id = module.bucket_key.id
       write = true
     }
-  }
-}
-
-
-resource "nomad_csi_volume_registration" "config" {
-  volume_id = "home-assistant-config"
-  name = "home-assistant-config"
-  plugin_id = "csi-s3"
-  external_id = "home-assistant-config"
-  namespace = "home"
-
-  capability {
-    access_mode     = "multi-node-multi-writer"
-    attachment_mode = "file-system"
-  }
-
-  secrets = {
-    accessKeyID     = module.bucket_key.credentials.key
-    secretAccessKey = module.bucket_key.credentials.secret
-    endpoint        = "https://${module.bucket.endpoint}"
-    region          = "garage"
-  }
-
-  parameters = {
-    mounter = "s3fs"
   }
 }
 

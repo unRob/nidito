@@ -31,9 +31,11 @@ bootstrap:
         tcp_keepalives_idle: 300
         # timescaledb.telemetry_level: off
       pg_hba:
-        - host all all 0.0.0.0/0 scram-sha-256
+        # require TLS for all external connections
+        - hostssl all all 0.0.0.0/0 scram-sha-256
         - host replication replication {{env "NOMAD_IP_api"}}/24 scram-sha-256
         - host replication replication 127.0.0.1/32 scram-sha-256
+        - host replication replication ::1/128 scram-sha-256
   initdb:
     - auth-host: scram-sha-256
     - auth-local: scram-sha-256

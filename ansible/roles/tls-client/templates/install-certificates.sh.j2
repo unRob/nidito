@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 dst=/etc/ssl/certs/nidito.pem
 cat >"$dst" <<PEM
-{{ config.services.ca.key }}
+{{ config.services.ca.cert }}
 PEM
 
 if !grep -q -f <(grep -v '^-' "$dst") /etc/ssl/certs/ca-certificates.crt; then

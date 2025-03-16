@@ -11,3 +11,8 @@ options:
     description: the datacenter that we'll eventually deploy to
     default: casa
     values: {milpa: nidito dc list}
+  kind:
+    description: what kind of service to create
+    default: nomad
+    values:
+      static: [nomad, http]

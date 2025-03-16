@@ -26,7 +26,8 @@ job "postgres" {
         host_network = "private"
       }
       port "pg" {
-        static = 5432
+        # Synology DSM is already using the default port, so fuck me.
+        static = 5434
         host_network = "private"
       }
     }
@@ -62,6 +63,7 @@ job "postgres" {
       config {
         image = "${var.package.self.image}:${var.package.self.version}"
         ports = ["api", "pg"]
+        network_mode = "host"
         args = [
           "/secrets/patroni.yaml"
         ]
@@ -73,7 +75,7 @@ job "postgres" {
       }
 
       template {
-        destination   = "secrets/patroni.yml"
+        destination   = "secrets/patroni.yaml"
         data          = file("./patroni.yaml")
         change_mode   = "restart"
       }
@@ -81,8 +83,7 @@ job "postgres" {
       template {
         destination   = "secrets/tls/ca.pem"
         data= "{{ with secret \"cfg/infra/tree/service:ca\" }}{{ .Data.cert }}{{ end }}"
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
+        change_mode   = "restart"
         perms = 0744
         uid = 999
       }
@@ -91,8 +92,7 @@ job "postgres" {
       template {
         destination = "secrets/tls/key.pem"
         data = "{{ with secret \"cfg/svc/tree/nidi.to:postgres\" }}{{ .Data.tls.key }}{{ end }}"
-        change_mode   = "signal"
-        change_signal = "SIGHUP"
+        change_mode   = "restart"
         perms = 0600
         uid = 999
       }
@@ -122,10 +122,12 @@ job "postgres" {
         tags = [
           "nidito.dns.enabled",
           "nidito.http.enabled",
+          "nidito.metrics.enabled",
         ]
 
         meta {
           nidito-acl = "allow altepetl"
+          nidito-metrics-scheme = "https"
         }
       }
     }

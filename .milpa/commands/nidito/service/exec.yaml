@@ -26,3 +26,8 @@ options:
     values:
       script: |
         milpa nidito service info {{Arg "service"}} --filter '.Job.TaskGroups[].Tasks[].Name'
+  dc:
+    description: The DC to use for this command
+    default: casa
+    values:
+      milpa: nidito dc list

@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
 @milpa.load_util service
-read -r service service_folder _ < <(@nidito.service.resolve_spec)
+read -r service service_folder _ kind < <(@nidito.service.resolve_spec)
 cd "$service_folder" || @milpa.fail "could not cd into $service_folder"
+dc="$MILPA_OPT_DC"
+
+if [[ "$kind" != "nomad" ]]; then
+  @milpa.fail "Cannot exec on a non-nomad service of kind $kind"
+fi
 
 if [[ "$MILPA_OPT_LOCAL" ]]; then
   exec docker exec -it "$(docker ps | awk "/$1/ {print \$1}")" sh
@@ -35,6 +40,9 @@ if [[ "${MILPA_OPT_TASK}" != "" ]]; then
   args+=( -task "$MILPA_OPT_TASK" )
 fi
 
-exec nomad alloc exec -namespace "$ns" \
+
+exec nomad alloc exec \
+  -region "$dc" \
+  -namespace "$ns" \
   "${args[@]}" \
   "$alloc" "${cmd[@]}"

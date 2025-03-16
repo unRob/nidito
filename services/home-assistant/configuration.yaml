@@ -22,8 +22,30 @@ config:
 dhcp:
 energy:
 
-# disabled history until I add psql/patroni
-# history:
+# this thing is needed by history
+# https://www.home-assistant.io/integrations/recorder
+# props: https://sigfried.be/blog/migrating-home-assistant-sqlite-to-postgresql/
+recorder:
+  db_url: !secret postgres
+  db_retry_wait: 15 # Wait 15 seconds before retrying
+  exclude:
+    domains:
+      - automation
+      - updater
+    entity_globs:
+      # don't record weather readings from the internet?
+      - sensor.weather_*
+    entities:
+      - sun.sun # Don't record sun data
+      - sensor.last_boot # Comes from 'systemmonitor' sensor platform
+      - sensor.date
+    event_types:
+      - call_service # Don't record service calls
+
+# keep track of what has happened as recorded by HA
+# https://www.home-assistant.io/integrations/history/
+history:
+
 
 homeassistant_alerts:
 image_upload:
@@ -34,3 +56,19 @@ sun:
 prometheus:
   requires_auth: false
 zeroconf:
+
+# https://www.home-assistant.io/integrations/homekit
+homekit:
+  - name: HA-Bridge
+    port: 21063
+
+    filter:
+      include_domains:
+      include_entities:
+        - fan.ventilador
+        - sensor.ventilador_temperature
+
+shell_command:
+  after_backup: /local/backup-sync.sh
+
+automation: !include automations.yaml

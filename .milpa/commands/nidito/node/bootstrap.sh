@@ -21,7 +21,7 @@ fi
 
 conf="nidito"
 ssh_address="$next_addr"
-if [[ "$DC" != "casa" ]]; then
+if [[ "$dc" != "casa" ]]; then
   conf="cloud"
   ssh_address="$dc.$mainZone"
 fi
@@ -47,9 +47,10 @@ Host $NODE_NAME $next_addr $NODE_NAME.$dc.$mainZone $NODE_NAME.$dns_zone
   User $node_username
   Port 2222
   IdentityFile $our_ssh_key
-  ControlMaster     auto
-  ControlPath       ~/.ssh/control-%C
-  ControlPersist    yes
+  SetEnv TERM=xterm-256color
+  # ControlMaster     auto
+  # ControlPath       ~/.ssh/control-%C
+  # ControlPersist    yes
 SSHD
 
   @milpa.log success "Local SSH configuration successful"
@@ -83,4 +84,4 @@ tags:
   storage: none
   provisioning: true
 YAML
-@milpa.log complete "Node metadata stored in $$cfg"
+@milpa.log complete "Node metadata stored in $cfg"

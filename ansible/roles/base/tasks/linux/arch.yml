@@ -23,3 +23,11 @@
   become: true
   when: reboot_on_power_failure.changed
   shell: systemctl start reboot-on-power-failure
+
+- name: Install packages
+  become: true
+  ansible.builtin.package:
+    name:
+      - jq
+      - unzip
+    state: present

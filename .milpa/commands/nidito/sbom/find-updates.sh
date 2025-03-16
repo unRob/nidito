@@ -25,17 +25,21 @@ function find_latest() {
       base="${source//$repo}api/v1/repos/$repo/tags"
       filter='map(.name) | first'
       ;;
-    github-releases)
+    github-releases*)
+      field="tag_name"
+      if [[ "$check" != "github-releases" ]]; then
+        field="${check##*releases-}"
+      fi
       extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://api.github.com/repos$repo/releases"
-      filter='map(select((.prerelease | not) and ((.tag_name | test("(preview|rc|alpha|beta)")) | not)) | .tag_name) | sort_by(gsub("[^0-9.]"; "") | split(".") | map(tonumber)) | last'
+      filter='map(select((.prerelease | not) and ((.'"$field"' | test("(preview|rc|alpha|beta)")) | not)) | .'"$field"') | sort_by(gsub("[^0-9.]"; "") | split(".") | map(tonumber)) | last'
       ;;
     github-tags)
       extra_args=( -H "Authorization: bearer $GH_PAT" )
       repo="$(ruby -ruri -e 'puts URI.parse("'"$source"'").path')"
       base="https://api.github.com/repos$repo/tags"
-      filter='map(.name) | first'
+      filter='map(.name) | sort_by(gsub("[^0-9]+"; ".")) | last'
       ;;
     github-changelog)
       extra_args=( -H "Authorization: bearer $GH_PAT" )
@@ -69,6 +73,10 @@ while read -r group package version check source comparison; do
     continue
   fi
 
+  word="releases"
+  if [[ "$check" = *"-tags" ]]; then
+    word="tags"
+  fi
   case "$comparison" in
     strict)
       if [[ "$latest" == "$version" ]]; then
@@ -89,5 +97,5 @@ while read -r group package version check source comparison; do
         @milpa.fail "unknown comparison type for $group:$package <$comparison>"
   esac
 
-  @milpa.log warning "$group:$package has an update: $version => $latest (${source}/releases)"
+  @milpa.log warning "$group:$package has an update: $version => $latest (${source}/${word})"
 done < <(milpa nidito sbom list --upgradeable | if [[ "$MILPA_ARG_FILTER" ]]; then grep "$MILPA_ARG_FILTER"; else cat; fi)

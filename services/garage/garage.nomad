@@ -66,6 +66,7 @@ job "garage" {
       template {
         destination = "secrets/garage.toml"
         data        = file("./garage.toml")
+        change_mode   = "restart"
       }
 
       template {

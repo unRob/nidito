@@ -3,7 +3,11 @@ docs:
   - https://www.home-assistant.io/docs/
 packages:
   self:
+    source: ./Dockerfile
+    image: registry.nidi.to/home-assistant
+    version: 202503100326
+  upstream:
     image: ghcr.io/home-assistant/home-assistant
-    version: "2024.10.2"
+    version: "2025.3.1"
     source: https://github.com/home-assistant/core
     check: github-releases

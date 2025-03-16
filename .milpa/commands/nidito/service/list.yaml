@@ -1,6 +1,6 @@
 summary: List services
 description: |
-  Lists nidito services, local ones (as defined by nomad services under /services) by default.
+  Lists nidito services, local ones (as defined by `.spec.yaml` files) by default or nomad ones.
 options:
   remote:
     type: bool

@@ -28,7 +28,7 @@ nidito ansible run coredns "$primaryDCGW" || @milpa.fail "Could not add local dn
 
 # create consul token for new node
 @milpa.log info "Creating consul token"
-@tf "bootstrap" -var "new_host=$NODE_NAME"
+@tf "bootstrap" -var "new_node=$NODE_NAME"
 terraform output -json server-tokens |
   jq -r --arg node_name "$NODE_NAME" '.["\($node_name)"]' |
   joao set --secret "$(@config.dir)/hosts/$NODE_NAME.yaml" "token.consul"

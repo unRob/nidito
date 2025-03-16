@@ -1,24 +1,54 @@
 #!/usr/bin/env bash
 
-function @nidito.service.resolve_spec () {
-  local service service_folder spec
-  if [[ "$MILPA_OPT_SPEC" ]]; then
-    service="$(basename "${MILPA_ARG_SERVICE%%.nomad}")"
-    service_folder="$(dirname "$MILPA_ARG_SERVICE")"
-    spec="$MILPA_ARG_SERVICE"
-  else
-    service="$MILPA_ARG_SERVICE"
-    service_folder="$NIDITO_ROOT/services/$service"
-    spec="$service_folder/$service.nomad"
+function @nidito.service.parse () {
+  local service service_folder spec kind
+  spec="$MILPA_ARG_SERVICE"
+  if [[ -d "$spec" ]]; then
+    spec="$spec/$spec.spec.yaml"
   fi
-  echo "$service" "$service_folder" "$spec"
+
+  if [[ ! -f "$spec" ]]; then
+    @milpa.fail "Could not find a service spec at $spec"
+  fi
+  spec="$(readlink -f "$spec")"
+
+  service_folder="$(dirname "$spec")"
+  service="$(basename "$service_folder")"
+
+  if [[ -f "${spec%%.spec.yaml}.nomad" ]]; then
+    kind="nomad"
+  elif grep -c -m1 '^deploy:' "$spec" >/dev/null; then
+    kind="http"
+  fi
+
+  echo "$service" "$service_folder" "$spec" "$kind"
+}
+
+function @nidito.service.resolve_spec () {
+  local service service_folder spec root kind
+  root="$(milpa nidito service root)"
+  service="$MILPA_ARG_SERVICE"
+  if [[ -d "$root/$service" ]]; then
+    root="$root/$service"
+  fi
+  spec="$root/$service.spec.yaml"
+  if [[ ! -f "$spec" ]]; then
+    @milpa.fail "no spec found for service $service at $spec"
+  fi
+
+  if [[ -f "${spec%%.spec.yaml}.nomad" ]]; then
+    kind="nomad"
+  elif grep -c -m1 '^deploy:' "$spec" >/dev/null; then
+    kind="http"
+  fi
+  echo "$service" "$root" "$spec" "$kind"
 }
 
 function nomad_vars () {
   local service spec varFile
   service="$1"
   spec="$2"
-  varFile="${spec%%nomad}vars"
+  varFile="${spec%%spec}vars"
   if [[ "$MILPA_OPT_SPEC" ]]; then
     milpa nidito service vars --output nomad --spec "$spec" >"$varFile" || @milpa.fail "Could not get vars for $service"
   else
@@ -43,7 +73,7 @@ function @nidito.service.nomad.plan () {
     -force-color \
     -verbose \
     -var-file "$varFile" \
-    "$spec" >plan.out
+    "${spec%%.spec.yaml}.nomad" >plan.out
 
   case "$?" in
     0) @milpa.log success "No changes to nomad allocations"; rm plan.out; return 0;;
@@ -95,5 +125,5 @@ function @nidito.service.nomad.deploy () {
     -consul-token "$CONSUL_HTTP_TOKEN" \
     -var-file "$(nomad_vars "$service" "$spec")" \
     -region="$MILPA_OPT_DC" \
-    "$spec"
+    "${spec%%.spec.yaml}.nomad"
 }

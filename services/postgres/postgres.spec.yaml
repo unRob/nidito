@@ -11,13 +11,13 @@ packages:
     image: zalando/patroni
     source: https://github.com/patroni/patroni
     check: github-releases
-    version: 4.0.2
+    version: 4.0.5
     comparison: suffix
   postgis:
     source: https://git.osgeo.org/gitea/postgis/postgis
-    version: 3.5.0
+    version: 3.5.2
     check: gitea-tags
   self:
-    version: 202410110220
+    version: 202502240518
     image: registry.nidi.to/postgres
     source: ./Dockerfile

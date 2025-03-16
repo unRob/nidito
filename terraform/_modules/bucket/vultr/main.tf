@@ -45,7 +45,7 @@ data "vault_generic_secret" "vultr" {
 }
 
 provider "vultr" {
-  api_key = data.vault_generic_secret.vultr.data.key
+  api_key = data.vault_generic_secret.vultr.data.api.key
 }
 
 data "vultr_object_storage" "bukkit" {

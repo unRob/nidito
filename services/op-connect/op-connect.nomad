@@ -46,6 +46,11 @@ job "op-connect" {
         change_signal = "SIGHUP"
       }
 
+      lifecycle {
+        hook = "prestart"
+        sidecar = false
+      }
+
       resources {
         cpu        = 100
         memory     = 200
@@ -88,11 +93,6 @@ job "op-connect" {
         role = "op"
         change_mode   = "signal"
         change_signal = "SIGHUP"
-      }
-
-      lifecycle {
-        hook    = "prestart"
-        sidecar = true
       }
 
       resources {

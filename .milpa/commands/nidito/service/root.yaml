@@ -1,0 +1,4 @@
+# see `milpa help docs command spec` for all the options
+summary: outputs the folder root for services relative to pwd
+description: |
+  The `root` is the place where we'll look for `.spec.yaml` files describing our services.
